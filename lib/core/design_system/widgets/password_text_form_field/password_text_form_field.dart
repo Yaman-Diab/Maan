@@ -5,7 +5,7 @@ import 'package:maan/core/design_system/app_assets.dart';
 import 'package:maan/core/design_system/app_colors.dart';
 import 'package:maan/core/design_system/widgets/custom_text_form_field.dart';
 import 'bloc/password_field_cubit.dart';
-import 'bloc/password_field_states.dart';
+import 'bloc/password_field_state.dart';
 
 class PasswordTextFormField extends StatelessWidget {
   const PasswordTextFormField({
@@ -33,8 +33,7 @@ class PasswordTextFormField extends StatelessWidget {
       },
       child: BlocBuilder<PasswordFieldCubit, PasswordFieldState>(
         builder: (BuildContext context, PasswordFieldState state) {
-          final passwordCubit = context.read<PasswordFieldCubit>();
-          final isHidden = passwordCubit.hiddenPassword;
+          final isHidden = state.isHidden;
 
           return CustomTextFormField(
             keyBoardType: TextInputType.visiblePassword,
@@ -44,14 +43,15 @@ class PasswordTextFormField extends StatelessWidget {
             textInputAction: textInputAction,
             autofillHints: autofillHints,
             suffixIcon: IconButton(
-              onPressed: () {
-                passwordCubit.changeHiddenStatue();
-              },
+              onPressed: context.read<PasswordFieldCubit>().toggleVisibility,
               icon: isHidden
                   ? SvgPicture.asset(AppAssets.closedEyeIcon)
                   : SvgPicture.asset(
                       AppAssets.openedEyeIcon,
-                      color: AppColors.primaryColor,
+                      colorFilter: const ColorFilter.mode(
+                        AppColors.primaryColor,
+                        BlendMode.srcIn,
+                      ),
                     ),
             ),
             obscureText: isHidden,

@@ -4,11 +4,8 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme.dart';
-import 'package:maan/features/auth/cubit/privacy_checkbox_cubit.dart';
-
 import 'core/di/service_locator.dart';
 import 'features/auth/auth_injection.dart';
 import 'core/router/app_router.dart';
@@ -61,16 +58,9 @@ Future<void> main() async {
         designSize: const Size(375, 812),
         minTextAdapt: true,
         splitScreenMode: true,
-        builder: (context, child) {
-          return MultiBlocProvider(
-            providers: [
-              BlocProvider<PrivacyCheckboxCubit>(
-                create: (_) => PrivacyCheckboxCubit(),
-              ),
-            ],
-            child: MaanApp(appRouter: appRouter),
-          );
-        },
+        // الـ cubits الخاصة بالشاشات بتتزوّد من الصفحات نفسها عبر
+        // BlocProvider + GetIt، فما في حاجة لمزوّدين عامّين هون.
+        builder: (context, child) => MaanApp(appRouter: appRouter),
       ),
     ),
   );

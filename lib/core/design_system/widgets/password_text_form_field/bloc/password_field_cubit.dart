@@ -1,11 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:maan/core/design_system/widgets/password_text_form_field/bloc/password_field_states.dart';
+
+import 'password_field_state.dart';
 
 class PasswordFieldCubit extends Cubit<PasswordFieldState> {
-  PasswordFieldCubit() : super(InitialPasswordFieldState());
-  bool hiddenPassword = true;
-  void changeHiddenStatue() {
-    hiddenPassword = !hiddenPassword;
-    emit(PasswordVisibilityState());
+  PasswordFieldCubit() : super(const PasswordFieldState());
+
+  void toggleVisibility() {
+    emit(state.copyWith(isHidden: !state.isHidden));
   }
 }
