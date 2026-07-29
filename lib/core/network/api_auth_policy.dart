@@ -8,12 +8,11 @@ class ApiAuthPolicy {
   ApiAuthPolicy._();
 
   static const List<String> publicEndpoints = [
-    ApiEndpoints.health,
     ApiEndpoints.register,
     ApiEndpoints.login,
-    ApiEndpoints.otpVerify,
-    ApiEndpoints.otpResend,
-    ApiEndpoints.googleAuth,
+    ApiEndpoints.checkCode,
+    ApiEndpoints.forgetPassword,
+    ApiEndpoints.resetPassword,
     ApiEndpoints.refresh,
   ];
 

@@ -22,6 +22,10 @@ class SignUpCubit extends Cubit<SignUpState> {
     emit(state.copyWith(lastName: value.trim()));
   }
 
+  void nationalIdChanged(String value) {
+    emit(state.copyWith(nationalId: value.trim()));
+  }
+
   void emailChanged(String value) {
     emit(state.copyWith(email: value.trim()));
   }
@@ -96,8 +100,10 @@ class SignUpCubit extends Cubit<SignUpState> {
           month: state.month!,
           year: state.year!,
         ),
+        nationalId: state.nationalId,
         email: state.email,
         password: state.password,
+        passwordConfirmation: state.confirmPassword,
       ),
     );
 

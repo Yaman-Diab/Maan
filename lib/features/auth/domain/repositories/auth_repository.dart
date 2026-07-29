@@ -22,23 +22,25 @@ abstract class AuthRepository {
     required String firstName,
     required String lastName,
     required BirthDate birthDate,
+    required String nationalId,
     required String email,
     required String password,
+    required String passwordConfirmation,
   });
 
-  Future<Result<void>> verifyOtp({
-    required String email,
-    required String code,
-  });
+  /// تأكيد رمز التحقق. الـ backend بيعرف صاحب الرمز من الجلسة،
+  /// فما بيلزمه بريد.
+  Future<Result<void>> checkCode({required String code});
 
-  Future<Result<void>> resendOtp({required String email});
+  /// إعادة إرسال رسالة التحقق.
+  Future<Result<void>> resendVerification();
 
-  /// بيطلب رمز إعادة تعيين كلمة المرور.
-  Future<Result<void>> requestPasswordReset({required String email});
+  /// بيطلب رمز إعادة تعيين كلمة المرور على البريد.
+  Future<Result<void>> forgetPassword({required String email});
 
   Future<Result<void>> resetPassword({
-    required String email,
     required String code,
     required String password,
+    required String passwordConfirmation,
   });
 }

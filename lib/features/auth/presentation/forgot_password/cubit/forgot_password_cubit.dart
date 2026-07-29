@@ -5,13 +5,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/result/result.dart';
-import '../../../domain/usecases/request_password_reset_usecase.dart';
+import '../../../domain/usecases/forget_password_usecase.dart';
 import 'forgot_password_state.dart';
 
 class ForgotPasswordCubit extends Cubit<ForgotPasswordState> {
-  final RequestPasswordResetUseCase _requestPasswordResetUseCase;
+  final ForgetPasswordUseCase _forgetPasswordUseCase;
 
-  ForgotPasswordCubit(this._requestPasswordResetUseCase)
+  ForgotPasswordCubit(this._forgetPasswordUseCase)
     : super(const ForgotPasswordState());
 
   void emailChanged(String value) {
@@ -27,8 +27,8 @@ class ForgotPasswordCubit extends Cubit<ForgotPasswordState> {
 
     emit(state.copyWith(status: ForgotPasswordStatus.submitting));
 
-    final result = await _requestPasswordResetUseCase(
-      RequestPasswordResetParams(email: state.email),
+    final result = await _forgetPasswordUseCase(
+      ForgetPasswordParams(email: state.email),
     );
 
     switch (result) {

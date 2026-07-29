@@ -10,20 +10,18 @@ import '../../../../core/usecase/usecase.dart';
 import '../repositories/auth_repository.dart';
 
 final class ResetPasswordParams extends Equatable {
-  final String email;
   final String code;
   final String password;
-  final String confirmPassword;
+  final String passwordConfirmation;
 
   const ResetPasswordParams({
-    required this.email,
     required this.code,
     required this.password,
-    required this.confirmPassword,
+    required this.passwordConfirmation,
   });
 
   @override
-  List<Object?> get props => [email, code, password, confirmPassword];
+  List<Object?> get props => [code, password, passwordConfirmation];
 }
 
 class ResetPasswordUseCase implements UseCase<void, ResetPasswordParams> {
@@ -34,16 +32,14 @@ class ResetPasswordUseCase implements UseCase<void, ResetPasswordParams> {
   @override
   Future<Result<void>> call(ResetPasswordParams params) async {
     // تطابق الكلمتين قاعدة عمل، مش تحقق واجهة — فبتنفّذ قبل أي طلب شبكة.
-    if (params.password != params.confirmPassword) {
-      return const Err<void>(
-        ValidationFailure('كلمتا المرور غير متطابقتين'),
-      );
+    if (params.password != params.passwordConfirmation) {
+      return const Err<void>(ValidationFailure('كلمتا المرور غير متطابقتين'));
     }
 
     return _authRepository.resetPassword(
-      email: params.email,
       code: params.code,
       password: params.password,
+      passwordConfirmation: params.passwordConfirmation,
     );
   }
 }

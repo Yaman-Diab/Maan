@@ -2,41 +2,43 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:maan/core/error/failure.dart';
 import 'package:maan/core/result/result.dart';
-import 'package:maan/features/auth/domain/usecases/resend_otp_usecase.dart';
-import 'package:maan/features/auth/domain/usecases/verify_otp_usecase.dart';
+import 'package:maan/core/usecase/usecase.dart';
+import 'package:maan/features/auth/domain/usecases/check_code_usecase.dart';
+import 'package:maan/features/auth/domain/usecases/resend_verification_usecase.dart';
 import 'package:maan/features/auth/presentation/verify_email/cubit/verify_email_cubit.dart';
 import 'package:maan/features/auth/presentation/verify_email/cubit/verify_email_state.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockVerifyOtpUseCase extends Mock implements VerifyOtpUseCase {}
+class _MockCheckCodeUseCase extends Mock implements CheckCodeUseCase {}
 
-class _MockResendOtpUseCase extends Mock implements ResendOtpUseCase {}
+class _MockResendVerificationUseCase extends Mock
+    implements ResendVerificationUseCase {}
 
 const _email = 'a@b.com';
 
 void main() {
-  late _MockVerifyOtpUseCase verifyOtpUseCase;
-  late _MockResendOtpUseCase resendOtpUseCase;
+  late _MockCheckCodeUseCase checkCodeUseCase;
+  late _MockResendVerificationUseCase resendVerificationUseCase;
 
   /// `cooldownSeconds: 0` بتوقف المؤقّت، فالاختبارات ما بتنتظر بالوقت
   /// الحقيقي — إلا اللي عم يفحص العدّ التنازلي نفسه.
   VerifyEmailCubit build({int cooldownSeconds = 0}) {
     return VerifyEmailCubit(
-      verifyOtpUseCase,
-      resendOtpUseCase,
+      checkCodeUseCase,
+      resendVerificationUseCase,
       email: _email,
       cooldownSeconds: cooldownSeconds,
     );
   }
 
   setUpAll(() {
-    registerFallbackValue(const VerifyOtpParams(email: '', code: ''));
-    registerFallbackValue(const ResendOtpParams(email: ''));
+    registerFallbackValue(const CheckCodeParams(code: ''));
+    registerFallbackValue(const NoParams());
   });
 
   setUp(() {
-    verifyOtpUseCase = _MockVerifyOtpUseCase();
-    resendOtpUseCase = _MockResendOtpUseCase();
+    checkCodeUseCase = _MockCheckCodeUseCase();
+    resendVerificationUseCase = _MockResendVerificationUseCase();
   });
 
   group('canSubmit', () {
@@ -65,16 +67,19 @@ void main() {
       seed: () => const VerifyEmailState(email: _email, code: '12345a'),
       act: (cubit) => cubit.submit(),
       verify: (cubit) {
-        expect(cubit.state.codeError, 'Verification code must contain digits only');
-        verifyNever(() => verifyOtpUseCase(any()));
+        expect(
+          cubit.state.codeError,
+          'Verification code must contain digits only',
+        );
+        verifyNever(() => checkCodeUseCase(any()));
       },
     );
 
     blocTest<VerifyEmailCubit, VerifyEmailState>(
-      'النجاح بينقل الحالة لـ success',
+      'النجاح بيبعت الرمز لحاله بلا بريد',
       build: () {
         when(
-          () => verifyOtpUseCase(any()),
+          () => checkCodeUseCase(any()),
         ).thenAnswer((_) async => const Ok<void>(null));
 
         return build();
@@ -84,9 +89,7 @@ void main() {
       verify: (cubit) {
         expect(cubit.state.status, VerifyEmailStatus.success);
         verify(
-          () => verifyOtpUseCase(
-            const VerifyOtpParams(email: _email, code: '123456'),
-          ),
+          () => checkCodeUseCase(const CheckCodeParams(code: '123456')),
         ).called(1);
       },
     );
@@ -94,7 +97,7 @@ void main() {
     blocTest<VerifyEmailCubit, VerifyEmailState>(
       'خطأ OTP بيظهر تحت الخانات لا كـ SnackBar',
       build: () {
-        when(() => verifyOtpUseCase(any())).thenAnswer(
+        when(() => checkCodeUseCase(any())).thenAnswer(
           (_) async => const Err<void>(OtpFailure('رمز التحقق غير صحيح')),
         );
 
@@ -111,7 +114,7 @@ void main() {
     blocTest<VerifyEmailCubit, VerifyEmailState>(
       'خطأ شبكة بيظهر كـ SnackBar لا تحت الخانات',
       build: () {
-        when(() => verifyOtpUseCase(any())).thenAnswer(
+        when(() => checkCodeUseCase(any())).thenAnswer(
           (_) async => const Err<void>(NetworkFailure('تعذر الاتصال بالخادم')),
         );
 
@@ -131,14 +134,14 @@ void main() {
       'ما بتشتغل أثناء العدّ التنازلي',
       build: () => build(cooldownSeconds: 30),
       act: (cubit) => cubit.resendCode(),
-      verify: (_) => verifyNever(() => resendOtpUseCase(any())),
+      verify: (_) => verifyNever(() => resendVerificationUseCase(any())),
     );
 
     blocTest<VerifyEmailCubit, VerifyEmailState>(
-      'النجاح بيفرّغ الرمز وبيعيد تشغيل العدّ',
+      'النجاح بيفرّغ الرمز',
       build: () {
         when(
-          () => resendOtpUseCase(any()),
+          () => resendVerificationUseCase(any()),
         ).thenAnswer((_) async => const Ok<void>(null));
 
         return build();
@@ -156,7 +159,7 @@ void main() {
     blocTest<VerifyEmailCubit, VerifyEmailState>(
       'الفشل بيرجّع isResending لـ false وبيعرض الرسالة',
       build: () {
-        when(() => resendOtpUseCase(any())).thenAnswer(
+        when(() => resendVerificationUseCase(any())).thenAnswer(
           (_) async => const Err<void>(
             RateLimitFailure('تمت محاولات كثيرة، يرجى الانتظار قليلًا'),
           ),

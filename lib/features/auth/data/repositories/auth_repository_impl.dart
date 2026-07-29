@@ -39,62 +39,59 @@ class AuthRepositoryImpl implements AuthRepository {
     required String firstName,
     required String lastName,
     required BirthDate birthDate,
+    required String nationalId,
     required String email,
     required String password,
+    required String passwordConfirmation,
   }) {
     return _guardVoid(() {
       return _remoteDataSource.register(
         RegisterRequestModel(
           firstName: firstName,
           lastName: lastName,
-          birthday: birthDate.formatted,
+          birthDate: birthDate.apiFormat,
+          nationalId: nationalId,
           email: email,
           password: password,
+          passwordConfirmation: passwordConfirmation,
         ),
       );
     });
   }
 
   @override
-  Future<Result<void>> verifyOtp({
-    required String email,
-    required String code,
-  }) {
+  Future<Result<void>> checkCode({required String code}) {
     return _guardVoid(() {
-      return _remoteDataSource.verifyOtp(
-        VerifyOtpRequestModel(email: email, code: code),
-      );
+      return _remoteDataSource.checkCode(CheckCodeRequestModel(code: code));
     });
   }
 
   @override
-  Future<Result<void>> resendOtp({required String email}) {
-    return _guardVoid(() {
-      return _remoteDataSource.resendOtp(ResendOtpRequestModel(email: email));
-    });
+  Future<Result<void>> resendVerification() {
+    return _guardVoid(_remoteDataSource.resendVerification);
   }
 
   @override
-  Future<Result<void>> requestPasswordReset({required String email}) {
+  Future<Result<void>> forgetPassword({required String email}) {
     return _guardVoid(() {
-      return _remoteDataSource.requestPasswordReset(
-        RequestPasswordResetRequestModel(email: email),
+      return _remoteDataSource.forgetPassword(
+        ForgetPasswordRequestModel(email: email),
       );
     });
   }
 
   @override
   Future<Result<void>> resetPassword({
-    required String email,
     required String code,
     required String password,
+    required String passwordConfirmation,
   }) {
     return _guardVoid(() {
       return _remoteDataSource.resetPassword(
         ResetPasswordRequestModel(
-          email: email,
           code: code,
           password: password,
+          passwordConfirmation: passwordConfirmation,
         ),
       );
     });

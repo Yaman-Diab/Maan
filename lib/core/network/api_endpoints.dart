@@ -2,23 +2,30 @@
 // API Endpoints
 // -------------------------
 
+/// مسارات الـ backend كما هي موثّقة بـ`collection.md`.
+///
+/// ملاحظة: ما في بادئة `v1` — المسارات تحت `/api` مباشرة.
 class ApiEndpoints {
   ApiEndpoints._();
 
-  static const String apiV1 = '/api/v1';
+  static const String api = '/api';
 
-  // Health
-  static const String health = '$apiV1/health/';
-
+  // -------------------------
   // Auth
-  static const String login = '$apiV1/auth/login';
-  static const String register = '$apiV1/auth/register';
-  static const String otpVerify = '$apiV1/auth/otp/verify';
-  static const String otpResend = '$apiV1/auth/otp/resend';
-  static const String googleAuth = '$apiV1/auth/google';
-  static const String refresh = '$apiV1/auth/refresh';
-  static const String logout = '$apiV1/auth/logout';
+  // -------------------------
 
-  // Users
-  static const String usersMe = '$apiV1/users/me/';
+  static const String login = '$api/auth/login';
+  static const String register = '$api/auth/register';
+  static const String logout = '$api/auth/logout';
+  static const String refresh = '$api/auth/refresh';
+
+  /// تأكيد رمز التحقق. الجسم بياخد `code` فقط.
+  static const String checkCode = '$api/auth/checkCode';
+
+  static const String forgetPassword = '$api/auth/forgetPassword';
+  static const String resetPassword = '$api/auth/resetPassword';
+
+  /// إعادة إرسال رسالة التحقق (اصطلاح Laravel).
+  static const String emailVerificationNotification =
+      '$api/email/verification-notification';
 }

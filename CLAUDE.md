@@ -49,7 +49,9 @@ lib/
 4. `features/<name>/<name>_injection.dart` — سجّل الواجهات لا التنفيذات:
    `sl.registerLazySingleton<XRepository>(() => XRepositoryImpl(sl()))`.
 5. ناد `register<Name>Dependencies(sl)` من `main.dart`.
-6. أضف الـ endpoints لـ `core/network/api_endpoints.dart`.
+6. أضف الـ endpoints لـ `core/network/api_endpoints.dart` **حسب
+   `collection.md`** — هو عقد الباك اند المعتمد. المسارات تحت `/api`
+   مباشرة (بلا `v1`)، ومفاتيح الأجسام snake_case.
 
 المرجع الكامل: ميزة `login` — من `domain/usecases/login_usecase.dart`
 لحد `presentation/login/pages/login_page.dart`.
@@ -57,7 +59,7 @@ lib/
 ## الاختبار
 
 ```
-flutter test        # 70 اختبار
+flutter test        # 76 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -69,23 +71,35 @@ flutter analyze     # صفر ملاحظات
 
 ## حالة الهجرة
 
-كل ميزة `auth` مهاجَرة: ما ضل ولا `ChangeNotifier` controller بالمشروع.
+كل ميزة `auth` مهاجَرة: ما ضل ولا `ChangeNotifier` controller بالمشروع،
+وكل الـ endpoints مربوطة حسب `collection.md` (المرجع المعتمد للباك اند).
 
-| الشاشة | الحالة |
+| الشاشة | الـ endpoint |
 |---|---|
-| `login` | ✅ مربوطة بالـ API |
-| `sign_up` | ✅ مربوطة (`/auth/register`) |
-| `verify_email` | ✅ مربوطة (`/auth/otp/verify` + `/auth/otp/resend`) |
-| `forgot_password` | ⚠️ الطبقات جاهزة، الـ datasource بيرمي `UnimplementedError` |
-| `create_new_password` | ⚠️ نفس الشي |
+| `login` | `POST /api/auth/login` |
+| `sign_up` | `POST /api/auth/register` |
+| `verify_email` | `POST /api/auth/checkCode` + `POST /api/email/verification-notification` |
+| `forgot_password` | `POST /api/auth/forgetPassword` |
+| `create_new_password` | `POST /api/auth/resetPassword` |
 
 **فجوات معروفة**:
-- `ApiEndpoints` ما فيها `forgotPassword` ولا `resetPassword` — بمجرد ما
-  يعرّفهم الباك اند، التعديل محصور بميثودين بـ`AuthRemoteDataSourceImpl`.
+- ⚠️ **`national_id` مطلوب بالتسجيل وما إله حقل بالواجهة** — بيوصل فاضي
+  فبيرجع خطأ تحقق من السيرفر. الحقل موجود بـ`SignUpState` والـ request
+  model، فالناقص بس `TextFormField` بـ`sign_up_form.dart` وربطه بـ
+  `cubit.nationalIdChanged`، وإضافته لشرط `canSubmit`.
 - ما في شاشة لإدخال رمز إعادة التعيين بين "نسيت كلمة المرور" وشاشة كلمة
   المرور الجديدة، فـ`PasswordResetArgs.code` بتوصل فاضية.
-- `AuthSession.user` لسه `Map<String, dynamic>` لأن عقد `/users/me/`
-  غير موثّق؛ بيتحوّل لكيان `AuthUser` أول ما يتحدّد.
+- `AuthSession.user` لسه `Map<String, dynamic>` لأن الـ collection ما
+  بيوثّق شكل استجابة تسجيل الدخول (`{}` فاضية بالأمثلة).
+
+**تناقضات بالـ collection تجاهلناها عمداً**:
+- جسم `login` بالتوثيق بيسرد `first_name` و`birth_date` و
+  `password_confirmation` كحقول مطلوبة — واضح إنه جسم `register` منسوخ
+  بالغلط. بنبعت `email` و`password` فقط.
+- نفس الشي بـ`logout` و`forgetPassword` (فيهم `fcm_token` و`role_id`)؛
+  بـ`forgetPassword` `email` هو الوحيد المعلّم كمطلوب، فبنبعته لحاله.
+- `GET /api/` المسمّى "resend verification" مسار ناقص؛ استخدمنا
+  `POST /api/email/verification-notification` (اصطلاح Laravel).
 
 ## وسائط المسارات
 

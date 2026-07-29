@@ -14,6 +14,7 @@ class _MockRegisterUseCase extends Mock implements RegisterUseCase {}
 const _readyState = SignUpState(
   firstName: 'Ahmad',
   lastName: 'Abo Hawa',
+  nationalId: '09477224563',
   day: 1,
   month: 1,
   year: 2000,
@@ -34,8 +35,10 @@ void main() {
         firstName: '',
         lastName: '',
         birthDate: BirthDate(day: 1, month: 1, year: 2000),
+        nationalId: '',
         email: '',
         password: '',
+        passwordConfirmation: '',
       ),
     );
   });
@@ -137,6 +140,7 @@ void main() {
 
         expect(captured.birthDate, const BirthDate(day: 1, month: 1, year: 2000));
         expect(captured.email, 'a@b.com');
+        expect(captured.passwordConfirmation, 'Secret1!');
       },
     );
 

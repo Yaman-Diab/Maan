@@ -20,11 +20,11 @@ abstract class AuthRemoteDataSource {
 
   Future<void> register(RegisterRequestModel request);
 
-  Future<void> verifyOtp(VerifyOtpRequestModel request);
+  Future<void> checkCode(CheckCodeRequestModel request);
 
-  Future<void> resendOtp(ResendOtpRequestModel request);
+  Future<void> resendVerification();
 
-  Future<void> requestPasswordReset(RequestPasswordResetRequestModel request);
+  Future<void> forgetPassword(ForgetPasswordRequestModel request);
 
   Future<void> resetPassword(ResetPasswordRequestModel request);
 }
@@ -57,9 +57,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> verifyOtp(VerifyOtpRequestModel request) async {
+  Future<void> checkCode(CheckCodeRequestModel request) async {
     await _apiClient.request(
-      endpoint: ApiEndpoints.otpVerify,
+      endpoint: ApiEndpoints.checkCode,
       method: ApiMethod.post,
       data: request.toMap(),
       options: _publicEndpointOptions,
@@ -67,34 +67,32 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> resendOtp(ResendOtpRequestModel request) async {
+  Future<void> resendVerification() async {
+    // هذا الـ endpoint مش ضمن قائمة المسارات العامة، فبيمشي بالـ
+    // interceptor العادي وبينضاف عليه الـ Bearer token.
     await _apiClient.request(
-      endpoint: ApiEndpoints.otpResend,
+      endpoint: ApiEndpoints.emailVerificationNotification,
+      method: ApiMethod.post,
+    );
+  }
+
+  @override
+  Future<void> forgetPassword(ForgetPasswordRequestModel request) async {
+    await _apiClient.request(
+      endpoint: ApiEndpoints.forgetPassword,
       method: ApiMethod.post,
       data: request.toMap(),
       options: _publicEndpointOptions,
     );
   }
 
-  // -------------------------
-  // Password Reset
-  // -------------------------
-  //
-  // الـ backend لسه ما عرّف endpoints لإعادة تعيين كلمة المرور، وما في
-  // ثوابت إلها بـ ApiEndpoints. الفشل صريح هون بدل ما ينضرب طلب على
-  // مسار مخترَع ويرجع 404 يبان كأنه خطأ سيرفر.
-
   @override
-  Future<void> requestPasswordReset(RequestPasswordResetRequestModel request) {
-    throw UnimplementedError(
-      'Password reset request endpoint is not defined by the backend yet.',
-    );
-  }
-
-  @override
-  Future<void> resetPassword(ResetPasswordRequestModel request) {
-    throw UnimplementedError(
-      'Password reset endpoint is not defined by the backend yet.',
+  Future<void> resetPassword(ResetPasswordRequestModel request) async {
+    await _apiClient.request(
+      endpoint: ApiEndpoints.resetPassword,
+      method: ApiMethod.post,
+      data: request.toMap(),
+      options: _publicEndpointOptions,
     );
   }
 

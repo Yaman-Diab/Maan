@@ -19,10 +19,9 @@ void main() {
   test('عدم تطابق الكلمتين بيفشل قبل أي طلب شبكة', () async {
     final result = await useCase(
       const ResetPasswordParams(
-        email: 'a@b.com',
-        code: '123456',
+        code: '900482',
         password: 'Secret1!',
-        confirmPassword: 'Different1!',
+        passwordConfirmation: 'Different1!',
       ),
     );
 
@@ -31,9 +30,9 @@ void main() {
 
     verifyNever(
       () => authRepository.resetPassword(
-        email: any(named: 'email'),
         code: any(named: 'code'),
         password: any(named: 'password'),
+        passwordConfirmation: any(named: 'passwordConfirmation'),
       ),
     );
   });
@@ -41,18 +40,17 @@ void main() {
   test('التطابق بيمرّر الطلب للـ repository', () async {
     when(
       () => authRepository.resetPassword(
-        email: any(named: 'email'),
         code: any(named: 'code'),
         password: any(named: 'password'),
+        passwordConfirmation: any(named: 'passwordConfirmation'),
       ),
     ).thenAnswer((_) async => const Ok<void>(null));
 
     final result = await useCase(
       const ResetPasswordParams(
-        email: 'a@b.com',
-        code: '123456',
+        code: '900482',
         password: 'Secret1!',
-        confirmPassword: 'Secret1!',
+        passwordConfirmation: 'Secret1!',
       ),
     );
 
@@ -60,9 +58,9 @@ void main() {
 
     verify(
       () => authRepository.resetPassword(
-        email: 'a@b.com',
-        code: '123456',
+        code: '900482',
         password: 'Secret1!',
+        passwordConfirmation: 'Secret1!',
       ),
     ).called(1);
   });

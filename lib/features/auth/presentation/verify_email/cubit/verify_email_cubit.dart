@@ -8,20 +8,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/error/failure.dart';
 import '../../../../../core/result/result.dart';
-import '../../../domain/usecases/resend_otp_usecase.dart';
-import '../../../domain/usecases/verify_otp_usecase.dart';
+import '../../../../../core/usecase/usecase.dart';
+import '../../../domain/usecases/check_code_usecase.dart';
+import '../../../domain/usecases/resend_verification_usecase.dart';
 import 'verify_email_state.dart';
 
 class VerifyEmailCubit extends Cubit<VerifyEmailState> {
-  final VerifyOtpUseCase _verifyOtpUseCase;
-  final ResendOtpUseCase _resendOtpUseCase;
+  final CheckCodeUseCase _checkCodeUseCase;
+  final ResendVerificationUseCase _resendVerificationUseCase;
 
   /// مدة الانتظار قبل السماح بإعادة الإرسال.
   final int cooldownSeconds;
 
   VerifyEmailCubit(
-    this._verifyOtpUseCase,
-    this._resendOtpUseCase, {
+    this._checkCodeUseCase,
+    this._resendVerificationUseCase, {
     required String email,
     int codeLength = 6,
     this.cooldownSeconds = 59,
@@ -67,8 +68,9 @@ class VerifyEmailCubit extends Cubit<VerifyEmailState> {
 
     emit(state.copyWith(status: VerifyEmailStatus.submitting));
 
-    final result = await _verifyOtpUseCase(
-      VerifyOtpParams(email: state.email, code: state.code.trim()),
+    // الـ backend بيعرف صاحب الرمز من الجلسة، فما بيتبعت البريد معه.
+    final result = await _checkCodeUseCase(
+      CheckCodeParams(code: state.code.trim()),
     );
 
     switch (result) {
@@ -98,7 +100,7 @@ class VerifyEmailCubit extends Cubit<VerifyEmailState> {
 
     emit(state.copyWith(isResending: true));
 
-    final result = await _resendOtpUseCase(ResendOtpParams(email: state.email));
+    final result = await _resendVerificationUseCase(const NoParams());
 
     switch (result) {
       case Ok():

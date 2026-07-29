@@ -36,10 +36,9 @@ class CreateNewPasswordCubit extends Cubit<CreateNewPasswordState> {
 
     final result = await _resetPasswordUseCase(
       ResetPasswordParams(
-        email: state.email,
         code: state.code,
         password: state.password,
-        confirmPassword: state.confirmPassword,
+        passwordConfirmation: state.confirmPassword,
       ),
     );
 

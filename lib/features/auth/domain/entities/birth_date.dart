@@ -76,13 +76,9 @@ final class BirthDate extends Equatable {
     return null;
   }
 
-  /// الشكل اللي بيتوقعه الـ backend: `YYYY-MM-DD`.
-  String get formatted {
-    final paddedMonth = month.toString().padLeft(2, '0');
-    final paddedDay = day.toString().padLeft(2, '0');
-
-    return '$year-$paddedMonth-$paddedDay';
-  }
+  /// الشكل اللي بيتوقعه الـ backend: `YYYY/M/D` بشرطة مائلة وبلا تصفير،
+  /// مطابق للمثال الموثّق (`2003/2/1`).
+  String get apiFormat => '$year/$month/$day';
 
   @override
   List<Object?> get props => [day, month, year];

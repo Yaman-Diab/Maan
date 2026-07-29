@@ -11,12 +11,12 @@ import 'data/repositories/auth_repository_impl.dart';
 import 'data/repositories/session_repository_impl.dart';
 import 'domain/repositories/auth_repository.dart';
 import 'domain/repositories/session_repository.dart';
+import 'domain/usecases/check_code_usecase.dart';
+import 'domain/usecases/forget_password_usecase.dart';
 import 'domain/usecases/login_usecase.dart';
 import 'domain/usecases/register_usecase.dart';
-import 'domain/usecases/request_password_reset_usecase.dart';
-import 'domain/usecases/resend_otp_usecase.dart';
+import 'domain/usecases/resend_verification_usecase.dart';
 import 'domain/usecases/reset_password_usecase.dart';
-import 'domain/usecases/verify_otp_usecase.dart';
 import 'presentation/create_new_password/cubit/create_new_password_cubit.dart';
 import 'presentation/forgot_password/cubit/forgot_password_cubit.dart';
 import 'presentation/login/cubit/login_cubit.dart';
@@ -56,16 +56,16 @@ void registerAuthDependencies(GetIt sl) {
     () => RegisterUseCase(sl<AuthRepository>()),
   );
 
-  sl.registerLazySingleton<VerifyOtpUseCase>(
-    () => VerifyOtpUseCase(sl<AuthRepository>()),
+  sl.registerLazySingleton<CheckCodeUseCase>(
+    () => CheckCodeUseCase(sl<AuthRepository>()),
   );
 
-  sl.registerLazySingleton<ResendOtpUseCase>(
-    () => ResendOtpUseCase(sl<AuthRepository>()),
+  sl.registerLazySingleton<ResendVerificationUseCase>(
+    () => ResendVerificationUseCase(sl<AuthRepository>()),
   );
 
-  sl.registerLazySingleton<RequestPasswordResetUseCase>(
-    () => RequestPasswordResetUseCase(sl<AuthRepository>()),
+  sl.registerLazySingleton<ForgetPasswordUseCase>(
+    () => ForgetPasswordUseCase(sl<AuthRepository>()),
   );
 
   sl.registerLazySingleton<ResetPasswordUseCase>(
@@ -83,7 +83,7 @@ void registerAuthDependencies(GetIt sl) {
   sl.registerFactory<SignUpCubit>(() => SignUpCubit(sl<RegisterUseCase>()));
 
   sl.registerFactory<ForgotPasswordCubit>(
-    () => ForgotPasswordCubit(sl<RequestPasswordResetUseCase>()),
+    () => ForgotPasswordCubit(sl<ForgetPasswordUseCase>()),
   );
 
   // الشاشتان الجايتان بتاخدوا بيانات من المسار (البريد والرمز)،
@@ -91,8 +91,8 @@ void registerAuthDependencies(GetIt sl) {
 
   sl.registerFactoryParam<VerifyEmailCubit, String, void>(
     (email, _) => VerifyEmailCubit(
-      sl<VerifyOtpUseCase>(),
-      sl<ResendOtpUseCase>(),
+      sl<CheckCodeUseCase>(),
+      sl<ResendVerificationUseCase>(),
       email: email,
     ),
   );

@@ -73,11 +73,13 @@ void main() {
     });
   });
 
-  group('formatted', () {
-    test('بتصفّر الشهر واليوم لخانتين', () {
-      const date = BirthDate(day: 5, month: 3, year: 1999);
-
-      expect(date.formatted, '1999-03-05');
+  group('apiFormat', () {
+    test('بتطابق الشكل الموثّق YYYY/M/D بلا تصفير', () {
+      expect(const BirthDate(day: 1, month: 2, year: 2003).apiFormat, '2003/2/1');
+      expect(
+        const BirthDate(day: 25, month: 12, year: 1999).apiFormat,
+        '1999/12/25',
+      );
     });
   });
 }

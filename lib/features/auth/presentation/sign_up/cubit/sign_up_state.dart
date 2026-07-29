@@ -14,6 +14,11 @@ final class SignUpState extends Equatable {
 
   final String firstName;
   final String lastName;
+
+  /// الرقم الوطني — مطلوب من الـ backend عند التسجيل، لكن لسه ما إله
+  /// حقل بالواجهة، فبيوصل فاضي وبيرجع خطأ تحقق من السيرفر.
+  final String nationalId;
+
   final String email;
   final String password;
   final String confirmPassword;
@@ -33,6 +38,7 @@ final class SignUpState extends Equatable {
     this.status = SignUpStatus.initial,
     this.firstName = '',
     this.lastName = '',
+    this.nationalId = '',
     this.email = '',
     this.password = '',
     this.confirmPassword = '',
@@ -50,6 +56,8 @@ final class SignUpState extends Equatable {
   bool get hasBirthDateError => birthDateError != null;
 
   bool get canSubmit {
+    // nationalId مقصود إنه مش شرط هون: الـ backend بيطلبه، بس ما في
+    // حقل إله بالواجهة بعد. راجع ملاحظة الفجوة بـ CLAUDE.md.
     final areFieldsFilled =
         firstName.isNotEmpty &&
         lastName.isNotEmpty &&
@@ -119,6 +127,7 @@ final class SignUpState extends Equatable {
     SignUpStatus? status,
     String? firstName,
     String? lastName,
+    String? nationalId,
     String? email,
     String? password,
     String? confirmPassword,
@@ -134,6 +143,7 @@ final class SignUpState extends Equatable {
       status: status ?? this.status,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
+      nationalId: nationalId ?? this.nationalId,
       email: email ?? this.email,
       password: password ?? this.password,
       confirmPassword: confirmPassword ?? this.confirmPassword,
@@ -154,6 +164,7 @@ final class SignUpState extends Equatable {
     status,
     firstName,
     lastName,
+    nationalId,
     email,
     password,
     confirmPassword,
