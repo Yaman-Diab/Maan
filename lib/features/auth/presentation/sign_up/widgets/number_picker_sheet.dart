@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:maan/core/design_system/app_colors.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 import 'package:maan/core/design_system/app_text_styles.dart';
 
 Future<int?> showNumberPickerSheet({
@@ -75,7 +75,7 @@ Future<int?> showNumberPickerSheet({
               Divider(
                 height: 1.h,
                 thickness: 1.h,
-                color: AppColors.borderColor,
+                color: context.colors.border,
               ),
               Expanded(
                 child: ListWheelScrollView.useDelegate(

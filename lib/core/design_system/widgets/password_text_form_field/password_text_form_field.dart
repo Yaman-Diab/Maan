@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:maan/core/design_system/app_assets.dart';
-import 'package:maan/core/design_system/app_colors.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 import 'package:maan/core/design_system/widgets/custom_text_form_field.dart';
 import 'bloc/password_field_cubit.dart';
 import 'bloc/password_field_state.dart';
@@ -48,8 +48,8 @@ class PasswordTextFormField extends StatelessWidget {
                   ? SvgPicture.asset(AppAssets.closedEyeIcon)
                   : SvgPicture.asset(
                       AppAssets.openedEyeIcon,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.primaryColor,
+                      colorFilter: ColorFilter.mode(
+                        context.scheme.primary,
                         BlendMode.srcIn,
                       ),
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_text_styles.dart';
 
@@ -15,10 +16,10 @@ class TermsNoticeBox extends StatelessWidget {
         vertical: 10.h,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF5E7),
+        color: context.colors.noticeBackground,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: const Color(0xFFC47E09).withValues(alpha: 0.35),
+          color: context.colors.noticeForeground.withValues(alpha: 0.35),
           width: 1.w,
         ),
       ),
@@ -27,7 +28,7 @@ class TermsNoticeBox extends StatelessWidget {
         children: [
           Icon(
             Icons.info_outline,
-            color: const Color(0xFFC47E09),
+            color: context.colors.noticeForeground,
             size: 22.sp,
           ),
           SizedBox(width: 10.w),

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_text_styles.dart';
 import 'package:maan/core/design_system/app_validators.dart';
-import 'package:maan/core/design_system/app_colors.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 import 'package:maan/core/design_system/widgets/custom_text_form_field.dart';
 import 'package:maan/core/design_system/widgets/labeled_field.dart';
 import 'package:maan/core/design_system/widgets/or_divider.dart';
@@ -130,7 +130,7 @@ class LoginForm extends StatelessWidget {
 
                   SizedBox(height: 12.h),
 
-                  const OrDivider(color: AppColors.greyColor),
+                  OrDivider(color: context.colors.divider),
 
                   SizedBox(height: 8.h),
 

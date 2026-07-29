@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:maan/core/design_system/app_colors.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 
 import '../cubit/verify_email_cubit.dart';
 import '../cubit/verify_email_state.dart';
@@ -29,7 +29,7 @@ class VerifyEmailForm extends StatelessWidget {
     final cubit = context.read<VerifyEmailCubit>();
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: context.scheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

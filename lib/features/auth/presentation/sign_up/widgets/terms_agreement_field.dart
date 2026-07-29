@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:maan/core/design_system/app_colors.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 import 'package:maan/core/design_system/app_text_styles.dart';
 
 class TermsAgreementField extends StatelessWidget {
@@ -45,14 +45,14 @@ class TermsAgreementField extends StatelessWidget {
                       field.didChange(accepted);
                       onChanged(accepted);
                     },
-                    activeColor: AppColors.primaryColor,
+                    activeColor: context.scheme.primary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     visualDensity: VisualDensity.compact,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6.r),
                     ),
                     side: BorderSide(
-                      color: AppColors.primaryColor,
+                      color: context.scheme.primary,
                       width: 2.w,
                     ),
                   ),
@@ -99,7 +99,7 @@ class TermsAgreementField extends StatelessWidget {
                 child: Text(
                   field.errorText!,
                   style: TextStyle(
-                    color: AppColors.errorColor,
+                    color: context.scheme.error,
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w400,
                   ),

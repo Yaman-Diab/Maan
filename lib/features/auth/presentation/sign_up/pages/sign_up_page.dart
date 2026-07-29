@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/di/service_locator.dart';
@@ -65,7 +66,7 @@ class _SignUpPageState extends State<SignUpPage> {
         listener: _onStateChanged,
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: const Color(0xFFF5F6FA),
+            backgroundColor: context.colors.pageBackground,
             body: SafeArea(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(

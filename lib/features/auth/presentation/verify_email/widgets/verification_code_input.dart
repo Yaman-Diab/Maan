@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:maan/core/design_system/app_colors.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 import 'package:maan/core/design_system/app_text_styles.dart';
 import 'package:pinput/pinput.dart';
 
@@ -34,7 +34,7 @@ class VerificationCodeInput extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: AppColors.borderColor, width: 1.w),
+        border: Border.all(color: context.colors.border, width: 1.w),
       ),
     );
 
@@ -42,7 +42,7 @@ class VerificationCodeInput extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: AppColors.primaryColor, width: 1.4.w),
+        border: Border.all(color: context.scheme.primary, width: 1.4.w),
       ),
     );
 
@@ -50,19 +50,19 @@ class VerificationCodeInput extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: AppColors.borderColor, width: 1.w),
+        border: Border.all(color: context.colors.border, width: 1.w),
       ),
     );
 
     final followingTheme = baseTheme.copyWith(
       textStyle: AppTextStyles.f16W500Black.copyWith(
-        color: AppColors.greyColor,
+        color: context.colors.divider,
         fontSize: 22.sp,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFEFEF),
+        color: context.colors.fieldDisabledBackground,
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: AppColors.borderColor, width: 1.w),
+        border: Border.all(color: context.colors.border, width: 1.w),
       ),
     );
 
@@ -70,7 +70,7 @@ class VerificationCodeInput extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: AppColors.errorColor, width: 1.2.w),
+        border: Border.all(color: context.scheme.error, width: 1.2.w),
       ),
     );
 
@@ -86,7 +86,7 @@ class VerificationCodeInput extends StatelessWidget {
       forceErrorState: hasError,
       errorText: errorText,
       errorTextStyle: TextStyle(
-        color: AppColors.errorColor,
+        color: context.scheme.error,
         fontSize: 12.sp,
         fontWeight: FontWeight.w400,
       ),

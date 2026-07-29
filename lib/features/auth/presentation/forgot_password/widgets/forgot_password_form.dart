@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:maan/core/design_system/app_colors.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 import 'package:maan/core/design_system/app_text_styles.dart';
 import 'package:maan/core/design_system/app_validators.dart';
 import 'package:maan/core/design_system/widgets/custom_text_form_field.dart';
@@ -29,7 +29,7 @@ class ForgotPasswordForm extends StatelessWidget {
     final cubit = context.read<ForgotPasswordCubit>();
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: context.scheme.surface,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: LayoutBuilder(
