@@ -1,0 +1,15 @@
+{
+  "welcome_back": "مرحباً بعودتك",
+  "sign_in": "تسجيل الدخول",
+  "sign_up": "التسجيل",
+  "forgot_password": "نسيت كلمة المرور?",
+  "your_email": "بريدك الإلكتروني",
+  "your_password": "كلمة المرور",
+  "enter_email": "أدخل بريدك الإلكتروني",
+  "email_invalid": "البريد الإلكتروني غير صالح",
+  "enter_password": "أدخل كلمة المرور",
+  "confirm_password": "تأكيد كلمة المرور",
+  "enter_confirm_password": "أدخل تأكيد كلمة المرور",
+  "passwords_do_not_match": "كلمتا المرور غير متطابقتين",
+  "confirm_password_required": "تأكيد كلمة المرور مطلوب"
+}
