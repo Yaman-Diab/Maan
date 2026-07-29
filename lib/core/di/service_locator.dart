@@ -10,11 +10,15 @@ import '../network/dio_factory.dart';
 import '../session/app_session_controller.dart';
 import '../session/session_manager.dart';
 import '../storage/secure_storage_service.dart';
-import '../../features/auth/auth_repository.dart';
 
 final sl = GetIt.instance;
 
-Future<void> setupServiceLocator() async {
+/// اعتماديات الـ core فقط.
+///
+/// ما بتستورد شي من `features` — كل ميزة بتسجّل حالها عبر
+/// `register<Feature>Dependencies`، ونقطة التركيب بـ`main.dart`
+/// بتنادي الاثنين بالترتيب.
+Future<void> setupCoreDependencies() async {
   // -------------------------
   // Storage
   // -------------------------
@@ -47,6 +51,4 @@ Future<void> setupServiceLocator() async {
   );
 
   sl.registerLazySingleton<ApiClient>(() => ApiClient(sl<Dio>()));
-
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepository(sl<ApiClient>()));
 }

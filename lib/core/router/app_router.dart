@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:maan/features/auth/create_new_password/create_new_password_page.dart';
 import 'package:maan/features/auth/forgot_password/forgot_password_page.dart';
-import 'package:maan/features/auth/login/login_page.dart';
+import 'package:maan/features/auth/presentation/login/pages/login_page.dart';
 import 'package:maan/features/auth/sign_up/sign_up_page.dart';
 import 'package:maan/features/auth/verify_email/verify_email_page.dart';
 import '../../features/app_shell/app_shell_page.dart';
@@ -50,7 +50,7 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) {
-          return LoginPage();
+          return const LoginPage();
         },
       ),
       GoRoute(

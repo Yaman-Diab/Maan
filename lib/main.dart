@@ -10,6 +10,7 @@ import 'package:maan/core/design_system/app_theme.dart';
 import 'package:maan/features/auth/cubit/privacy_checkbox_cubit.dart';
 
 import 'core/di/service_locator.dart';
+import 'features/auth/auth_injection.dart';
 import 'core/router/app_router.dart';
 import 'core/session/app_session_controller.dart';
 
@@ -23,10 +24,11 @@ Future<void> main() async {
   await EasyLocalization.ensureInitialized();
 
   // -------------------------
-  // Dependency Injection
+  // Dependency Injection (Composition Root)
   // -------------------------
 
-  await setupServiceLocator();
+  await setupCoreDependencies();
+  registerAuthDependencies(sl);
 
   // -------------------------
   // Session Controller

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_validators.dart';
 import 'package:maan/core/design_system/widgets/custom_text_form_field.dart';
 import 'package:maan/core/design_system/widgets/password_text_form_field/password_text_form_field.dart';
 
-import '../controller/login_controller.dart';
-import '../models/login_payload.dart';
+import '../cubit/login_cubit.dart';
+import '../cubit/login_state.dart';
 import 'auth_footer_sign_up.dart';
 import 'forgot_password_button.dart';
 import 'labeled_field.dart';
@@ -18,18 +19,23 @@ import 'or_divider.dart';
 class LoginForm extends StatelessWidget {
   const LoginForm({
     super.key,
-    required this.controller,
-    required this.onSubmit,
-    required this.onError,
+    required this.formKey,
+    required this.emailController,
+    required this.passwordController,
+    required this.state,
     this.onForgotPasswordTap,
     this.onSignUpTap,
     this.onTermsTap,
     this.onPrivacyTap,
   });
 
-  final LoginController controller;
-  final Future<void> Function(LoginPayload payload) onSubmit;
-  final void Function(String message) onError;
+  /// دورة حياة الـ controllers والـ formKey مسؤولية `LoginPage`،
+  /// والـ Cubit بيحمل القيم كنصوص فقط.
+  final GlobalKey<FormState> formKey;
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
+  final LoginState state;
+
   final VoidCallback? onForgotPasswordTap;
   final VoidCallback? onSignUpTap;
   final VoidCallback? onTermsTap;
@@ -37,13 +43,17 @@ class LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<LoginCubit>();
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
           child: Form(
-            key: controller.formKey,
-            autovalidateMode: controller.autovalidateMode,
+            key: formKey,
+            autovalidateMode: state.hasTriedSubmit
+                ? AutovalidateMode.onUserInteraction
+                : AutovalidateMode.disabled,
             child: AutofillGroup(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,11 +65,12 @@ class LoginForm extends StatelessWidget {
                   LabeledField(
                     label: 'Your Email',
                     child: CustomTextFormField(
-                      controller: controller.emailController,
+                      controller: emailController,
                       hintText: 'Enter your email address',
                       validationMessage: AppValidators.emailValidator,
                       keyBoardType: TextInputType.emailAddress,
                       autofillHints: const [AutofillHints.email],
+                      onChanged: cubit.emailChanged,
                     ),
                   ),
 
@@ -68,11 +79,12 @@ class LoginForm extends StatelessWidget {
                   LabeledField(
                     label: 'Your Password',
                     child: PasswordTextFormField(
-                      controller: controller.passwordController,
+                      controller: passwordController,
                       validationMessage: AppValidators.passwordValidator,
                       hintText: 'Enter your password',
                       textInputAction: TextInputAction.done,
                       autofillHints: const [AutofillHints.password],
+                      onChanged: cubit.passwordChanged,
                     ),
                   ),
 
@@ -85,8 +97,8 @@ class LoginForm extends StatelessWidget {
                   SizedBox(height: 16.h),
 
                   LoginTermsAgreementField(
-                    value: controller.isTermsAccepted,
-                    onChanged: controller.setTermsAccepted,
+                    value: state.isTermsAccepted,
+                    onChanged: cubit.termsToggled,
                     onTermsTap: onTermsTap,
                     onPrivacyTap: onPrivacyTap,
                   ),
@@ -94,14 +106,14 @@ class LoginForm extends StatelessWidget {
                   SizedBox(height: 24.h),
 
                   LoginSubmitButton(
-                    canSubmit: controller.canSubmit,
-                    isSubmitting: controller.isSubmitting,
+                    canSubmit: state.canSubmit,
+                    isSubmitting: state.isSubmitting,
                     onPressed: () {
                       FocusScope.of(context).unfocus();
 
-                      controller.submit(
-                        onSubmit: onSubmit,
-                        onError: onError,
+                      cubit.submit(
+                        isFormValid: () =>
+                            formKey.currentState?.validate() ?? false,
                       );
                     },
                   ),
