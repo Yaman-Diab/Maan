@@ -2,20 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_text_styles.dart';
 
-class LoginTermsNoticeBox extends StatelessWidget {
-  const LoginTermsNoticeBox({super.key});
+class TermsNoticeBox extends StatelessWidget {
+  const TermsNoticeBox({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       constraints: BoxConstraints(minHeight: 61.h),
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(
+        horizontal: 16.w,
+        vertical: 10.h,
+      ),
       decoration: BoxDecoration(
         color: const Color(0xFFFEF5E7),
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: const Color(0xFFC47E09).withValues(alpha: 0.25),
+          color: const Color(0xFFC47E09).withValues(alpha: 0.35),
           width: 1.w,
         ),
       ),

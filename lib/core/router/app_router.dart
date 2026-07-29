@@ -4,14 +4,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:maan/features/auth/create_new_password/create_new_password_page.dart';
-import 'package:maan/features/auth/forgot_password/forgot_password_page.dart';
+import 'package:maan/features/auth/presentation/create_new_password/pages/create_new_password_page.dart';
+import 'package:maan/features/auth/presentation/forgot_password/pages/forgot_password_page.dart';
 import 'package:maan/features/auth/presentation/login/pages/login_page.dart';
-import 'package:maan/features/auth/sign_up/sign_up_page.dart';
-import 'package:maan/features/auth/verify_email/verify_email_page.dart';
+import 'package:maan/features/auth/presentation/sign_up/pages/sign_up_page.dart';
+import 'package:maan/features/auth/presentation/verify_email/pages/verify_email_page.dart';
 import '../../features/app_shell/app_shell_page.dart';
 import 'app_redirect.dart';
 import 'app_routes.dart';
+import 'route_args.dart';
 
 class AppRouter {
   AppRouter({
@@ -50,32 +51,53 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) {
-          return const LoginPage();
+          return LoginPage(
+            onSignUpTap: () => context.push(AppRoutes.register),
+            onForgotPasswordTap: () => context.push(AppRoutes.forgotPassword),
+          );
         },
       ),
       GoRoute(
         path: AppRoutes.register,
         builder: (context, state) {
-          return SignUpPage();
+          return SignUpPage(
+            // الـ backend بيبعت رمز تحقق بعد إنشاء الحساب.
+            onSignedUp: (email) =>
+                context.push(AppRoutes.verifyEmail, extra: email),
+            onSignInTap: () => context.go(AppRoutes.login),
+          );
         },
       ),
-      // ------------------------- هذا مؤقت لتجربه صفحه التحقق من الايميل
       GoRoute(
         path: AppRoutes.verifyEmail,
         builder: (context, state) {
-          return const VerifyEmailPage(email: 'Omar@Gmail.com');
+          return VerifyEmailPage(
+            email: state.extra as String? ?? '',
+            onVerified: () => context.go(AppRoutes.login),
+          );
         },
       ),
       GoRoute(
         path: AppRoutes.forgotPassword,
         builder: (context, state) {
-          return ForgotPasswordPage();
+          return ForgotPasswordPage(
+            onCodeSent: (email) => context.push(
+              AppRoutes.createNewPassword,
+              extra: PasswordResetArgs(email: email),
+            ),
+          );
         },
       ),
       GoRoute(
         path: AppRoutes.createNewPassword,
         builder: (context, state) {
-          return CreateNewPasswordPage();
+          final args = state.extra as PasswordResetArgs?;
+
+          return CreateNewPasswordPage(
+            email: args?.email ?? '',
+            code: args?.code ?? '',
+            onPasswordChanged: () => context.go(AppRoutes.login),
+          );
         },
       ),
 

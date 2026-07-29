@@ -57,8 +57,8 @@ lib/
 ## الاختبار
 
 ```
-flutter test        # 39 اختبار
-flutter analyze
+flutter test        # 70 اختبار
+flutter analyze     # صفر ملاحظات
 ```
 
 - **Use cases**: `mocktail` لعمل mock لعقود الـ repositories.
@@ -69,14 +69,29 @@ flutter analyze
 
 ## حالة الهجرة
 
-- ✅ `login` — مهاجَر بالكامل ومربوط بالـ API.
-- ⏳ `sign_up` · `verify_email` · `forgot_password` · `create_new_password` —
-  لسه بالبنية القديمة (`ChangeNotifier` controllers)، وما إلها استدعاءات API
-  أصلاً (كلها `// TODO` stubs).
-- ⚠️ `ApiEndpoints` ما فيها `forgotPassword` ولا `resetPassword` — محتاجة
-  تفاصيل من الباك اند.
-- ⚠️ `AuthSession.user` لسه `Map<String, dynamic>` لأن عقد `/users/me/`
+كل ميزة `auth` مهاجَرة: ما ضل ولا `ChangeNotifier` controller بالمشروع.
+
+| الشاشة | الحالة |
+|---|---|
+| `login` | ✅ مربوطة بالـ API |
+| `sign_up` | ✅ مربوطة (`/auth/register`) |
+| `verify_email` | ✅ مربوطة (`/auth/otp/verify` + `/auth/otp/resend`) |
+| `forgot_password` | ⚠️ الطبقات جاهزة، الـ datasource بيرمي `UnimplementedError` |
+| `create_new_password` | ⚠️ نفس الشي |
+
+**فجوات معروفة**:
+- `ApiEndpoints` ما فيها `forgotPassword` ولا `resetPassword` — بمجرد ما
+  يعرّفهم الباك اند، التعديل محصور بميثودين بـ`AuthRemoteDataSourceImpl`.
+- ما في شاشة لإدخال رمز إعادة التعيين بين "نسيت كلمة المرور" وشاشة كلمة
+  المرور الجديدة، فـ`PasswordResetArgs.code` بتوصل فاضية.
+- `AuthSession.user` لسه `Map<String, dynamic>` لأن عقد `/users/me/`
   غير موثّق؛ بيتحوّل لكيان `AuthUser` أول ما يتحدّد.
+
+## وسائط المسارات
+
+البيانات الحساسة (البريد، رمز إعادة التعيين) بتنمرّر عبر
+`GoRouterState.extra` لا عبر query params — على الويب الـ URL بينحفظ
+بسجل المتصفح. راجع `core/router/route_args.dart`.
 
 ## الباك اند
 

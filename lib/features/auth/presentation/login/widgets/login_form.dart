@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:maan/core/design_system/app_text_styles.dart';
 import 'package:maan/core/design_system/app_validators.dart';
+import 'package:maan/core/design_system/app_colors.dart';
 import 'package:maan/core/design_system/widgets/custom_text_form_field.dart';
+import 'package:maan/core/design_system/widgets/labeled_field.dart';
+import 'package:maan/core/design_system/widgets/or_divider.dart';
 import 'package:maan/core/design_system/widgets/password_text_form_field/password_text_form_field.dart';
 
 import '../cubit/login_cubit.dart';
 import '../cubit/login_state.dart';
 import 'auth_footer_sign_up.dart';
 import 'forgot_password_button.dart';
-import 'labeled_field.dart';
 import 'login_header.dart';
 import 'login_submit_button.dart';
 import 'login_terms_agreement_field.dart';
 import 'login_terms_notice_box.dart';
-import 'or_divider.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({
@@ -41,6 +43,10 @@ class LoginForm extends StatelessWidget {
   final VoidCallback? onTermsTap;
   final VoidCallback? onPrivacyTap;
 
+  static final _labelStyle = AppTextStyles.f16W500Black.copyWith(
+    fontSize: 16.sp,
+  );
+
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<LoginCubit>();
@@ -64,6 +70,8 @@ class LoginForm extends StatelessWidget {
 
                   LabeledField(
                     label: 'Your Email',
+                    labelStyle: _labelStyle,
+                    gap: 12,
                     child: CustomTextFormField(
                       controller: emailController,
                       hintText: 'Enter your email address',
@@ -78,6 +86,8 @@ class LoginForm extends StatelessWidget {
 
                   LabeledField(
                     label: 'Your Password',
+                    labelStyle: _labelStyle,
+                    gap: 12,
                     child: PasswordTextFormField(
                       controller: passwordController,
                       validationMessage: AppValidators.passwordValidator,
@@ -120,7 +130,7 @@ class LoginForm extends StatelessWidget {
 
                   SizedBox(height: 12.h),
 
-                  const OrDivider(),
+                  const OrDivider(color: AppColors.greyColor),
 
                   SizedBox(height: 8.h),
 

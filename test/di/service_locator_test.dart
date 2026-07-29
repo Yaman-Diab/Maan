@@ -6,7 +6,11 @@ import 'package:maan/features/auth/auth_injection.dart';
 import 'package:maan/features/auth/domain/repositories/auth_repository.dart';
 import 'package:maan/features/auth/domain/repositories/session_repository.dart';
 import 'package:maan/features/auth/domain/usecases/login_usecase.dart';
+import 'package:maan/features/auth/presentation/create_new_password/cubit/create_new_password_cubit.dart';
+import 'package:maan/features/auth/presentation/forgot_password/cubit/forgot_password_cubit.dart';
 import 'package:maan/features/auth/presentation/login/cubit/login_cubit.dart';
+import 'package:maan/features/auth/presentation/sign_up/cubit/sign_up_cubit.dart';
+import 'package:maan/features/auth/presentation/verify_email/cubit/verify_email_cubit.dart';
 
 /// بيتأكد إن نقطة التركيب بتركّب فعلاً.
 ///
@@ -22,8 +26,22 @@ void main() {
 
   tearDown(() => sl.reset());
 
-  test('سلسلة اعتماديات تسجيل الدخول بتتحل كاملة', () {
+  test('سلسلة اعتماديات كل شاشات auth بتتحل كاملة', () {
     expect(sl<LoginCubit>(), isA<LoginCubit>());
+    expect(sl<SignUpCubit>(), isA<SignUpCubit>());
+    expect(sl<ForgotPasswordCubit>(), isA<ForgotPasswordCubit>());
+  });
+
+  test('الشاشات اللي بتاخد وسائط من المسار بتتبنى بـ factoryParam', () {
+    final verifyEmail = sl<VerifyEmailCubit>(param1: 'a@b.com');
+    expect(verifyEmail.state.email, 'a@b.com');
+
+    final createNewPassword = sl<CreateNewPasswordCubit>(
+      param1: 'a@b.com',
+      param2: '123456',
+    );
+    expect(createNewPassword.state.email, 'a@b.com');
+    expect(createNewPassword.state.code, '123456');
   });
 
   test('الـ repositories مسجّلة بواجهاتها لا بتنفيذاتها', () {
