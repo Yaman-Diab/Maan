@@ -18,6 +18,12 @@ class AppTheme {
     semanticColors: AppSemanticColors.light,
   );
 
+  static ThemeData dark() => _build(
+    brightness: Brightness.dark,
+    scheme: _darkScheme,
+    semanticColors: AppSemanticColors.dark,
+  );
+
   // -------------------------
   // Color Schemes
   // -------------------------
@@ -53,6 +59,41 @@ class AppTheme {
     onInverseSurface: AppPalette.white,
     shadow: Color(0x1A000000),
     scrim: Color(0x66000000),
+  );
+
+  /// النسخة الداكنة.
+  ///
+  /// لون الهوية `teal600` غامق زيادة على خلفية داكنة (تباين ضعيف)، فبنفتحه
+  /// للـ `teal400`. نفس الشي للأحمر والكهرماني — الهوية محفوظة والقراءة
+  /// بتضل مريحة.
+  static const ColorScheme _darkScheme = ColorScheme(
+    brightness: Brightness.dark,
+    primary: AppPalette.teal400,
+    onPrimary: AppPalette.darkCanvas,
+    primaryContainer: Color(0xFF14332E),
+    onPrimaryContainer: AppPalette.teal400,
+    secondary: AppPalette.amber400,
+    onSecondary: AppPalette.darkCanvas,
+    secondaryContainer: Color(0xFF2A2213),
+    onSecondaryContainer: AppPalette.amber400,
+    tertiary: AppPalette.orange500,
+    onTertiary: AppPalette.darkCanvas,
+    error: AppPalette.red400,
+    onError: AppPalette.darkCanvas,
+    errorContainer: Color(0xFF3A1B1B),
+    onErrorContainer: AppPalette.red400,
+    surface: AppPalette.darkSurface,
+    onSurface: AppPalette.darkTextPrimary,
+    surfaceContainerLowest: AppPalette.darkCanvas,
+    surfaceContainerLow: AppPalette.darkSurface,
+    surfaceContainer: AppPalette.darkSurfaceElevated,
+    onSurfaceVariant: AppPalette.darkTextSecondary,
+    outline: AppPalette.darkBorder,
+    outlineVariant: AppPalette.darkBorder,
+    inverseSurface: AppPalette.white,
+    onInverseSurface: AppPalette.ink900,
+    shadow: Color(0x66000000),
+    scrim: Color(0x99000000),
   );
 
   // -------------------------

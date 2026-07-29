@@ -56,10 +56,39 @@ lib/
 المرجع الكامل: ميزة `login` — من `domain/usecases/login_usecase.dart`
 لحد `presentation/login/pages/login_page.dart`.
 
+## الثيم
+
+```
+core/design_system/
+├── app_palette.dart          القيم الخام (hex) — ممنوع استخدامها بالـ widgets
+├── app_semantic_colors.dart  ThemeExtension: توكنات حسب الدور + light/dark
+├── app_text_styles.dart      ThemeExtension: الأنماط، بتنبنى بالـ .sp
+├── app_theme.dart            light() و dark() + ColorScheme كاملة
+└── app_theme_context.dart    context.colors · context.texts · context.scheme
+```
+
+| القاعدة | التفصيل |
+|---|---|
+| **ممنوع لون يدوي** | لا `Color(0x...)` ولا `Colors.*` بالـ widgets. استخدم `context.colors` أو `context.scheme`. |
+| **ممنوع نمط نص ثابت** | `context.texts.f16W500Black` — لا ثوابت `static`، لأنها بتجمّد `.sp`. |
+| **التسمية حسب الدور** | `textPrimary` لا `black`. الاسم الفيزيائي بيصير كذبة بالوضع الداكن. |
+| **`AppTheme` جوّا `ScreenUtilInit`** | بتستخدم `.sp`؛ بناؤها برّا بيحسب القياسات على مقاس غلط. |
+| **توكن جديد؟** | ضيفه لـ`AppSemanticColors` بنسختَي light و dark + `copyWith` + `lerp`. |
+
+**تفضيلات العرض**: `SettingsCubit` (singleton) بيحمل `themeMode` و`textScale`،
+وبيتخزّنوا بـ`SharedPreferences` عبر `SettingsStorageService` — منفصلين عن
+`SecureStorageService` لأنهم غير حساسين.
+
+**حجم الخط**: `_TextScaleScope` بـ`main.dart` بيضرب تفضيل المستخدم
+بإعداد النظام (ما بيستبدله) وبيحدّه بـ1.6 حتى ما ينكسر التخطيط.
+
+⏳ **ناقص**: شاشة الإعدادات نفسها — الأنابيب جاهزة، بس `SettingsCubit`
+لسه ما إله واجهة. راجع `FLOW.md` › Settings Flow.
+
 ## الاختبار
 
 ```
-flutter test        # 76 اختبار
+flutter test        # 116 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -68,6 +97,10 @@ flutter analyze     # صفر ملاحظات
 - **Repository impls**: `HttpClientAdapter` مزيّف للتأكد من شكل الطلب
   ومن تحويل الأخطاء — راجع `test/features/auth/data/auth_repository_impl_test.dart`.
 - **DI**: `test/di/service_locator_test.dart` بيتأكد إن كل الرسم بينحلّ.
+- **الثيم**: الاختبارات بتثبّت كل توكن على قيمته الأصلية (ضد الارتداد
+  البصري)، وبتتأكد إن `.sp` بتكبر مع الشاشة بدل ما تتجمّد، وبتفحص تباين
+  WCAG بالوضعين. لازم تنبني جوّا `ScreenUtilInit` — راجع
+  `test/core/design_system/app_text_styles_test.dart`.
 
 ## حالة الهجرة
 

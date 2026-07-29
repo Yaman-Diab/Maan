@@ -21,7 +21,7 @@ class VerificationHelpBox extends StatelessWidget {
           Text(
             'To find your verification code:',
             style: context.texts.f14W400HintColor.copyWith(
-              color: Colors.black,
+              color: context.colors.infoForeground,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -34,7 +34,7 @@ class VerificationHelpBox extends StatelessWidget {
           Text(
             'If you can’t find the email:',
             style: context.texts.f14W400HintColor.copyWith(
-              color: Colors.black,
+              color: context.colors.infoForeground,
               fontWeight: FontWeight.w700,
             ),
           ),

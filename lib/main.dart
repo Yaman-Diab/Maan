@@ -4,12 +4,17 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme.dart';
+
 import 'core/di/service_locator.dart';
-import 'features/auth/auth_injection.dart';
 import 'core/router/app_router.dart';
 import 'core/session/app_session_controller.dart';
+import 'core/settings/cubit/settings_cubit.dart';
+import 'core/settings/cubit/settings_state.dart';
+import 'core/settings/widgets/text_scale_scope.dart';
+import 'features/auth/auth_injection.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +31,14 @@ Future<void> main() async {
 
   await setupCoreDependencies();
   registerAuthDependencies(sl);
+
+  // -------------------------
+  // Settings
+  // -------------------------
+
+  // بتنقرأ قبل runApp حتى يطلع أول إطار بالثيم المحفوظ مباشرةً،
+  // بلا ومضة فاتح قبل الداكن.
+  final settingsCubit = sl<SettingsCubit>()..load();
 
   // -------------------------
   // Session Controller
@@ -54,13 +67,16 @@ Future<void> main() async {
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
       startLocale: const Locale('en'),
-      child: ScreenUtilInit(
-        designSize: const Size(375, 812),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        // الـ cubits الخاصة بالشاشات بتتزوّد من الصفحات نفسها عبر
-        // BlocProvider + GetIt، فما في حاجة لمزوّدين عامّين هون.
-        builder: (context, child) => MaanApp(appRouter: appRouter),
+      child: BlocProvider<SettingsCubit>.value(
+        value: settingsCubit,
+        child: ScreenUtilInit(
+          designSize: const Size(375, 812),
+          minTextAdapt: true,
+          splitScreenMode: true,
+          // الـ cubits الخاصة بالشاشات بتتزوّد من الصفحات نفسها عبر
+          // BlocProvider + GetIt، فما في حاجة لمزوّدين عامّين هون.
+          builder: (context, child) => MaanApp(appRouter: appRouter),
+        ),
       ),
     ),
   );
@@ -75,14 +91,24 @@ class MaanApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Maan ',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      locale: context.locale,
-      supportedLocales: context.supportedLocales,
-      localizationsDelegates: context.localizationDelegates,
-      routerConfig: appRouter.router,
+    // الثيم بينبنى هون — جوّا ScreenUtilInit — لأن أنماط النصوص بتستخدم
+    // ‎.sp، فبناؤه برّا بيحسب القياسات على مقاس غلط.
+    return BlocBuilder<SettingsCubit, SettingsState>(
+      builder: (context, settings) {
+        return MaterialApp.router(
+          title: 'Maan ',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: settings.themeMode,
+          locale: context.locale,
+          supportedLocales: context.supportedLocales,
+          localizationsDelegates: context.localizationDelegates,
+          routerConfig: appRouter.router,
+          builder: (context, child) =>
+              TextScaleScope(scale: settings.textScale, child: child),
+        );
+      },
     );
   }
 }

@@ -23,7 +23,7 @@ Future<int?> showNumberPickerSheet({
 
   final result = showModalBottomSheet<int>(
     context: context,
-    backgroundColor: Colors.white,
+    backgroundColor: context.scheme.surface,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
     ),

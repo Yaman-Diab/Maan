@@ -54,6 +54,11 @@ abstract final class AppPalette {
   //
   // موجودة من الآن ليكون بناء الثيم الداكن بالمرحلة 3 مجرّد تعبئة قيم.
 
+  /// نسخ مفتوحة من ألوان الهوية — الغامقة تباينها ضعيف فوق خلفية داكنة.
+  static const Color teal400 = Color(0xFF4DA396);
+  static const Color amber400 = Color(0xFFE0A93B);
+  static const Color red400 = Color(0xFFF06A6A);
+
   static const Color darkSurface = Color(0xFF15171C);
   static const Color darkSurfaceElevated = Color(0xFF1E2128);
   static const Color darkCanvas = Color(0xFF0F1116);

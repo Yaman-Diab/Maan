@@ -9,7 +9,9 @@ import '../network/api_client.dart';
 import '../network/dio_factory.dart';
 import '../session/app_session_controller.dart';
 import '../session/session_manager.dart';
+import '../settings/cubit/settings_cubit.dart';
 import '../storage/secure_storage_service.dart';
+import '../storage/settings_storage_service.dart';
 
 final sl = GetIt.instance;
 
@@ -24,6 +26,20 @@ Future<void> setupCoreDependencies() async {
   // -------------------------
 
   sl.registerLazySingleton<SecureStorageService>(() => SecureStorageService());
+
+  // بينقرأ من القرص، فبينحل مرة وحدة هون بدل ما تصير كل قراءة async.
+  sl.registerSingleton<SettingsStorageService>(
+    await SettingsStorageService.create(),
+  );
+
+  // -------------------------
+  // Settings
+  // -------------------------
+
+  // singleton لا factory: تفضيلات العرض حالة عامة بتعيش طول التطبيق.
+  sl.registerLazySingleton<SettingsCubit>(
+    () => SettingsCubit(sl<SettingsStorageService>()),
+  );
 
   // -------------------------
   // Session

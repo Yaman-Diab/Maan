@@ -2,6 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:maan/core/di/service_locator.dart';
 import 'package:maan/core/network/api_client.dart';
 import 'package:maan/core/session/app_session_controller.dart';
+import 'package:maan/core/settings/cubit/settings_cubit.dart';
+import 'package:maan/core/storage/settings_storage_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:maan/features/auth/auth_injection.dart';
 import 'package:maan/features/auth/domain/repositories/auth_repository.dart';
 import 'package:maan/features/auth/domain/repositories/session_repository.dart';
@@ -18,7 +21,12 @@ import 'package:maan/features/auth/presentation/verify_email/cubit/verify_email_
 /// Cubit → UseCase → Repository → DataSource → ApiClient → Dio → Storage.
 /// أي تسجيل ناقص بينكشف هون بدل ما ينفجر بوقت التشغيل.
 void main() {
+  // SharedPreferences بيمرّ عبر قناة منصّة، فبده binding وقيم مزيّفة.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+
     await sl.reset();
     await setupCoreDependencies();
     registerAuthDependencies(sl);
@@ -47,6 +55,12 @@ void main() {
   test('الـ repositories مسجّلة بواجهاتها لا بتنفيذاتها', () {
     expect(sl<AuthRepository>(), isA<AuthRepository>());
     expect(sl<SessionRepository>(), isA<SessionRepository>());
+  });
+
+  test('تفضيلات العرض مسجّلة كـ singleton عام', () {
+    expect(sl<SettingsStorageService>(), isA<SettingsStorageService>());
+    // على عكس cubits الشاشات: نفس النسخة لكل من يقرأها.
+    expect(identical(sl<SettingsCubit>(), sl<SettingsCubit>()), isTrue);
   });
 
   test('اعتماديات الـ core متاحة لوحدها', () {

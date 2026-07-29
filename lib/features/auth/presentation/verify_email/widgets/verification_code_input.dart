@@ -31,7 +31,7 @@ class VerificationCodeInput extends StatelessWidget {
       height: 50.h,
       textStyle: context.texts.f16W500Black.copyWith(fontSize: 22.sp),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.fieldBackground,
         borderRadius: BorderRadius.circular(8.r),
         border: Border.all(color: context.colors.border, width: 1.w),
       ),
@@ -39,7 +39,7 @@ class VerificationCodeInput extends StatelessWidget {
 
     final focusedTheme = baseTheme.copyWith(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.fieldBackground,
         borderRadius: BorderRadius.circular(8.r),
         border: Border.all(color: context.scheme.primary, width: 1.4.w),
       ),
@@ -47,7 +47,7 @@ class VerificationCodeInput extends StatelessWidget {
 
     final submittedTheme = baseTheme.copyWith(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.fieldBackground,
         borderRadius: BorderRadius.circular(8.r),
         border: Border.all(color: context.colors.border, width: 1.w),
       ),
@@ -67,7 +67,7 @@ class VerificationCodeInput extends StatelessWidget {
 
     final errorTheme = baseTheme.copyWith(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.fieldBackground,
         borderRadius: BorderRadius.circular(8.r),
         border: Border.all(color: context.scheme.error, width: 1.2.w),
       ),
@@ -97,7 +97,7 @@ class VerificationCodeInput extends StatelessWidget {
       preFilledWidget: Text(
         '–',
         style: context.texts.f16W500Black.copyWith(
-          color: Colors.black,
+          color: context.colors.textPrimary,
           fontSize: 22.sp,
         ),
       ),
