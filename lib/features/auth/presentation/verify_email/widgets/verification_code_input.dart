@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
 import 'package:pinput/pinput.dart';
 
 class VerificationCodeInput extends StatelessWidget {
@@ -30,7 +29,7 @@ class VerificationCodeInput extends StatelessWidget {
     final baseTheme = PinTheme(
       width: 47.w,
       height: 50.h,
-      textStyle: AppTextStyles.f16W500Black.copyWith(fontSize: 22.sp),
+      textStyle: context.texts.f16W500Black.copyWith(fontSize: 22.sp),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.r),
@@ -55,7 +54,7 @@ class VerificationCodeInput extends StatelessWidget {
     );
 
     final followingTheme = baseTheme.copyWith(
-      textStyle: AppTextStyles.f16W500Black.copyWith(
+      textStyle: context.texts.f16W500Black.copyWith(
         color: context.colors.divider,
         fontSize: 22.sp,
       ),
@@ -97,7 +96,7 @@ class VerificationCodeInput extends StatelessWidget {
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       preFilledWidget: Text(
         '–',
-        style: AppTextStyles.f16W500Black.copyWith(
+        style: context.texts.f16W500Black.copyWith(
           color: Colors.black,
           fontSize: 22.sp,
         ),

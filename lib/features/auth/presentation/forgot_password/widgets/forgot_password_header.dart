@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 
 class ForgotPasswordHeader extends StatelessWidget {
   const ForgotPasswordHeader({super.key});
@@ -12,12 +12,12 @@ class ForgotPasswordHeader extends StatelessWidget {
       children: [
         Text(
           'Forgot Password',
-          style: AppTextStyles.f32W600Black.copyWith(fontSize: 24.sp),
+          style: context.texts.f32W600Black.copyWith(fontSize: 24.sp),
         ),
         SizedBox(height: 12.h),
         Text(
           "Enter your email address and we'll send you a code to reset your password.",
-          style: AppTextStyles.f16W400Black.copyWith(fontSize: 13.sp),
+          style: context.texts.f16W400Black.copyWith(fontSize: 13.sp),
         ),
       ],
     );

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
 import 'package:maan/core/design_system/widgets/custom_text_form_field.dart';
 
 import '../birth_date_error_message.dart';
@@ -43,7 +42,7 @@ class BirthdayFields extends StatelessWidget {
       children: [
         Text(
           'Your birthday',
-          style: AppTextStyles.f16W500Black.copyWith(fontSize: 16.sp),
+          style: context.texts.f16W500Black.copyWith(fontSize: 16.sp),
         ),
         SizedBox(height: 10.h),
         Row(

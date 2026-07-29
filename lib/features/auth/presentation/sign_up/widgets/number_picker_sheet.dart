@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
 
 Future<int?> showNumberPickerSheet({
   required BuildContext context,
@@ -48,14 +47,14 @@ Future<int?> showNumberPickerSheet({
                       },
                       child: Text(
                         'Cancel',
-                        style: AppTextStyles.f14W400HintColor,
+                        style: context.texts.f14W400HintColor,
                       ),
                     ),
                     Expanded(
                       child: Text(
                         title,
                         textAlign: TextAlign.center,
-                        style: AppTextStyles.f16W500Black.copyWith(
+                        style: context.texts.f16W500Black.copyWith(
                           fontSize: 16.sp,
                         ),
                       ),
@@ -66,7 +65,7 @@ Future<int?> showNumberPickerSheet({
                       },
                       child: Text(
                         'Done',
-                        style: AppTextStyles.f15W600Primary,
+                        style: context.texts.f15W600Primary,
                       ),
                     ),
                   ],
@@ -93,7 +92,7 @@ Future<int?> showNumberPickerSheet({
                       return Center(
                         child: Text(
                           labelBuilder?.call(value) ?? value.toString(),
-                          style: AppTextStyles.f16W500Black.copyWith(
+                          style: context.texts.f16W500Black.copyWith(
                             fontSize: 20.sp,
                           ),
                         ),

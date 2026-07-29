@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../app_text_styles.dart';
+import '../app_theme_context.dart';
 
 /// حقل مع عنوان فوقه.
 ///
@@ -28,7 +28,7 @@ class LabeledField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: labelStyle ?? AppTextStyles.f14W600Black),
+        Text(label, style: labelStyle ?? context.texts.f14W600Black),
         SizedBox(height: gap.h),
         child,
       ],

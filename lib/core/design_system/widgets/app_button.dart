@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
 
 class AppButton extends StatelessWidget {
@@ -55,7 +54,7 @@ class AppButton extends StatelessWidget {
         ),
         child: Text(
           buttonText,
-          style: AppTextStyles.f16W600White.copyWith(color: foreground),
+          style: context.texts.f16W600White.copyWith(color: foreground),
         ),
       ),
     );

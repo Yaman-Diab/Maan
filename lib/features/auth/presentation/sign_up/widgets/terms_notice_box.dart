@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
 
 class TermsNoticeBox extends StatelessWidget {
   const TermsNoticeBox({super.key});
@@ -35,7 +34,7 @@ class TermsNoticeBox extends StatelessWidget {
           Expanded(
             child: Text(
               'Please read the Terms of Use and Privacy Policy. They explain your responsibilities and the actions that may be taken in case of violations.',
-              style: AppTextStyles.f12W400SecColor,
+              style: context.texts.f12W400SecColor,
             ),
           ),
         ],

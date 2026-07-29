@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 
 class SignUpHeader extends StatelessWidget {
   const SignUpHeader({super.key});
@@ -12,12 +12,12 @@ class SignUpHeader extends StatelessWidget {
       children: [
         Text(
           'Start Contributing',
-          style: AppTextStyles.f32W600Black,
+          style: context.texts.f32W600Black,
         ),
         SizedBox(height: 8.h),
         Text(
           'Be part of improving your community and driving positive change.',
-          style: AppTextStyles.f16W400Black.copyWith(fontSize: 16.sp),
+          style: context.texts.f16W400Black.copyWith(fontSize: 16.sp),
         ),
       ],
     );

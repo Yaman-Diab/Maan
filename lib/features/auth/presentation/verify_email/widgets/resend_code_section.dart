@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 
 class ResendCodeSection extends StatelessWidget {
   const ResendCodeSection({
@@ -23,12 +23,12 @@ class ResendCodeSection extends StatelessWidget {
         RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-            style: AppTextStyles.f14W400GreyColor,
+            style: context.texts.f14W400GreyColor,
             children: [
               const TextSpan(text: 'You can resend the code in '),
               TextSpan(
                 text: '$remainingSeconds',
-                style: AppTextStyles.f14W400Primary.copyWith(
+                style: context.texts.f14W400Primary.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -43,7 +43,7 @@ class ResendCodeSection extends StatelessWidget {
             opacity: canResend ? 1 : 0.55,
             child: Text(
               isResending ? 'Sending...' : 'Resend code',
-              style: AppTextStyles.f14W400PrimaryUnderline.copyWith(
+              style: context.texts.f14W400PrimaryUnderline.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),

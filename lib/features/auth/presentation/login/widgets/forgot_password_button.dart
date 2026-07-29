@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 
 class ForgotPasswordButton extends StatelessWidget {
   const ForgotPasswordButton({
@@ -18,7 +18,7 @@ class ForgotPasswordButton extends StatelessWidget {
         onPressed: onTap,
         child: Text(
           'Forgot Password?',
-          style: AppTextStyles.f14W400PrimaryUnderline.copyWith(
+          style: context.texts.f14W400PrimaryUnderline.copyWith(
             fontSize: 14.sp,
           ),
         ),

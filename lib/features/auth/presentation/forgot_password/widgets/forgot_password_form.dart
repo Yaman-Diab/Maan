@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
 import 'package:maan/core/design_system/app_validators.dart';
 import 'package:maan/core/design_system/widgets/custom_text_form_field.dart';
 import 'package:maan/core/design_system/widgets/labeled_field.dart';
@@ -57,7 +56,7 @@ class ForgotPasswordForm extends StatelessWidget {
 
                           LabeledField(
                             label: 'Your Email',
-                            labelStyle: AppTextStyles.f16W500Black.copyWith(
+                            labelStyle: context.texts.f16W500Black.copyWith(
                               fontSize: 14.sp,
                             ),
                             child: CustomTextFormField(

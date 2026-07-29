@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 
 class AuthFooterSignUp extends StatelessWidget {
   const AuthFooterSignUp({
@@ -14,7 +14,7 @@ class AuthFooterSignUp extends StatelessWidget {
     return Center(
       child: RichText(
         text: TextSpan(
-          style: AppTextStyles.f14W400HintColor,
+          style: context.texts.f14W400HintColor,
           children: [
             const TextSpan(text: "Don't have an account? "),
             WidgetSpan(
@@ -24,7 +24,7 @@ class AuthFooterSignUp extends StatelessWidget {
                 onTap: onTap,
                 child: Text(
                   'Sign Up',
-                  style: AppTextStyles.f15W600Primary,
+                  style: context.texts.f15W600Primary,
                 ),
               ),
             ),

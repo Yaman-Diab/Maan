@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 import 'package:maan/core/design_system/app_validators.dart';
 import 'package:maan/core/design_system/widgets/custom_text_form_field.dart';
 import 'package:maan/core/design_system/widgets/labeled_field.dart';
@@ -39,12 +39,9 @@ class SignUpForm extends StatelessWidget {
   final VoidCallback? onTermsTap;
   final VoidCallback? onPrivacyTap;
 
-  static final _labelStyle = AppTextStyles.f16W500Black.copyWith(
-    fontSize: 16.sp,
-  );
-
   @override
   Widget build(BuildContext context) {
+    final labelStyle = context.texts.f16W500Black.copyWith(fontSize: 16.sp);
     final cubit = context.read<SignUpCubit>();
 
     return Form(
@@ -63,7 +60,7 @@ class SignUpForm extends StatelessWidget {
                 Expanded(
                   child: LabeledField(
                     label: 'First name',
-                    labelStyle: _labelStyle,
+                    labelStyle: labelStyle,
                     child: CustomTextFormField(
                       controller: controllers.firstName,
                       hintText: 'Ahmad',
@@ -82,7 +79,7 @@ class SignUpForm extends StatelessWidget {
                 Expanded(
                   child: LabeledField(
                     label: 'Last name',
-                    labelStyle: _labelStyle,
+                    labelStyle: labelStyle,
                     child: CustomTextFormField(
                       controller: controllers.lastName,
                       hintText: 'Abo Hawa',
@@ -120,7 +117,7 @@ class SignUpForm extends StatelessWidget {
             SizedBox(height: 18.h),
             LabeledField(
               label: 'Your Email',
-              labelStyle: _labelStyle,
+              labelStyle: labelStyle,
               child: CustomTextFormField(
                 controller: controllers.email,
                 hintText: 'Enter your email address',
@@ -133,7 +130,7 @@ class SignUpForm extends StatelessWidget {
             SizedBox(height: 18.h),
             LabeledField(
               label: 'Your Password',
-              labelStyle: _labelStyle,
+              labelStyle: labelStyle,
               child: PasswordTextFormField(
                 controller: controllers.password,
                 hintText: 'Enter your password',
@@ -148,7 +145,7 @@ class SignUpForm extends StatelessWidget {
             SizedBox(height: 18.h),
             LabeledField(
               label: 'Confirm Password',
-              labelStyle: _labelStyle,
+              labelStyle: labelStyle,
               child: PasswordTextFormField(
                 controller: controllers.confirmPassword,
                 hintText: 'Re-enter your password',

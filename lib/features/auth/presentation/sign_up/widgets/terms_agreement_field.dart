@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
 
 class TermsAgreementField extends StatelessWidget {
   const TermsAgreementField({
@@ -61,7 +60,7 @@ class TermsAgreementField extends StatelessWidget {
                 Expanded(
                   child: RichText(
                     text: TextSpan(
-                      style: AppTextStyles.f16W400HintColor,
+                      style: context.texts.f16W400HintColor,
                       children: [
                         const TextSpan(text: 'I agree with Ma’an '),
                         WidgetSpan(
@@ -71,7 +70,7 @@ class TermsAgreementField extends StatelessWidget {
                             onTap: onTermsTap,
                             child: Text(
                               'Terms & Conditions',
-                              style: AppTextStyles.f14W400PrimaryUnderline,
+                              style: context.texts.f14W400PrimaryUnderline,
                             ),
                           ),
                         ),
@@ -83,7 +82,7 @@ class TermsAgreementField extends StatelessWidget {
                             onTap: onPrivacyTap,
                             child: Text(
                               'Privacy Policy',
-                              style: AppTextStyles.f14W400PrimaryUnderline,
+                              style: context.texts.f14W400PrimaryUnderline,
                             ),
                           ),
                         ),

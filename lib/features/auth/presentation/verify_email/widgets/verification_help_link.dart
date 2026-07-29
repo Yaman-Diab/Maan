@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
+import 'package:maan/core/design_system/app_theme_context.dart';
 
 class VerificationHelpLink extends StatelessWidget {
   const VerificationHelpLink({
@@ -15,7 +15,7 @@ class VerificationHelpLink extends StatelessWidget {
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(
-          style: AppTextStyles.f14W400HintColor,
+          style: context.texts.f14W400HintColor,
           children: [
             const TextSpan(text: 'Where can I find the verification code? '),
             WidgetSpan(
@@ -25,7 +25,7 @@ class VerificationHelpLink extends StatelessWidget {
                 onTap: onTap,
                 child: Text(
                   'Click here',
-                  style: AppTextStyles.f14W400PrimaryUnderline.copyWith(
+                  style: context.texts.f14W400PrimaryUnderline.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
 
 class PasswordRuleItem extends StatelessWidget {
   const PasswordRuleItem({
@@ -20,7 +19,7 @@ class PasswordRuleItem extends StatelessWidget {
 
     return AnimatedDefaultTextStyle(
       duration: const Duration(milliseconds: 180),
-      style: AppTextStyles.f12W400SecColor.copyWith(
+      style: context.texts.f12W400SecColor.copyWith(
         color: color,
         fontSize: 12.sp,
         decoration: isValid ? TextDecoration.lineThrough : TextDecoration.none,

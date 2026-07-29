@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
 
 class VerificationHelpBox extends StatelessWidget {
   const VerificationHelpBox({super.key});
@@ -21,7 +20,7 @@ class VerificationHelpBox extends StatelessWidget {
         children: [
           Text(
             'To find your verification code:',
-            style: AppTextStyles.f14W400HintColor.copyWith(
+            style: context.texts.f14W400HintColor.copyWith(
               color: Colors.black,
               fontWeight: FontWeight.w700,
             ),
@@ -34,7 +33,7 @@ class VerificationHelpBox extends StatelessWidget {
           SizedBox(height: 4.h),
           Text(
             'If you can’t find the email:',
-            style: AppTextStyles.f14W400HintColor.copyWith(
+            style: context.texts.f14W400HintColor.copyWith(
               color: Colors.black,
               fontWeight: FontWeight.w700,
             ),
@@ -59,7 +58,7 @@ class _HelpLine extends StatelessWidget {
       padding: EdgeInsets.only(bottom: 8.h),
       child: Text(
         text,
-        style: AppTextStyles.f14W400HintColor.copyWith(
+        style: context.texts.f14W400HintColor.copyWith(
           color: context.colors.infoForeground,
           height: 1.45,
         ),

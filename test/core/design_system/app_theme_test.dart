@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:maan/core/design_system/app_semantic_colors.dart';
 import 'package:maan/core/design_system/app_theme.dart';
@@ -9,38 +10,82 @@ import 'package:maan/core/design_system/app_theme_context.dart';
 /// نقل الألوان من ثوابت `AppColors` لتوكنات دلالية لازم ما يغيّر ولا
 /// بكسل. الاختبارات هون بتثبّت القيم الأصلية بالضبط، فأي تغيير غير
 /// مقصود بيوقع الاختبار بدل ما ينكشف بالعين بعد أسابيع.
+///
+/// ملاحظة: `AppTheme.light()` بتستخدم `.sp`، فلازم تنبنى جوّا
+/// `ScreenUtilInit` — نفس القيد الموجود بـ`main.dart`.
+const _designSize = Size(375, 812);
+
+Future<ThemeData> _pumpAndReadTheme(WidgetTester tester) async {
+  tester.view.devicePixelRatio = 1;
+  tester.view.physicalSize = _designSize;
+
+  addTearDown(() {
+    tester.view.resetPhysicalSize();
+    tester.view.resetDevicePixelRatio();
+  });
+
+  late ThemeData theme;
+
+  await tester.pumpWidget(
+    ScreenUtilInit(
+      designSize: _designSize,
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) => MaterialApp(
+        theme: AppTheme.light(),
+        home: Builder(
+          builder: (context) {
+            theme = Theme.of(context);
+            return const SizedBox();
+          },
+        ),
+      ),
+    ),
+  );
+
+  await tester.pumpAndSettle();
+  return theme;
+}
+
 void main() {
-  final light = AppTheme.light();
-
   group('ColorScheme الفاتحة بتطابق الألوان الأصلية', () {
-    test('ألوان الهوية', () {
-      expect(light.colorScheme.primary, const Color(0xFF237366));
-      expect(light.colorScheme.secondary, const Color(0xFFC47E09));
-      expect(light.colorScheme.tertiary, const Color(0xFFF2994A));
+    testWidgets('ألوان الهوية', (tester) async {
+      final theme = await _pumpAndReadTheme(tester);
+
+      expect(theme.colorScheme.primary, const Color(0xFF237366));
+      expect(theme.colorScheme.secondary, const Color(0xFFC47E09));
+      expect(theme.colorScheme.tertiary, const Color(0xFFF2994A));
     });
 
-    test('ألوان الحالة والأسطح', () {
-      expect(light.colorScheme.error, const Color(0xFFCC0000));
-      expect(light.colorScheme.surface, const Color(0xFFFFFFFF));
-      expect(light.colorScheme.onSurface, const Color(0xFF1E1E1E));
-      expect(light.colorScheme.onPrimary, const Color(0xFFFFFFFF));
-      expect(light.colorScheme.outline, const Color(0xFFD6D6D6));
-      expect(light.colorScheme.outlineVariant, const Color(0xFFDADCE1));
+    testWidgets('ألوان الحالة والأسطح', (tester) async {
+      final theme = await _pumpAndReadTheme(tester);
+
+      expect(theme.colorScheme.error, const Color(0xFFCC0000));
+      expect(theme.colorScheme.surface, const Color(0xFFFFFFFF));
+      expect(theme.colorScheme.onSurface, const Color(0xFF1E1E1E));
+      expect(theme.colorScheme.onPrimary, const Color(0xFFFFFFFF));
+      expect(theme.colorScheme.outline, const Color(0xFFD6D6D6));
+      expect(theme.colorScheme.outlineVariant, const Color(0xFFDADCE1));
     });
 
-    test('الثيم فاتح وMaterial 3 مفعّل', () {
-      expect(light.brightness, Brightness.light);
-      expect(light.useMaterial3, isTrue);
-      expect(light.scaffoldBackgroundColor, const Color(0xFFFFFFFF));
+    testWidgets('الثيم فاتح وMaterial 3 مفعّل', (tester) async {
+      final theme = await _pumpAndReadTheme(tester);
+
+      expect(theme.brightness, Brightness.light);
+      expect(theme.useMaterial3, isTrue);
+      expect(theme.scaffoldBackgroundColor, const Color(0xFFFFFFFF));
+    });
+
+    testWidgets('الامتداد اللوني مسجّل بالثيم', (tester) async {
+      final theme = await _pumpAndReadTheme(tester);
+
+      expect(theme.extension<AppSemanticColors>(), isNotNull);
     });
   });
 
   group('التوكنات الدلالية بتطابق القيم الأصلية', () {
-    final colors = light.extension<AppSemanticColors>()!;
-
-    test('الامتداد مسجّل بالثيم', () {
-      expect(colors, isNotNull);
-    });
+    // ثوابت نقية — ما بتحتاج ScreenUtil.
+    const colors = AppSemanticColors.light;
 
     test('النصوص والحدود', () {
       expect(colors.textPrimary, const Color(0xFF1E1E1E));
@@ -71,18 +116,29 @@ void main() {
       late AppSemanticColors readColors;
       late ColorScheme readScheme;
 
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = _designSize;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       await tester.pumpWidget(
-        MaterialApp(
-          theme: light,
-          home: Builder(
-            builder: (context) {
-              readColors = context.colors;
-              readScheme = context.scheme;
-              return const SizedBox();
-            },
+        ScreenUtilInit(
+          designSize: _designSize,
+          builder: (context, child) => MaterialApp(
+            theme: AppTheme.light(),
+            home: Builder(
+              builder: (context) {
+                readColors = context.colors;
+                readScheme = context.scheme;
+                return const SizedBox();
+              },
+            ),
           ),
         ),
       );
+      await tester.pumpAndSettle();
 
       expect(readColors.noticeBackground, const Color(0xFFFEF5E7));
       expect(readScheme.primary, const Color(0xFF237366));

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'app_palette.dart';
 import 'app_semantic_colors.dart';
 import 'app_spacing.dart';
+import 'app_text_styles.dart';
 
 class AppTheme {
   AppTheme._();
@@ -58,20 +59,28 @@ class AppTheme {
   // Builder
   // -------------------------
 
+  /// ⚠️ لازم تتنادى من جوّا `ScreenUtilInit` — أنماط النصوص بتستخدم `.sp`،
+  /// فلو انبنى الثيم برّا، بتنحسب القياسات على مقاس غلط.
   static ThemeData _build({
     required Brightness brightness,
     required ColorScheme scheme,
     required AppSemanticColors semanticColors,
   }) {
+    final textStyles = AppTextStyles.from(
+      colors: semanticColors,
+      scheme: scheme,
+    );
+
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
       fontFamily: 'Poppins',
+      textTheme: textStyles.toTextTheme(),
 
       // التوكنات اللي ما إلها مقابل بـ ColorScheme.
-      extensions: <ThemeExtension<dynamic>>[semanticColors],
+      extensions: <ThemeExtension<dynamic>>[semanticColors, textStyles],
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,

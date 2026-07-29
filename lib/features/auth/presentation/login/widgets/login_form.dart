@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:maan/core/design_system/app_text_styles.dart';
 import 'package:maan/core/design_system/app_validators.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
 import 'package:maan/core/design_system/widgets/custom_text_form_field.dart';
@@ -43,12 +42,9 @@ class LoginForm extends StatelessWidget {
   final VoidCallback? onTermsTap;
   final VoidCallback? onPrivacyTap;
 
-  static final _labelStyle = AppTextStyles.f16W500Black.copyWith(
-    fontSize: 16.sp,
-  );
-
   @override
   Widget build(BuildContext context) {
+    final labelStyle = context.texts.f16W500Black.copyWith(fontSize: 16.sp);
     final cubit = context.read<LoginCubit>();
 
     return Scaffold(
@@ -70,7 +66,7 @@ class LoginForm extends StatelessWidget {
 
                   LabeledField(
                     label: 'Your Email',
-                    labelStyle: _labelStyle,
+                    labelStyle: labelStyle,
                     gap: 12,
                     child: CustomTextFormField(
                       controller: emailController,
@@ -86,7 +82,7 @@ class LoginForm extends StatelessWidget {
 
                   LabeledField(
                     label: 'Your Password',
-                    labelStyle: _labelStyle,
+                    labelStyle: labelStyle,
                     gap: 12,
                     child: PasswordTextFormField(
                       controller: passwordController,
