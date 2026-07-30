@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
@@ -46,7 +47,7 @@ Future<int?> showNumberPickerSheet({
                         Navigator.pop(context);
                       },
                       child: Text(
-                        'Cancel',
+                        'cancel'.tr(),
                         style: context.texts.f14W400HintColor,
                       ),
                     ),
@@ -64,7 +65,7 @@ Future<int?> showNumberPickerSheet({
                         Navigator.pop(context, selectedValue);
                       },
                       child: Text(
-                        'Done',
+                        'done'.tr(),
                         style: context.texts.f15W600Primary,
                       ),
                     ),

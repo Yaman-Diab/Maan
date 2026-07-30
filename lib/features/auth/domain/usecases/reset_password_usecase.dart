@@ -4,7 +4,6 @@
 
 import 'package:equatable/equatable.dart';
 
-import '../../../../core/error/failure.dart';
 import '../../../../core/result/result.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../repositories/auth_repository.dart';
@@ -29,13 +28,11 @@ class ResetPasswordUseCase implements UseCase<void, ResetPasswordParams> {
 
   const ResetPasswordUseCase(this._authRepository);
 
+  /// تطابق الكلمتين تحقّق واجهة أصلاً (`AppValidators.confirmPasswordValidator`)
+  /// ومترجم بـ`passwords_do_not_match` — الفورم بيمنع الإرسال قبل ما توصل
+  /// هون، فتكرار الفحص هون بس بيعني نص عربي إضافي بلا ترجمة إنجليزية.
   @override
-  Future<Result<void>> call(ResetPasswordParams params) async {
-    // تطابق الكلمتين قاعدة عمل، مش تحقق واجهة — فبتنفّذ قبل أي طلب شبكة.
-    if (params.password != params.passwordConfirmation) {
-      return const Err<void>(ValidationFailure('كلمتا المرور غير متطابقتين'));
-    }
-
+  Future<Result<void>> call(ResetPasswordParams params) {
     return _authRepository.resetPassword(
       code: params.code,
       password: params.password,

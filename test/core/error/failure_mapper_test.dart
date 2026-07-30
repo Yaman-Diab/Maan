@@ -157,7 +157,7 @@ void main() {
       );
 
       expect(failure, isA<UnknownFailure>());
-      expect(failure.message, 'تعذر قراءة استجابة الخادم');
+      expect(failure.message, 'error_unreadable_response');
     });
 
     test('أي استثناء آخر بيصير UnknownFailure', () {

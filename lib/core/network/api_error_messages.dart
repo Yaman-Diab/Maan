@@ -3,10 +3,15 @@
 // -------------------------
 
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'api_error_codes.dart';
 import 'api_status_codes.dart';
 
+/// هاي الطبقة الوحيدة اللي بتحوّل استجابة الشبكة لنص جاهز للعرض.
+///
+/// كل رسالة بترجع عبر `.tr()` بدل نص عربي ثابت، حتى تتبع لغة التطبيق
+/// الحالية بدل ما تظهر بالعربي دائماً حتى لو المستخدم مبدّل لإنجليزي.
 class ApiErrorMessages {
   ApiErrorMessages._();
 
@@ -17,7 +22,7 @@ class ApiErrorMessages {
     String? fallbackMessage,
   }) {
     if (_isConnectionError(dioExceptionType)) {
-      return 'تعذر الاتصال بالخادم، تحقق من الإنترنت وحاول مرة أخرى';
+      return 'error_connection'.tr();
     }
 
     final messageFromErrorCode = _messageFromErrorCode(
@@ -46,59 +51,59 @@ class ApiErrorMessages {
       // -------------------------
 
       case ApiErrorCodes.invalidCredentials:
-        return 'رقم الهاتف أو كلمة المرور غير صحيحة';
+        return 'error_invalid_credentials'.tr();
 
       case ApiErrorCodes.inactiveAccount:
-        return 'هذا الحساب غير مفعّل';
+        return 'error_inactive_account'.tr();
 
       case ApiErrorCodes.invalidToken:
-        return 'الجلسة غير صالحة، يرجى تسجيل الدخول مرة أخرى';
+        return 'error_invalid_session'.tr();
 
       case ApiErrorCodes.tokenNotValid:
-        return 'انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى';
+        return 'error_session_expired'.tr();
 
       // -------------------------
       // Validation
       // -------------------------
 
       case ApiErrorCodes.validationError:
-        return fallbackMessage ?? 'يرجى التحقق من البيانات المدخلة';
+        return fallbackMessage ?? 'error_validation_generic'.tr();
 
       // -------------------------
       // OTP
       // -------------------------
 
       case ApiErrorCodes.otpInvalid:
-        return 'رمز التحقق غير صحيح';
+        return 'error_otp_invalid'.tr();
 
       case ApiErrorCodes.otpExpired:
-        return 'انتهت صلاحية رمز التحقق، اطلب رمزًا جديدًا';
+        return 'error_otp_expired'.tr();
 
       case ApiErrorCodes.otpMaxAttempts:
-        return 'تم تجاوز عدد المحاولات المسموح، اطلب رمزًا جديدًا';
+        return 'error_otp_max_attempts'.tr();
 
       case ApiErrorCodes.otpRateLimited:
-        return fallbackMessage ?? 'يرجى الانتظار قليلًا قبل طلب رمز جديد';
+        return fallbackMessage ?? 'error_otp_rate_limited'.tr();
 
       case ApiErrorCodes.otpDeliveryFailed:
-        return 'تعذر إرسال رمز التحقق، حاول مرة أخرى';
+        return 'error_otp_delivery_failed'.tr();
 
       // -------------------------
       // User
       // -------------------------
 
       case ApiErrorCodes.userNotFound:
-        return 'لم يتم العثور على المستخدم';
+        return 'error_user_not_found'.tr();
 
       // -------------------------
       // Google
       // -------------------------
 
       case ApiErrorCodes.googleInvalidToken:
-        return 'تعذر التحقق من حساب Google';
+        return 'error_google_invalid_token'.tr();
 
       case ApiErrorCodes.googleNotConfigured:
-        return 'تسجيل الدخول عبر Google غير مفعّل حاليًا';
+        return 'error_google_not_configured'.tr();
 
       default:
         return null;
@@ -115,31 +120,31 @@ class ApiErrorMessages {
   }) {
     switch (statusCode) {
       case ApiStatusCodes.badRequest:
-        return fallbackMessage ?? 'البيانات المدخلة غير صحيحة';
+        return fallbackMessage ?? 'error_bad_request'.tr();
 
       case ApiStatusCodes.unauthorized:
-        return 'يرجى تسجيل الدخول للمتابعة';
+        return 'error_unauthorized'.tr();
 
       case ApiStatusCodes.forbidden:
-        return 'ليس لديك صلاحية لتنفيذ هذا الإجراء';
+        return 'error_forbidden'.tr();
 
       case ApiStatusCodes.notFound:
-        return 'العنصر المطلوب غير موجود';
+        return 'error_not_found'.tr();
 
       case ApiStatusCodes.gone:
-        return 'انتهت صلاحية هذا الطلب';
+        return 'error_gone'.tr();
 
       case ApiStatusCodes.tooManyRequests:
-        return 'تمت محاولات كثيرة، يرجى الانتظار قليلًا';
+        return 'error_too_many_requests'.tr();
 
       case ApiStatusCodes.internalServerError:
-        return 'حدث خطأ في الخادم، يرجى المحاولة لاحقًا';
+        return 'error_server'.tr();
 
       case ApiStatusCodes.serviceUnavailable:
-        return 'الخدمة غير متاحة حاليًا، يرجى المحاولة لاحقًا';
+        return 'error_service_unavailable'.tr();
 
       default:
-        return fallbackMessage ?? 'حدث خطأ غير متوقع';
+        return fallbackMessage ?? 'error_unknown'.tr();
     }
   }
 

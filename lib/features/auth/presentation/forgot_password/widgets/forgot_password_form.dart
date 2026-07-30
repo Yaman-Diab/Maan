@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -55,13 +56,13 @@ class ForgotPasswordForm extends StatelessWidget {
                           SizedBox(height: 56.h),
 
                           LabeledField(
-                            label: 'Your Email',
+                            label: 'your_email'.tr(),
                             labelStyle: context.texts.f16W500Black.copyWith(
                               fontSize: 14.sp,
                             ),
                             child: CustomTextFormField(
                               controller: emailController,
-                              hintText: 'Enter your email address',
+                              hintText: 'enter_email'.tr(),
                               validationMessage: AppValidators.emailValidator,
                               keyBoardType: TextInputType.emailAddress,
                               textInputAction: TextInputAction.done,

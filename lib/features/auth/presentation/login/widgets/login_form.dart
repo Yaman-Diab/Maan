@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,7 +15,7 @@ import 'auth_footer_sign_up.dart';
 import 'forgot_password_button.dart';
 import 'login_header.dart';
 import 'login_submit_button.dart';
-import 'login_terms_agreement_field.dart';
+import '../../shared/widgets/terms_agreement_field.dart';
 import 'login_terms_notice_box.dart';
 
 class LoginForm extends StatelessWidget {
@@ -65,12 +66,12 @@ class LoginForm extends StatelessWidget {
                   SizedBox(height: 88.h),
 
                   LabeledField(
-                    label: 'Your Email',
+                    label: 'your_email'.tr(),
                     labelStyle: labelStyle,
                     gap: 12,
                     child: CustomTextFormField(
                       controller: emailController,
-                      hintText: 'Enter your email address',
+                      hintText: 'enter_email'.tr(),
                       validationMessage: AppValidators.emailValidator,
                       keyBoardType: TextInputType.emailAddress,
                       autofillHints: const [AutofillHints.email],
@@ -81,13 +82,13 @@ class LoginForm extends StatelessWidget {
                   SizedBox(height: 24.h),
 
                   LabeledField(
-                    label: 'Your Password',
+                    label: 'your_password'.tr(),
                     labelStyle: labelStyle,
                     gap: 12,
                     child: PasswordTextFormField(
                       controller: passwordController,
                       validationMessage: AppValidators.passwordValidator,
-                      hintText: 'Enter your password',
+                      hintText: 'enter_password'.tr(),
                       textInputAction: TextInputAction.done,
                       autofillHints: const [AutofillHints.password],
                       onChanged: cubit.passwordChanged,
@@ -102,7 +103,8 @@ class LoginForm extends StatelessWidget {
 
                   SizedBox(height: 16.h),
 
-                  LoginTermsAgreementField(
+                  TermsAgreementField(
+                    textTopPadding: 2,
                     value: state.isTermsAccepted,
                     onChanged: cubit.termsToggled,
                     onTermsTap: onTermsTap,

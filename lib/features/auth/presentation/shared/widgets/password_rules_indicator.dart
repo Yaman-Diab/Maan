@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -43,13 +44,13 @@ class _PasswordRulesGrid extends StatelessWidget {
             Expanded(
               child: PasswordRuleItem(
                 isValid: checks.hasMinLength,
-                text: 'At least 8 characters',
+                text: 'password_rule_min_length'.tr(),
               ),
             ),
             Expanded(
               child: PasswordRuleItem(
                 isValid: checks.hasSpecialCharacter,
-                text: 'Special character',
+                text: 'password_rule_special_char'.tr(),
               ),
             ),
           ],
@@ -60,13 +61,13 @@ class _PasswordRulesGrid extends StatelessWidget {
             Expanded(
               child: PasswordRuleItem(
                 isValid: checks.hasNumber,
-                text: 'At least 1 number (0-9)',
+                text: 'password_rule_number'.tr(),
               ),
             ),
             Expanded(
               child: PasswordRuleItem(
                 isValid: checks.hasUpperAndLowerCase,
-                text: 'Upper & lowercase',
+                text: 'password_rule_case'.tr(),
               ),
             ),
           ],
@@ -88,22 +89,22 @@ class _PasswordRulesVertical extends StatelessWidget {
       children: [
         PasswordRuleItem(
           isValid: checks.hasMinLength,
-          text: 'At least 8 characters',
+          text: 'password_rule_min_length'.tr(),
         ),
         SizedBox(height: 8.h),
         PasswordRuleItem(
           isValid: checks.hasNumber,
-          text: 'At least one number (0-9)',
+          text: 'password_rule_number'.tr(),
         ),
         SizedBox(height: 8.h),
         PasswordRuleItem(
           isValid: checks.hasUpperAndLowerCase,
-          text: 'At least one uppercase & lowercase letter',
+          text: 'password_rule_case'.tr(),
         ),
         SizedBox(height: 8.h),
         PasswordRuleItem(
           isValid: checks.hasSpecialCharacter,
-          text: 'One special character such as ! @ # \$',
+          text: 'password_rule_special_char'.tr(),
         ),
       ],
     );

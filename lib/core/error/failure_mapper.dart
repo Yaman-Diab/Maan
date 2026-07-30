@@ -2,6 +2,8 @@
 // Failure Mapper
 // -------------------------
 
+import 'package:easy_localization/easy_localization.dart';
+
 import '../network/api_error_codes.dart';
 import '../network/api_exception.dart';
 import '../network/api_response_keys.dart';
@@ -25,10 +27,10 @@ class FailureMapper {
     }
 
     if (error is FormatException) {
-      return const UnknownFailure('تعذر قراءة استجابة الخادم');
+      return UnknownFailure('error_unreadable_response'.tr());
     }
 
-    return const UnknownFailure('حدث خطأ غير متوقع');
+    return UnknownFailure('error_unknown'.tr());
   }
 
   static Failure fromApiException(ApiException exception) {

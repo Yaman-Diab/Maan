@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -30,7 +31,7 @@ class LoginTermsNoticeBox extends StatelessWidget {
           SizedBox(width: 10.w),
           Expanded(
             child: Text(
-              'Please read the Terms of Use and Privacy Policy. They explain your responsibilities and the actions that may be taken in case of violations.',
+              'terms_notice'.tr(),
               style: context.texts.f12W400SecColor,
             ),
           ),

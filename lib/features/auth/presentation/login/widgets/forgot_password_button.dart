@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
@@ -17,7 +18,7 @@ class ForgotPasswordButton extends StatelessWidget {
       child: TextButton(
         onPressed: onTap,
         child: Text(
-          'Forgot Password?',
+          'forgot_password'.tr(),
           style: context.texts.f14W400PrimaryUnderline.copyWith(
             fontSize: 14.sp,
           ),

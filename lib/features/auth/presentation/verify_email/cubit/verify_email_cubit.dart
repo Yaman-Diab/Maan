@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/error/failure.dart';
@@ -150,15 +151,17 @@ class VerifyEmailCubit extends Cubit<VerifyEmailState> {
     final code = state.code.trim();
 
     if (code.isEmpty) {
-      return 'Verification code is required';
+      return 'code_required'.tr();
     }
 
     if (code.length != state.codeLength) {
-      return 'Please enter the ${state.codeLength}-digit verification code';
+      return 'code_length_error'.tr(
+        namedArgs: {'length': '${state.codeLength}'},
+      );
     }
 
     if (!RegExp(r'^\d+$').hasMatch(code)) {
-      return 'Verification code must contain digits only';
+      return 'code_digits_only'.tr();
     }
 
     return null;

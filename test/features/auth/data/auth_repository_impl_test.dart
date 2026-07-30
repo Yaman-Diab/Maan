@@ -228,12 +228,12 @@ void main() {
 
       expect(result, isA<Err<AuthSession>>());
       expect(result.failureOrNull, isA<UnknownFailure>());
-      expect(result.failureOrNull?.message, 'تعذر قراءة استجابة الخادم');
+      expect(result.failureOrNull?.message, 'error_unreadable_response');
     });
   });
 
   group('مسار الفشل — الاستثناءات بتتحوّل لـ Failure', () {
-    test('401 ببيانات دخول خاطئة بترجع AuthFailure برسالة عربية', () async {
+    test('401 ببيانات دخول خاطئة بترجع AuthFailure بمفتاح الرسالة', () async {
       final sut = _build(() => _json({'code': 'invalid_credentials'}, 401));
 
       final result = await sut.repository.login(
@@ -244,7 +244,7 @@ void main() {
       expect(result.failureOrNull, isA<AuthFailure>());
       expect(
         result.failureOrNull?.message,
-        'رقم الهاتف أو كلمة المرور غير صحيحة',
+        'error_invalid_credentials',
       );
     });
 
@@ -302,7 +302,7 @@ void main() {
       expect(result.failureOrNull, isA<NetworkFailure>());
       expect(
         result.failureOrNull?.message,
-        'تعذر الاتصال بالخادم، تحقق من الإنترنت وحاول مرة أخرى',
+        'error_connection',
       );
     });
   });

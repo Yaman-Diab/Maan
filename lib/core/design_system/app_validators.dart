@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:maan/core/design_system/app_strings.dart';
 
 class AppValidators {
   // -------------------------
@@ -7,7 +6,7 @@ class AppValidators {
   // -------------------------
   static String? emailValidator(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return AppStrings.emailRequired.tr();
+      return 'email_required'.tr();
     }
 
     final email = value.trim();
@@ -15,7 +14,7 @@ class AppValidators {
     final regex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
 
     if (!regex.hasMatch(email)) {
-      return AppStrings.emailInvalid.tr();
+      return 'email_invalid'.tr();
     }
 
     return null;
@@ -26,34 +25,34 @@ class AppValidators {
   // -------------------------
   static String? passwordValidator(String? value) {
     if (value == null || value.isEmpty) {
-      return AppStrings.passwordRequired.tr();
+      return 'password_required'.tr();
     }
 
     final password = value.trim();
 
     // At least 8 characters
     if (password.length < 8) {
-      return AppStrings.passwordTooShort.tr();
+      return 'password_too_short'.tr();
     }
 
     // At least 1 number
     if (!RegExp(r'\d').hasMatch(password)) {
-      return AppStrings.passwordNeedsDigit.tr();
+      return 'password_needs_digit'.tr();
     }
 
     // Uppercase
     if (!RegExp(r'[A-Z]').hasMatch(password)) {
-      return AppStrings.passwordNeedsUppercase.tr();
+      return 'password_needs_uppercase'.tr();
     }
 
     // Lowercase
     if (!RegExp(r'[a-z]').hasMatch(password)) {
-      return AppStrings.passwordNeedsLowercase.tr();
+      return 'password_needs_lowercase'.tr();
     }
 
     // Special character
     if (!RegExp(r'[!@#$%^&*(),.?":{}|<>_\-\\/\[\]=+]').hasMatch(password)) {
-      return AppStrings.passwordNeedsSpecialChar.tr();
+      return 'password_needs_special_char'.tr();
     }
 
     return null;
@@ -61,10 +60,10 @@ class AppValidators {
 
   static String? confirmPasswordValidator(String? value, String? password) {
     if (value == null || value.isEmpty) {
-      return AppStrings.confirmPasswordRequired.tr();
+      return 'confirm_password_required'.tr();
     }
     if (value != password) {
-      return AppStrings.passwordsDoNotMatch.tr();
+      return 'passwords_do_not_match'.tr();
     }
     return null;
   }

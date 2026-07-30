@@ -69,7 +69,7 @@ void main() {
       verify: (cubit) {
         expect(
           cubit.state.codeError,
-          'Verification code must contain digits only',
+          'code_digits_only',
         );
         verifyNever(() => checkCodeUseCase(any()));
       },

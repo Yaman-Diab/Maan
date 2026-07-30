@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
@@ -41,7 +42,7 @@ class BirthdayFields extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Your birthday',
+          'your_birthday'.tr(),
           style: context.texts.f16W500Black.copyWith(fontSize: 16.sp),
         ),
         SizedBox(height: 10.h),
@@ -50,7 +51,7 @@ class BirthdayFields extends StatelessWidget {
             Expanded(
               child: _PickerField(
                 controller: dayController,
-                hintText: 'Day',
+                hintText: 'day_hint'.tr(),
                 borderColor: borderColor,
                 onTap: () => _pickDay(context),
               ),
@@ -59,7 +60,7 @@ class BirthdayFields extends StatelessWidget {
             Expanded(
               child: _PickerField(
                 controller: monthController,
-                hintText: 'Month',
+                hintText: 'month_hint'.tr(),
                 borderColor: borderColor,
                 onTap: () => _pickMonth(context),
               ),
@@ -68,7 +69,7 @@ class BirthdayFields extends StatelessWidget {
             Expanded(
               child: _PickerField(
                 controller: yearController,
-                hintText: 'Year',
+                hintText: 'year_hint'.tr(),
                 borderColor: borderColor,
                 onTap: () => _pickYear(context),
               ),
@@ -94,7 +95,7 @@ class BirthdayFields extends StatelessWidget {
   Future<void> _pickDay(BuildContext context) async {
     final selected = await showNumberPickerSheet(
       context: context,
-      title: 'Select Day',
+      title: 'select_day'.tr(),
       values: List.generate(
         state.maxDayForSelectedMonthYear,
         (index) => index + 1,
@@ -111,7 +112,7 @@ class BirthdayFields extends StatelessWidget {
   Future<void> _pickMonth(BuildContext context) async {
     final selected = await showNumberPickerSheet(
       context: context,
-      title: 'Select Month',
+      title: 'select_month'.tr(),
       values: List.generate(12, (index) => index + 1),
       initialValue: state.initialMonth,
       labelBuilder: _padded,
@@ -125,7 +126,7 @@ class BirthdayFields extends StatelessWidget {
   Future<void> _pickYear(BuildContext context) async {
     final selected = await showNumberPickerSheet(
       context: context,
-      title: 'Select Year',
+      title: 'select_year'.tr(),
       values: state.yearValues,
       initialValue: state.initialYear,
     );

@@ -2,6 +2,7 @@
 // App Router
 // -------------------------
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:maan/features/auth/presentation/create_new_password/pages/create_new_password_page.dart';
@@ -42,9 +43,9 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.splash,
         builder: (context, state) {
-          return const _TempPage(
-            title: 'Splash',
-            description: 'Loading...',
+          return _TempPage(
+            title: 'loading'.tr(),
+            description: 'loading'.tr(),
           );
         },
       ),
@@ -114,9 +115,9 @@ class AppRouter {
               GoRoute(
                 path: AppRoutes.home,
                 builder: (context, state) {
-                  return const _TempPage(
-                    title: 'الرئيسية',
-                    description: 'Home Page',
+                  return _TempPage(
+                    title: 'nav_home'.tr(),
+                    description: 'home_page_placeholder'.tr(),
                   );
                 },
               ),
@@ -128,9 +129,9 @@ class AppRouter {
               GoRoute(
                 path: AppRoutes.profile,
                 builder: (context, state) {
-                  return const _TempPage(
-                    title: 'حسابي',
-                    description: 'Profile Page',
+                  return _TempPage(
+                    title: 'nav_profile'.tr(),
+                    description: 'profile_page_placeholder'.tr(),
                   );
                 },
               ),
@@ -141,8 +142,8 @@ class AppRouter {
     ],
     errorBuilder: (context, state) {
       return _TempPage(
-        title: 'Page Not Found',
-        description: state.error?.toString() ?? 'Route not found',
+        title: 'page_not_found_title'.tr(),
+        description: state.error?.toString() ?? 'route_not_found'.tr(),
       );
     },
   );

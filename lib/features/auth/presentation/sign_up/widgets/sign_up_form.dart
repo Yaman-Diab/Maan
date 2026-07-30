@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -16,7 +17,7 @@ import 'auth_footer_sign_in.dart';
 import 'birthday_fields.dart';
 import 'sign_up_header.dart';
 import 'sign_up_submit_button.dart';
-import 'terms_agreement_field.dart';
+import '../../shared/widgets/terms_agreement_field.dart';
 import 'terms_notice_box.dart';
 
 class SignUpForm extends StatelessWidget {
@@ -59,18 +60,18 @@ class SignUpForm extends StatelessWidget {
               children: [
                 Expanded(
                   child: LabeledField(
-                    label: 'First name',
+                    label: 'first_name'.tr(),
                     labelStyle: labelStyle,
                     child: CustomTextFormField(
                       controller: controllers.firstName,
-                      hintText: 'Ahmad',
+                      hintText: 'first_name_hint'.tr(),
                       keyBoardType: TextInputType.name,
                       autofillHints: const [AutofillHints.givenName],
                       onChanged: cubit.firstNameChanged,
                       validationMessage: (value) =>
                           SignUpFormValidators.requiredName(
                             value,
-                            'First name',
+                            'first_name'.tr(),
                           ),
                     ),
                   ),
@@ -78,16 +79,16 @@ class SignUpForm extends StatelessWidget {
                 SizedBox(width: 10.w),
                 Expanded(
                   child: LabeledField(
-                    label: 'Last name',
+                    label: 'last_name'.tr(),
                     labelStyle: labelStyle,
                     child: CustomTextFormField(
                       controller: controllers.lastName,
-                      hintText: 'Abo Hawa',
+                      hintText: 'last_name_hint'.tr(),
                       keyBoardType: TextInputType.name,
                       autofillHints: const [AutofillHints.familyName],
                       onChanged: cubit.lastNameChanged,
                       validationMessage: (value) =>
-                          SignUpFormValidators.requiredName(value, 'Last name'),
+                          SignUpFormValidators.requiredName(value, 'last_name'.tr()),
                     ),
                   ),
                 ),
@@ -116,11 +117,11 @@ class SignUpForm extends StatelessWidget {
             ),
             SizedBox(height: 18.h),
             LabeledField(
-              label: 'Your Email',
+              label: 'your_email'.tr(),
               labelStyle: labelStyle,
               child: CustomTextFormField(
                 controller: controllers.email,
-                hintText: 'Enter your email address',
+                hintText: 'enter_email'.tr(),
                 keyBoardType: TextInputType.emailAddress,
                 autofillHints: const [AutofillHints.email],
                 onChanged: cubit.emailChanged,
@@ -129,11 +130,11 @@ class SignUpForm extends StatelessWidget {
             ),
             SizedBox(height: 18.h),
             LabeledField(
-              label: 'Your Password',
+              label: 'your_password'.tr(),
               labelStyle: labelStyle,
               child: PasswordTextFormField(
                 controller: controllers.password,
-                hintText: 'Enter your password',
+                hintText: 'enter_password'.tr(),
                 textInputAction: TextInputAction.next,
                 autofillHints: const [AutofillHints.newPassword],
                 onChanged: cubit.passwordChanged,
@@ -144,11 +145,11 @@ class SignUpForm extends StatelessWidget {
             PasswordRulesIndicator(checks: state.passwordChecks),
             SizedBox(height: 18.h),
             LabeledField(
-              label: 'Confirm Password',
+              label: 'confirm_password'.tr(),
               labelStyle: labelStyle,
               child: PasswordTextFormField(
                 controller: controllers.confirmPassword,
-                hintText: 'Re-enter your password',
+                hintText: 'enter_confirm_password'.tr(),
                 textInputAction: TextInputAction.done,
                 autofillHints: const [AutofillHints.newPassword],
                 onChanged: cubit.confirmPasswordChanged,

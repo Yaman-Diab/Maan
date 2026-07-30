@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:maan/core/design_system/widgets/app_button.dart';
 
@@ -20,7 +21,7 @@ class CreateNewPasswordSubmitButton extends StatelessWidget {
       child: Opacity(
         opacity: canSubmit ? 1 : 0.45,
         child: AppButton(
-          buttonText: isSubmitting ? 'Updating...' : 'Update Password',
+          buttonText: isSubmitting ? 'updating'.tr() : 'update_password'.tr(),
           buttonOnPressed: onPressed,
         ),
       ),

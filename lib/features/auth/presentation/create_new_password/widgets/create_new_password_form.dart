@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -43,10 +44,10 @@ class CreateNewPasswordForm extends StatelessWidget {
             SizedBox(height: 40.h),
 
             LabeledField(
-              label: 'Your Password',
+              label: 'your_password'.tr(),
               child: PasswordTextFormField(
                 controller: passwordController,
-                hintText: 'Enter your password',
+                hintText: 'enter_password'.tr(),
                 textInputAction: TextInputAction.next,
                 autofillHints: const [AutofillHints.newPassword],
                 onChanged: cubit.passwordChanged,
@@ -57,10 +58,10 @@ class CreateNewPasswordForm extends StatelessWidget {
             SizedBox(height: 18.h),
 
             LabeledField(
-              label: 'Confirm Password',
+              label: 'confirm_password'.tr(),
               child: PasswordTextFormField(
                 controller: confirmPasswordController,
-                hintText: 'Re-enter your password',
+                hintText: 'enter_confirm_password'.tr(),
                 textInputAction: TextInputAction.done,
                 autofillHints: const [AutofillHints.newPassword],
                 onChanged: cubit.confirmPasswordChanged,

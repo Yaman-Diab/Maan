@@ -4,7 +4,6 @@
 
 import 'package:equatable/equatable.dart';
 
-import '../../../../core/error/failure.dart';
 import '../../../../core/result/result.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../entities/birth_date.dart';
@@ -46,13 +45,11 @@ class RegisterUseCase implements UseCase<void, RegisterParams> {
 
   const RegisterUseCase(this._authRepository);
 
+  /// تطابق الكلمتين تحقّق واجهة أصلاً (`AppValidators.confirmPasswordValidator`)
+  /// ومترجم بـ`passwords_do_not_match` — الفورم بيمنع الإرسال قبل ما توصل
+  /// هون، فتكرار الفحص هون بس بيعني نص عربي إضافي بلا ترجمة إنجليزية.
   @override
-  Future<Result<void>> call(RegisterParams params) async {
-    // تطابق الكلمتين قاعدة عمل، فبتنفّذ قبل أي طلب شبكة.
-    if (params.password != params.passwordConfirmation) {
-      return const Err<void>(ValidationFailure('كلمتا المرور غير متطابقتين'));
-    }
-
+  Future<Result<void>> call(RegisterParams params) {
     return _authRepository.register(
       firstName: params.firstName,
       lastName: params.lastName,

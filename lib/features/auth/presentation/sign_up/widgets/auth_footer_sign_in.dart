@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
 
@@ -16,14 +17,14 @@ class AuthFooterSignIn extends StatelessWidget {
         text: TextSpan(
           style: context.texts.f14W400HintColor,
           children: [
-            const TextSpan(text: 'Already have an account? '),
+            TextSpan(text: 'already_have_account'.tr()),
             WidgetSpan(
               alignment: PlaceholderAlignment.baseline,
               baseline: TextBaseline.alphabetic,
               child: GestureDetector(
                 onTap: onSignInTap,
                 child: Text(
-                  'Sign in',
+                  'sign_in'.tr(),
                   style: context.texts.f15W600Primary,
                 ),
               ),

@@ -7,6 +7,9 @@ import 'package:mocktail/mocktail.dart';
 
 class _MockAuthRepository extends Mock implements AuthRepository {}
 
+/// تطابق الكلمتين تحقّق واجهة (`AppValidators.confirmPasswordValidator`)،
+/// فالـ use case هون مجرّد تفويض للـ repository — راجع تعليق
+/// `ResetPasswordUseCase.call`.
 void main() {
   late _MockAuthRepository authRepository;
   late ResetPasswordUseCase useCase;
@@ -16,28 +19,7 @@ void main() {
     useCase = ResetPasswordUseCase(authRepository);
   });
 
-  test('عدم تطابق الكلمتين بيفشل قبل أي طلب شبكة', () async {
-    final result = await useCase(
-      const ResetPasswordParams(
-        code: '900482',
-        password: 'Secret1!',
-        passwordConfirmation: 'Different1!',
-      ),
-    );
-
-    expect(result.failureOrNull, isA<ValidationFailure>());
-    expect(result.failureOrNull?.message, 'كلمتا المرور غير متطابقتين');
-
-    verifyNever(
-      () => authRepository.resetPassword(
-        code: any(named: 'code'),
-        password: any(named: 'password'),
-        passwordConfirmation: any(named: 'passwordConfirmation'),
-      ),
-    );
-  });
-
-  test('التطابق بيمرّر الطلب للـ repository', () async {
+  test('بتمرّر الطلب للـ repository بنفس الوسائط', () async {
     when(
       () => authRepository.resetPassword(
         code: any(named: 'code'),
@@ -63,5 +45,25 @@ void main() {
         passwordConfirmation: 'Secret1!',
       ),
     ).called(1);
+  });
+
+  test('بترجّع نفس نتيجة الفشل من الـ repository', () async {
+    when(
+      () => authRepository.resetPassword(
+        code: any(named: 'code'),
+        password: any(named: 'password'),
+        passwordConfirmation: any(named: 'passwordConfirmation'),
+      ),
+    ).thenAnswer((_) async => const Err<void>(NetworkFailure('تعذر الاتصال')));
+
+    final result = await useCase(
+      const ResetPasswordParams(
+        code: '900482',
+        password: 'Secret1!',
+        passwordConfirmation: 'Secret1!',
+      ),
+    );
+
+    expect(result, isA<Err<void>>());
   });
 }

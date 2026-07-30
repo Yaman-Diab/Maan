@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
@@ -19,28 +20,28 @@ class VerificationHelpBox extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'To find your verification code:',
+            'verification_help_title'.tr(),
             style: context.texts.f14W400HintColor.copyWith(
               color: context.colors.infoForeground,
               fontWeight: FontWeight.w700,
             ),
           ),
           SizedBox(height: 12.h),
-          _HelpLine(text: '1. Open your email app or email website.'),
-          _HelpLine(text: '2. Look for a new email from the Municipality.'),
-          _HelpLine(text: '3. Open the email and find the verification code.'),
-          _HelpLine(text: '4. Enter the code in the fields provided.'),
+          _HelpLine(text: 'verification_help_step1'.tr()),
+          _HelpLine(text: 'verification_help_step2'.tr()),
+          _HelpLine(text: 'verification_help_step3'.tr()),
+          _HelpLine(text: 'verification_help_step4'.tr()),
           SizedBox(height: 4.h),
           Text(
-            'If you can’t find the email:',
+            'verification_help_missing_title'.tr(),
             style: context.texts.f14W400HintColor.copyWith(
               color: context.colors.infoForeground,
               fontWeight: FontWeight.w700,
             ),
           ),
           SizedBox(height: 8.h),
-          _HelpLine(text: '• Check your Spam or Junk folder.'),
-          _HelpLine(text: '• Wait a few minutes and resend the code.'),
+          _HelpLine(text: 'verification_help_check_spam'.tr()),
+          _HelpLine(text: 'verification_help_wait_resend'.tr()),
         ],
       ),
     );

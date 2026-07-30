@@ -85,10 +85,33 @@ core/design_system/
 ⏳ **ناقص**: شاشة الإعدادات نفسها — الأنابيب جاهزة، بس `SettingsCubit`
 لسه ما إله واجهة. راجع `FLOW.md` › Settings Flow.
 
+## الترجمة
+
+`easy_localization` مع `assets/translations/{en,ar}.json` — 119 مفتاح بالملفين.
+
+| القاعدة | التفصيل |
+|---|---|
+| **ممنوع نص ظاهر ثابت** | لا إنجليزي ولا **عربي** مكتوب بالكود. كل نص عبر `'key'.tr()`. |
+| **مفاتيح نصية مباشرة** | لا ثوابت `AppStrings` ولا codegen — الحماية من الأخطاء المطبعية من `test/localization/localization_test.dart`. |
+| **snake_case** | `verify_email_button` لا `verifyEmailButton`. مسطّحة بلا تعشيش. |
+| **الوسائط بالاسم** | `'code_length_error'.tr(namedArgs: {'length': '6'})` — لا دمج نصوص، لأن ترتيب الكلمات بيختلف بالعربي. |
+| **رسائل الشبكة** | `ApiErrorMessages` هي المصدر الوحيد؛ بترجّع `.tr()` فبتتبع لغة التطبيق. |
+
+**اتساق المصطلحات العربية** (مفروض باختبار): `تسجيل الدخول` · `إنشاء حساب` ·
+`إلغاء` · `تأكيد`، وكل حالات التحميل بصيغة `جارٍ ...`.
+
+الاختبار بيفحص: تطابق المفاتيح بين اللغتين · المفاتيح الناقصة · **غير
+المستخدمة** · المكررة · القيم الفاضية · تطابق `{args}` · علامة `؟` العربية ·
+وجود أي نص عربي ثابت بـ`lib/`.
+
+⚠️ **الاختبارات بتفحص المفتاح لا النص**: `.tr()` بترجّع المفتاح نفسه لما
+تكون الترجمة غير مهيّأة، فـ`expect(failure.message, 'error_connection')`
+مقصودة وبتخلّي الاختبارات مستقلة عن اللغة.
+
 ## الاختبار
 
 ```
-flutter test        # 116 اختبار
+flutter test        # 136 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -114,6 +137,10 @@ flutter analyze     # صفر ملاحظات
 | `verify_email` | `POST /api/auth/checkCode` + `POST /api/email/verification-notification` |
 | `forgot_password` | `POST /api/auth/forgetPassword` |
 | `create_new_password` | `POST /api/auth/resetPassword` |
+
+**شريط الملاحة**: تاباته لازم تطابق فروع `StatefulShellRoute` عدداً وترتيباً —
+`goBranch` بترمي لو الفهرس خارج المدى. حالياً تابان (`home` و`profile`)
+مقابل فرعين. عند إضافة تاب، أضف فرعه بالراوتر بنفس اللحظة.
 
 **فجوات معروفة**:
 - ⚠️ **`national_id` مطلوب بالتسجيل وما إله حقل بالواجهة** — بيوصل فاضي
