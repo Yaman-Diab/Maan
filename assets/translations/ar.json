@@ -96,6 +96,9 @@
   "birthday_invalid_date": "يرجى اختيار تاريخ ميلاد صحيح",
   "birthday_too_young": "يجب أن يكون عمرك {age} سنة على الأقل",
 
+  "app_name": "معاً",
+  "splash_title": "منصّة إدارة الخدمات البلدية",
+  "splash_subtitle": "خدماتك البلدية بمكان واحد",
   "loading": "جارٍ التحميل...",
   "page_not_found_title": "الصفحة غير موجودة",
   "route_not_found": "المسار غير موجود",

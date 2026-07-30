@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- النسخة الداكنة — تطابق AppPalette.darkSurface بـ AppSemanticColors.dark -->
+<resources>
+    <color name="maan_splash_background">#15171C</color>
+    <color name="maan_icon_background">#FFFFFF</color>
+</resources>

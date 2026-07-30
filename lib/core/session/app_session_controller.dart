@@ -24,12 +24,29 @@ class AppSessionController extends ChangeNotifier {
   // Bootstrap
   // -------------------------
 
-  Future<void> bootstrap() async {
+  /// [minimumDuration] حدّ أدنى **لا تأخير إضافي**: لو خلص الإقلاع بـ80ms
+  /// بننتظر الباقي، ولو أخذ ثلاث ثوانٍ ما بنضيف عليه ولا ملّي ثانية.
+  ///
+  /// السبب إن `isInitialized` هو اللي بيرفع شاشة البداية عبر
+  /// `AppRedirect`، وحركة دخولها بتاخد وقتاً — بلا هالحدّ بتختفي الشاشة
+  /// قبل ما تكتمل الحركة. القيمة بتجي من نقطة التركيب لا مكتوبة هون،
+  /// فالتحكم بالتوقيت بيضل عند الواجهة.
+  Future<void> bootstrap({
+    Duration minimumDuration = Duration.zero,
+  }) async {
+    final startedAt = DateTime.now();
+
     _isLoggedIn = await storage.isLoggedIn();
     _isGuest = await storage.isGuest();
 
     if (!_isLoggedIn && !_isGuest) {
       await _setGuestState();
+    }
+
+    final remaining = minimumDuration - DateTime.now().difference(startedAt);
+
+    if (remaining > Duration.zero) {
+      await Future<void>.delayed(remaining);
     }
 
     _isInitialized = true;

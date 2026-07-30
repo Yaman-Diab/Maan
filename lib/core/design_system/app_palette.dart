@@ -41,6 +41,13 @@ abstract final class AppPalette {
   static const Color canvas = Color(0xFFF5F6FA);
 
   // -------------------------
+  // Splash Gradient
+  // -------------------------
+
+  static const Color mist100 = Color(0xFFE9F1EF);
+  static const Color mist50 = Color(0xFFF1F4F3);
+
+  // -------------------------
   // Tinted Surfaces
   // -------------------------
 

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ (API 31) بيتجاهل `windowBackground` بشاشة الإقلاع ويستخدم
+  SplashScreen API بدلها. بلا هالملف بيرجع النظام للسلوك الافتراضي:
+  خلفية بيضاء وأيقونة التطبيق — وهاد سبب ظهور شعار Flutter الافتراضي.
+
+  الرمز بيجي من الأيقونة التكيّفية (mipmap-anydpi-v26/ic_launcher.xml)،
+  فالتعديل عليها بينعكس هون تلقائياً.
+-->
+<resources>
+    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowSplashScreenBackground">@color/maan_splash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+    </style>
+
+    <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">@color/maan_splash_background</item>
+    </style>
+</resources>

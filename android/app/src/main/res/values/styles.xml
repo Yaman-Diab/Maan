@@ -13,6 +13,9 @@
 
          This Theme is only used starting with V2 of Flutter's Android embedding. -->
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
-        <item name="android:windowBackground">?android:colorBackground</item>
+        <!-- بلون الهوية لا ?android:colorBackground: هاي الخلفية اللي
+             بتبان بين اختفاء شاشة إقلاع النظام وأول إطار من Flutter،
+             فلو ضلت بيضاء بيصير وميض أبيض قبل SplashPage. -->
+        <item name="android:windowBackground">@color/maan_splash_background</item>
     </style>
 </resources>

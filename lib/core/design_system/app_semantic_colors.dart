@@ -42,6 +42,11 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
   final Color infoBackground;
   final Color infoForeground;
 
+  /// تدرّج خلفية شاشة البداية — من الأعلى للأسفل، والنهاية
+  /// [pageBackground] فما إلها توكن ثالث.
+  final Color splashGradientTop;
+  final Color splashGradientMiddle;
+
   const AppSemanticColors({
     required this.textPrimary,
     required this.textSecondary,
@@ -57,6 +62,8 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     required this.noticeForeground,
     required this.infoBackground,
     required this.infoForeground,
+    required this.splashGradientTop,
+    required this.splashGradientMiddle,
   });
 
   /// القيم الحالية للتطبيق حرفياً — بلا أي تغيير بصري.
@@ -75,6 +82,8 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     noticeForeground: AppPalette.amber700,
     infoBackground: AppPalette.blue50,
     infoForeground: AppPalette.navy800,
+    splashGradientTop: AppPalette.mist100,
+    splashGradientMiddle: AppPalette.mist50,
   );
 
   /// نسخة داكنة أوّلية — بتنضبط فعلياً بالمرحلة 3.
@@ -93,6 +102,8 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     noticeForeground: Color(0xFFE0A93B),
     infoBackground: Color(0xFF16223A),
     infoForeground: Color(0xFF9EC1F5),
+    splashGradientTop: AppPalette.darkSurface,
+    splashGradientMiddle: AppPalette.darkSurfaceElevated,
   );
 
   @override
@@ -111,6 +122,8 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     Color? noticeForeground,
     Color? infoBackground,
     Color? infoForeground,
+    Color? splashGradientTop,
+    Color? splashGradientMiddle,
   }) {
     return AppSemanticColors(
       textPrimary: textPrimary ?? this.textPrimary,
@@ -128,6 +141,9 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
       noticeForeground: noticeForeground ?? this.noticeForeground,
       infoBackground: infoBackground ?? this.infoBackground,
       infoForeground: infoForeground ?? this.infoForeground,
+      splashGradientTop: splashGradientTop ?? this.splashGradientTop,
+      splashGradientMiddle:
+          splashGradientMiddle ?? this.splashGradientMiddle,
     );
   }
 
@@ -163,6 +179,16 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
       )!,
       infoBackground: Color.lerp(infoBackground, other.infoBackground, t)!,
       infoForeground: Color.lerp(infoForeground, other.infoForeground, t)!,
+      splashGradientTop: Color.lerp(
+        splashGradientTop,
+        other.splashGradientTop,
+        t,
+      )!,
+      splashGradientMiddle: Color.lerp(
+        splashGradientMiddle,
+        other.splashGradientMiddle,
+        t,
+      )!,
     );
   }
 }

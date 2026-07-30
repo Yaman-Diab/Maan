@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ألوان هوية «معاً» للطبقة الأصلية (Android).
+
+  لازم تطابق التوكنات بـ lib/core/design_system/app_palette.dart:
+  maan_splash_background = mist100 = أعلى تدرّج SplashPage، فالانتقال من
+  شاشة إقلاع النظام لشاشة Flutter بيصير بلا وميض لوني.
+-->
+<resources>
+    <color name="maan_splash_background">#E9F1EF</color>
+    <color name="maan_icon_background">#FFFFFF</color>
+</resources>

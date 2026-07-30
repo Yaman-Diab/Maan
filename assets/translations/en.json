@@ -96,6 +96,9 @@
   "birthday_invalid_date": "Please select a valid birth date",
   "birthday_too_young": "You must be at least {age} years old",
 
+  "app_name": "Ma’an",
+  "splash_title": "Municipal Services Management Platform",
+  "splash_subtitle": "Your municipal services in one place",
   "loading": "Loading...",
   "page_not_found_title": "Page Not Found",
   "route_not_found": "Route not found",

@@ -15,6 +15,7 @@ import 'core/settings/cubit/settings_cubit.dart';
 import 'core/settings/cubit/settings_state.dart';
 import 'core/settings/widgets/text_scale_scope.dart';
 import 'features/auth/auth_injection.dart';
+import 'features/splash/presentation/pages/splash_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,7 +82,10 @@ Future<void> main() async {
     ),
   );
 
-  await sessionController.bootstrap();
+  // الحدّ الأدنى بيجي من الشاشة نفسها لأنه مشتق من مدة حركتها.
+  await sessionController.bootstrap(
+    minimumDuration: SplashPage.minimumDuration,
+  );
 }
 
 class MaanApp extends StatelessWidget {
@@ -91,8 +95,6 @@ class MaanApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // الثيم بينبنى هون — جوّا ScreenUtilInit — لأن أنماط النصوص بتستخدم
-    // ‎.sp، فبناؤه برّا بيحسب القياسات على مقاس غلط.
     return BlocBuilder<SettingsCubit, SettingsState>(
       builder: (context, settings) {
         return MaterialApp.router(

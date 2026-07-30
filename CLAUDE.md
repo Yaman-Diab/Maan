@@ -111,7 +111,7 @@ core/design_system/
 ## الاختبار
 
 ```
-flutter test        # 136 اختبار
+flutter test        # 142 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -137,6 +137,12 @@ flutter analyze     # صفر ملاحظات
 | `verify_email` | `POST /api/auth/checkCode` + `POST /api/email/verification-notification` |
 | `forgot_password` | `POST /api/auth/forgetPassword` |
 | `create_new_password` | `POST /api/auth/resetPassword` |
+
+**شاشة البداية**: `features/splash/presentation/` — عرض بحت بلا domain ولا
+data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` بيقلب
+`isInitialized` فيشتغل `AppRedirect` وينقل المستخدم. الحركات من ثلاثة
+`AnimationController` (حلقات 3s · نقاط 1.2s · دخول لمرة وحدة)، وكل عنصر
+متكرر بياخد نفس المنحنى بإزاحة زمنية بدل متحكّم لكل واحد.
 
 **شريط الملاحة**: تاباته لازم تطابق فروع `StatefulShellRoute` عدداً وترتيباً —
 `goBranch` بترمي لو الفهرس خارج المدى. حالياً تابان (`home` و`profile`)
