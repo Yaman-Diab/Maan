@@ -92,6 +92,17 @@ class FailureMapper {
       return NetworkFailure(message, code: code);
     }
 
+    // رمز HTTP ناجح لكن `ApiClient` رماها: يعني مظروف فاشل
+    // (`status: 0` أو `success: false`). بنصنّفها حسب وجود أخطاء حقول
+    // بدل ما توقع على UnknownFailure لمجرّد إن الرمز 200.
+    if (ApiStatusCodes.isSuccess(statusCode)) {
+      final fieldErrors = _extractFieldErrors(exception.data);
+
+      return fieldErrors == null
+          ? UnknownFailure(message, code: code)
+          : ValidationFailure(message, code: code, fieldErrors: fieldErrors);
+    }
+
     if (ApiStatusCodes.isUnauthorized(statusCode) ||
         statusCode == ApiStatusCodes.forbidden) {
       return AuthFailure(message, code: code);

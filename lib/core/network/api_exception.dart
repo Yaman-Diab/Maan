@@ -146,6 +146,12 @@ class ApiException implements Exception {
         final code = firstError[ApiResponseKeys.code];
         return code?.toString();
       }
+
+      // شكل المظروف الجديد: `"errors":["route_not_found"]` — الكود نص
+      // مباشرة داخل المصفوفة لا كائن.
+      if (firstError is String && firstError.isNotEmpty) {
+        return firstError;
+      }
     }
 
     return null;

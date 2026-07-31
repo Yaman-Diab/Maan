@@ -15,4 +15,15 @@ class ApiResponseKeys {
   static const String data = 'data';
   static const String errors = 'errors';
   static const String meta = 'meta';
+
+  // -------------------------
+  // Response Envelope
+  // -------------------------
+  //
+  // الـ backend بيرجّع الفشل برمز HTTP 200 والحالة الحقيقية بالجسم،
+  // وبشكلين غير متسقين: `status: 1|0` و`success: true|false`.
+  // راجع `ApiEnvelope`.
+
+  static const String status = 'status';
+  static const String success = 'success';
 }

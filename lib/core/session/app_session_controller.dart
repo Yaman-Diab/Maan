@@ -6,6 +6,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../storage/secure_storage_service.dart';
+import 'account_status.dart';
 
 class AppSessionController extends ChangeNotifier {
   final SecureStorageService storage;
@@ -15,10 +16,22 @@ class AppSessionController extends ChangeNotifier {
   bool _isInitialized = false;
   bool _isLoggedIn = false;
   bool _isGuest = false;
+  AccountStatus _accountStatus = AccountStatus.unknown;
 
   bool get isInitialized => _isInitialized;
   bool get isLoggedIn => _isLoggedIn;
   bool get isGuest => _isGuest;
+
+  /// حالة الحساب على السيرفر — بتحدد شو المستخدم مسموح يعمل.
+  ///
+  /// المتحكّم ما بيعرف **من وين** بتجي: ممكن من استجابة الدخول أو من
+  /// `/api/profile`. اللي بيجيبها بينادي [accountStatusChanged]، فالربط
+  /// بيضل سطراً واحداً مهما تغيّر عقد الباك اند.
+  AccountStatus get accountStatus => _accountStatus;
+
+  /// اختصار للحراسة — `AppRedirect` وواجهات الميزات بتستخدمه.
+  bool get canUseMunicipalityServices =>
+      _isLoggedIn && _accountStatus.canUseMunicipalityServices;
 
   // -------------------------
   // Bootstrap
@@ -39,6 +52,10 @@ class AppSessionController extends ChangeNotifier {
     _isLoggedIn = await storage.isLoggedIn();
     _isGuest = await storage.isGuest();
 
+    // النسخة المخبّأة حتى يطلع أول إطار بالصلاحية الصحيحة بدل ما ينتظر
+    // الشبكة. السيرفر بيصحّحها لاحقاً عبر accountStatusChanged.
+    _accountStatus = AccountStatus.fromApi(await storage.getAccountStatus());
+
     if (!_isLoggedIn && !_isGuest) {
       await _setGuestState();
     }
@@ -57,11 +74,30 @@ class AppSessionController extends ChangeNotifier {
   // Auth State
   // -------------------------
 
-  Future<void> loginCompleted() async {
+  /// [accountStatus] اختياري لأن عقد استجابة الدخول لسه غير مثبّت: لو ما
+  /// رجّعت حالة الحساب، بتضل [AccountStatus.unknown] لحد ما تُجلب من
+  /// `/api/profile` وتوصل عبر [accountStatusChanged].
+  Future<void> loginCompleted({AccountStatus? accountStatus}) async {
     _isLoggedIn = true;
     _isGuest = false;
 
     await storage.setGuest(false);
+
+    if (accountStatus != null) {
+      await _persistAccountStatus(accountStatus);
+    }
+
+    notifyListeners();
+  }
+
+  /// تحديث حالة الحساب من السيرفر.
+  ///
+  /// نقطة الدخول الوحيدة لأي مصدر — استجابة الدخول، أو `/api/profile`،
+  /// أو مزامنة بعد اعتماد التوثيق.
+  Future<void> accountStatusChanged(AccountStatus status) async {
+    if (_accountStatus == status) return;
+
+    await _persistAccountStatus(status);
 
     notifyListeners();
   }
@@ -96,5 +132,14 @@ class AppSessionController extends ChangeNotifier {
 
     _isLoggedIn = false;
     _isGuest = true;
+
+    // الزائر بلا حساب، فأي صلاحية سابقة لازم تسقط.
+    _accountStatus = AccountStatus.unknown;
+  }
+
+  Future<void> _persistAccountStatus(AccountStatus status) async {
+    _accountStatus = status;
+
+    await storage.saveAccountStatus(status.wireValue);
   }
 }

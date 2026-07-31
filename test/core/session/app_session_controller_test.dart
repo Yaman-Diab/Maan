@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:maan/core/session/account_status.dart';
 import 'package:maan/core/session/app_session_controller.dart';
 import 'package:maan/core/storage/secure_storage_service.dart';
 import 'package:mocktail/mocktail.dart';
@@ -16,6 +17,14 @@ void main() {
     when(() => storage.isLoggedIn()).thenAnswer((_) async => false);
     when(() => storage.isGuest()).thenAnswer((_) async => false);
     when(() => storage.setGuest(any())).thenAnswer((_) async {});
+    when(() => storage.getAccountStatus()).thenAnswer((_) async => null);
+    when(() => storage.saveAccountStatus(any())).thenAnswer((_) async {});
+    when(
+      () => storage.clearSession(
+        keepGuestFlag: any(named: 'keepGuestFlag'),
+        keepVisitorId: any(named: 'keepVisitorId'),
+      ),
+    ).thenAnswer((_) async {});
   });
 
   group('bootstrap — الحالة', () {
@@ -105,6 +114,92 @@ void main() {
       await future;
 
       expect(controller.isInitialized, isTrue);
+    });
+  });
+
+  group('حالة الحساب', () {
+    test('بتبدأ unknown — أقل صلاحية', () {
+      expect(controller.accountStatus, AccountStatus.unknown);
+      expect(controller.canUseMunicipalityServices, isFalse);
+    });
+
+    test('bootstrap بيسترجع الحالة المخبّأة', () async {
+      when(() => storage.getAccountStatus()).thenAnswer((_) async => 'verified');
+      when(() => storage.isLoggedIn()).thenAnswer((_) async => true);
+
+      await controller.bootstrap();
+
+      expect(controller.accountStatus, AccountStatus.verified);
+      expect(controller.canUseMunicipalityServices, isTrue);
+    });
+
+    test('قيمة مخزّنة تالفة ما بتوقّع الإقلاع', () async {
+      when(() => storage.getAccountStatus()).thenAnswer((_) async => '!!تالف!!');
+
+      await controller.bootstrap();
+
+      expect(controller.accountStatus, AccountStatus.unknown);
+      expect(controller.isInitialized, isTrue);
+    });
+
+    test('accountStatusChanged بتحفظ وبتبلّغ المستمعين', () async {
+      var notified = 0;
+      controller.addListener(() => notified++);
+
+      await controller.accountStatusChanged(AccountStatus.verified);
+
+      expect(controller.accountStatus, AccountStatus.verified);
+      expect(notified, 1);
+      verify(() => storage.saveAccountStatus('verified')).called(1);
+    });
+
+    test('نفس القيمة ما بتصدر إشعاراً ولا بتكتب', () async {
+      await controller.accountStatusChanged(AccountStatus.verified);
+
+      var notified = 0;
+      controller.addListener(() => notified++);
+
+      await controller.accountStatusChanged(AccountStatus.verified);
+
+      expect(notified, 0);
+      verify(() => storage.saveAccountStatus('verified')).called(1);
+    });
+
+    test('loginCompleted بتقبل الحالة اختيارياً — العقد لسه غير مثبّت', () async {
+      await controller.loginCompleted();
+      expect(
+        controller.accountStatus,
+        AccountStatus.unknown,
+        reason: 'بلا حالة من الاستجابة بتضل مجهولة لحد ما تُجلب من profile',
+      );
+
+      await controller.loginCompleted(accountStatus: AccountStatus.verified);
+      expect(controller.accountStatus, AccountStatus.verified);
+    });
+
+    test('تسجيل الخروج بيسقط الصلاحية', () async {
+      await controller.accountStatusChanged(AccountStatus.verified);
+
+      await controller.logout();
+
+      expect(controller.accountStatus, AccountStatus.unknown);
+      expect(controller.canUseMunicipalityServices, isFalse);
+    });
+
+    test('انتهاء الجلسة (401) بيسقط الصلاحية كمان', () async {
+      await controller.accountStatusChanged(AccountStatus.verified);
+
+      await controller.handleUnauthorized();
+
+      expect(controller.accountStatus, AccountStatus.unknown);
+    });
+
+    test('الصلاحية بتحتاج تسجيل دخول مش بس حالة موثّقة', () async {
+      await controller.accountStatusChanged(AccountStatus.verified);
+
+      // ما صار loginCompleted، فـ isLoggedIn لسه false.
+      expect(controller.isLoggedIn, isFalse);
+      expect(controller.canUseMunicipalityServices, isFalse);
     });
   });
 

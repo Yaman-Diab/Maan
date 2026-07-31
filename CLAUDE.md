@@ -111,7 +111,7 @@ core/design_system/
 ## الاختبار
 
 ```
-flutter test        # 142 اختبار
+flutter test        # 189 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -137,6 +137,20 @@ flutter analyze     # صفر ملاحظات
 | `verify_email` | `POST /api/auth/checkCode` + `POST /api/email/verification-notification` |
 | `forgot_password` | `POST /api/auth/forgetPassword` |
 | `create_new_password` | `POST /api/auth/resetPassword` |
+
+**مظروف الاستجابة** ⚠️: الـ backend بيرجّع **الفشل بـ HTTP 200** والحالة
+الحقيقية بالجسم (`status: 0` أو `success: false`). `ApiEnvelope` بيكشفها
+داخل `ApiClient`، فما في ميثود بتحتاج تفحص بنفسها. الكشف **صريح فقط** —
+`"status": "active"` (حقل خدمة) ما بينحسب فشلاً.
+
+**حالة الحساب**: `AccountStatus` بـ`core/session/` مش بـ`features/auth/`،
+لأنها اهتمام صلاحيات عابر للميزات (شكاوى، طابور، تصويت). مصدرها الوحيد
+`AppSessionController.accountStatusChanged` مهما تغيّر مصدر البيانات.
+أي قيمة مجهولة بتنعامل كـ**أقل صلاحية**.
+
+**حراسة المسارات**: `AppRedirect.verifiedOnlyRoutes` — فاضية اليوم لأن
+`home` و`profile` متاحتان للزائر. عند إضافة شاشة خدمة، ضيف مسارها للقائمة
+وبتشتغل الحراسة تلقائياً.
 
 **شاشة البداية**: `features/splash/presentation/` — عرض بحت بلا domain ولا
 data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` بيقلب

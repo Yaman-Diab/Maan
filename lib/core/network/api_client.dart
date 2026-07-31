@@ -4,6 +4,7 @@
 
 import 'package:dio/dio.dart';
 
+import 'api_envelope.dart';
 import 'api_exception.dart';
 
 enum ApiMethod { get, post, put, patch, delete }
@@ -72,6 +73,12 @@ class ApiClient {
       final statusCode = response.statusCode ?? 0;
 
       if (statusCode >= 200 && statusCode < 300) {
+        // رمز HTTP ناجح ما بيعني نجاح: الـ backend بيرجّع الفشل بـ200
+        // والحالة الحقيقية بالجسم. راجع `ApiEnvelope`.
+        if (ApiEnvelope.indicatesFailure(response.data)) {
+          throw ApiException.fromResponse(response);
+        }
+
         return response.data ?? {};
       }
 

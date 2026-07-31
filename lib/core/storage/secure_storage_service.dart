@@ -14,6 +14,7 @@ class SecureStorageKeys {
   static const String userData = 'USER_DATA';
   static const String isGuest = 'IS_GUEST';
   static const String visitorId = 'VISITOR_ID';
+  static const String accountStatus = 'ACCOUNT_STATUS';
 }
 
 class SecureStorageService {
@@ -126,6 +127,26 @@ class SecureStorageService {
   }
 
   // -------------------------
+  // Account Status
+  // -------------------------
+  //
+  // بينحفظ حتى يطلع أول إطار بعد إعادة التشغيل بالصلاحية الصحيحة بدل ما
+  // ينتظر استجابة `/api/profile`. القيمة من السيرفر هي المرجع، وهاي نسخة
+  // مخبّأة بتتحدّث مع كل مزامنة.
+
+  Future<void> saveAccountStatus(String value) async {
+    await _write(key: SecureStorageKeys.accountStatus, value: value);
+  }
+
+  Future<String?> getAccountStatus() async {
+    return _read(SecureStorageKeys.accountStatus);
+  }
+
+  Future<void> clearAccountStatus() async {
+    await _delete(SecureStorageKeys.accountStatus);
+  }
+
+  // -------------------------
   // Guest
   // -------------------------
 
@@ -171,6 +192,9 @@ class SecureStorageService {
   }) async {
     await clearTokens();
     await clearUser();
+
+    // لازم تنمسح مع الجلسة، وإلا بيرث المستخدم التالي صلاحية السابق.
+    await clearAccountStatus();
 
     if (!keepVisitorId) {
       await clearVisitorId();

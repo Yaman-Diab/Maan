@@ -12,6 +12,7 @@ import 'package:maan/features/auth/presentation/sign_up/pages/sign_up_page.dart'
 import 'package:maan/features/auth/presentation/verify_email/pages/verify_email_page.dart';
 import 'package:maan/features/splash/presentation/pages/splash_page.dart';
 import '../../features/app_shell/app_shell_page.dart';
+import '../session/account_status.dart';
 import 'app_redirect.dart';
 import 'app_routes.dart';
 import 'route_args.dart';
@@ -22,12 +23,14 @@ class AppRouter {
  required this.isInitialized,
  required this.isLoggedIn,
  this.isFirstLaunch,
+ this.accountStatus,
   });
 
   final Listenable refreshListenable;
   final bool Function() isInitialized;
   final bool Function() isLoggedIn;
   final bool Function()? isFirstLaunch;
+  final AccountStatus Function()? accountStatus;
 
   late final GoRouter router = GoRouter(
  initialLocation: AppRoutes.splash,
@@ -38,6 +41,7 @@ class AppRouter {
      isInitialized: isInitialized(),
      isLoggedIn: isLoggedIn(),
      isFirstLaunch: isFirstLaunch?.call() ?? false,
+     accountStatus: accountStatus?.call() ?? AccountStatus.unknown,
    ).call(state);
  },
     routes: [

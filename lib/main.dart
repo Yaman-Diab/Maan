@@ -56,6 +56,7 @@ Future<void> main() async {
     isInitialized: () => sessionController.isInitialized,
     isLoggedIn: () => sessionController.isLoggedIn,
     isFirstLaunch: () => false,
+    accountStatus: () => sessionController.accountStatus,
   );
 
   // -------------------------
