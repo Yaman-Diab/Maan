@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 
+import 'password_policy.dart';
+
 class AppValidators {
   // -------------------------
   // Email Validator
@@ -21,8 +23,23 @@ class AppValidators {
   }
 
   // -------------------------
-  // Password Validator
+  // Password Validators
   // -------------------------
+
+  /// لشاشة الدخول: كلمة المرور موجودة أصلاً بحساب المستخدم، فما إلها
+  /// معنى نفرض عليها سياسة القوة الحالية — حساب قديم بكلمة مرور
+  /// صحيحة بس ما بتحقق الشروط الجديدة (مثلاً بلا رمز خاص) كان
+  /// [passwordValidator] بيمنع صاحبه من تسجيل الدخول إطلاقاً.
+  static String? loginPasswordValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'password_required'.tr();
+    }
+
+    return null;
+  }
+
+  /// لشاشات إنشاء/تغيير كلمة المرور، وين فعلاً عم تُنشأ قيمة جديدة
+  /// ولازم تحقق السياسة الكاملة.
   static String? passwordValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'password_required'.tr();
@@ -30,28 +47,23 @@ class AppValidators {
 
     final password = value.trim();
 
-    // At least 8 characters
-    if (password.length < 8) {
+    if (!PasswordPolicy.hasMinLength(password)) {
       return 'password_too_short'.tr();
     }
 
-    // At least 1 number
-    if (!RegExp(r'\d').hasMatch(password)) {
+    if (!PasswordPolicy.hasDigit(password)) {
       return 'password_needs_digit'.tr();
     }
 
-    // Uppercase
-    if (!RegExp(r'[A-Z]').hasMatch(password)) {
+    if (!PasswordPolicy.hasUppercase(password)) {
       return 'password_needs_uppercase'.tr();
     }
 
-    // Lowercase
-    if (!RegExp(r'[a-z]').hasMatch(password)) {
+    if (!PasswordPolicy.hasLowercase(password)) {
       return 'password_needs_lowercase'.tr();
     }
 
-    // Special character
-    if (!RegExp(r'[!@#$%^&*(),.?":{}|<>_\-\\/\[\]=+]').hasMatch(password)) {
+    if (!PasswordPolicy.hasSpecialCharacter(password)) {
       return 'password_needs_special_char'.tr();
     }
 

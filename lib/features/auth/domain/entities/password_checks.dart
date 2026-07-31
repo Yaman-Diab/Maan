@@ -4,9 +4,14 @@
 
 import 'package:equatable/equatable.dart';
 
+import '../../../../core/design_system/password_policy.dart';
+
 /// قواعد قوة كلمة المرور، بتغذّي مؤشر القواعد بالواجهة.
 ///
-/// كانت مكررة نسختين متطابقتين تحت `auth/models/` و`sign_up/models/`.
+/// القواعد الخام (الأطوال والـ regex) مصدرها `PasswordPolicy` بـ`core/`
+/// — نفس المصدر اللي بيبني عليه `AppValidators` رسائل الفورم. قبلها
+/// كانت القواعد مكتوبة مرتين بشكل مستقل (وقبلها كمان مكررة حرفياً
+/// تحت `auth/models/` و`sign_up/models/`).
 final class PasswordChecks extends Equatable {
   final bool hasMinLength;
   final bool hasNumber;
@@ -31,14 +36,12 @@ final class PasswordChecks extends Equatable {
 
   factory PasswordChecks.fromPassword(String password) {
     return PasswordChecks(
-      hasMinLength: password.length >= 8,
-      hasNumber: RegExp(r'[0-9]').hasMatch(password),
-      hasSpecialCharacter: RegExp(
-        r'[!@#\$%^&*(),.?":{}|<>_\-\\/\[\]=+]',
-      ).hasMatch(password),
+      hasMinLength: PasswordPolicy.hasMinLength(password),
+      hasNumber: PasswordPolicy.hasDigit(password),
+      hasSpecialCharacter: PasswordPolicy.hasSpecialCharacter(password),
       hasUpperAndLowerCase:
-          RegExp(r'[A-Z]').hasMatch(password) &&
-          RegExp(r'[a-z]').hasMatch(password),
+          PasswordPolicy.hasUppercase(password) &&
+          PasswordPolicy.hasLowercase(password),
     );
   }
 

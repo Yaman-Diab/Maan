@@ -87,7 +87,7 @@ class LoginForm extends StatelessWidget {
                     gap: 12,
                     child: PasswordTextFormField(
                       controller: passwordController,
-                      validationMessage: AppValidators.passwordValidator,
+                      validationMessage: AppValidators.loginPasswordValidator,
                       hintText: 'enter_password'.tr(),
                       textInputAction: TextInputAction.done,
                       autofillHints: const [AutofillHints.password],

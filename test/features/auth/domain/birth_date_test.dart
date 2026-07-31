@@ -30,9 +30,9 @@ void main() {
     });
 
     test('أحدث من الحد الأقصى مرفوضة', () {
-      // 2026 - 16 = 2010
-      expect(BirthDate.maxAllowedYear(_now), 2010);
-      expect(_validate(day: 1, month: 1, year: 2011), BirthDateError.invalidYear);
+      // 2026 - 14 = 2012
+      expect(BirthDate.maxAllowedYear(_now), 2012);
+      expect(_validate(day: 1, month: 1, year: 2013), BirthDateError.invalidYear);
     });
   });
 
@@ -55,12 +55,12 @@ void main() {
   });
 
   group('الحد الأدنى للعمر', () {
-    test('عمر 16 بالضبط مقبول', () {
-      expect(_validate(day: 29, month: 7, year: 2010), isNull);
+    test('عمر 14 بالضبط مقبول', () {
+      expect(_validate(day: 29, month: 7, year: 2012), isNull);
     });
 
-    test('أصغر من 16 بيوم واحد مرفوض', () {
-      expect(_validate(day: 30, month: 7, year: 2010), BirthDateError.tooYoung);
+    test('أصغر من 14 بيوم واحد مرفوض', () {
+      expect(_validate(day: 30, month: 7, year: 2012), BirthDateError.tooYoung);
     });
   });
 

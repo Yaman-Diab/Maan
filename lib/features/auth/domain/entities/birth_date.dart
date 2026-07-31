@@ -10,9 +10,12 @@ enum BirthDateError { missing, invalidYear, invalidMonth, invalidDate, tooYoung 
 ///
 /// كان هذا المنطق موزّعاً على getters داخل `SignUpController` ومربوطاً
 /// بـ`TextEditingController`. صار هون كـ Dart نقي، فصار قابل للاختبار
-/// بحالاته الحدية (29 شباط، عمر 16 بالضبط، يوم 31 بشهر 30).
+/// بحالاته الحدية (29 شباط، عمر 14 بالضبط، يوم 31 بشهر 30).
 final class BirthDate extends Equatable {
-  static const int minimumAge = 16;
+  /// سنّ استلام الهوية الشخصية — مؤكَّد من صاحب المشروع، لا افتراض.
+  /// كان الكود القديم بـ`SignUpController` مبني على 16 خطأً؛ التوثيق
+  /// (`User Story Documentation.md`) نصّ على 14 من البداية.
+  static const int minimumAge = 14;
   static const int minimumYear = 1900;
 
   final int day;
