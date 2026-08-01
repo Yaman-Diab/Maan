@@ -48,8 +48,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   /// منبعت **حقل الصورة لحاله**: الباك اند بيحدّث اللي وصله فقط، فإرسال
   /// باقي الحقول معه بيخاطر بالكتابة فوق قيم ما قصد المستخدم يغيّرها.
   ///
-  /// ⚠️ **اسم الحقل غير مؤكّد** — `avatar` تخمين باصطلاح Laravel. أي
-  /// تصحيح بينطبق على [_avatarField] وبس.
+  /// اسم الحقل `image` — مؤكّد من الباك اند، لا تبدّله لـ`avatar`
+  /// «تصحيحاً» لأن هيك بتوقع الميزة بصمت.
   @override
   Future<String?> uploadAvatar({
     required Uint8List bytes,
@@ -68,7 +68,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     return _readAvatarUrl(response);
   }
 
-  static const String _avatarField = 'avatar';
+  /// اسم الحقل كما بينتظره `POST /api/profile/update`.
+  static const String _avatarField = 'image';
 
   /// الرابط ممكن يرجع بالجذر أو تحت `data` أو ما يرجع أبداً. `null`
   /// نتيجة صحيحة: الواجهة أصلاً بتعرض الملف المحلي بعد الرفع.
@@ -80,7 +81,9 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     final data = json[ApiResponseKeys.data];
     final container = data is Map ? Map<String, dynamic>.from(data) : json;
 
-    for (final key in ['avatar_url', 'avatar', 'image_url', 'image', 'url']) {
+    // `image` أولاً: هيك بيسمّي الباك اند الحقل بالإرسال، فالأرجح إنه
+    // نفس التسمية بالاستجابة.
+    for (final key in ['image', 'image_url', 'avatar_url', 'avatar', 'url']) {
       final value = container[key];
 
       if (value is String && value.trim().isNotEmpty) return value;

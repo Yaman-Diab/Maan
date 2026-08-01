@@ -128,7 +128,7 @@ void main() {
   });
 
   group('رفع الصورة الشخصية', () {
-    test('POST بـ multipart على /api/profile/update بحقل اسمه avatar', () async {
+    test('POST بـ multipart على /api/profile/update بحقل اسمه image', () async {
       final built = _buildWith(
         () => _json({'status': 1, 'data': {'avatar_url': 'https://cdn/a.jpg'}}, 200),
       );
@@ -149,7 +149,7 @@ void main() {
       // تغيير عليه قراراً واعياً لا انزلاقاً صامتاً.
       final files = (data as FormData).files;
       expect(files, hasLength(1));
-      expect(files.single.key, 'avatar');
+      expect(files.single.key, 'image');
       expect(files.single.value.filename, 'avatar.jpg');
 
       // المسار بيحدّث الملف كاملاً، فإرسال حقول ثانية معه بيكتب فوق
