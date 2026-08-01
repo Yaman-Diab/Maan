@@ -87,7 +87,7 @@ core/design_system/
 
 ## الترجمة
 
-`easy_localization` مع `assets/translations/{en,ar}.json` — 119 مفتاح بالملفين.
+`easy_localization` مع `assets/translations/{en,ar}.json` — 150 مفتاح بالملفين.
 
 | القاعدة | التفصيل |
 |---|---|
@@ -108,10 +108,16 @@ core/design_system/
 تكون الترجمة غير مهيّأة، فـ`expect(failure.message, 'error_connection')`
 مقصودة وبتخلّي الاختبارات مستقلة عن اللغة.
 
+⚠️ **الماسح بيقرأ التعليقات كمان**: بيدوّر على المفتاح الحرفي قبل نقطة
+الترجمة بكل سطر بلا استثناء، فذكر النمط داخل تعليق بيسجّل «مفتاح مستخدم»
+اسمه `key` وبيوقّع الاختبار. ولنفس السبب المفتاح لازم يكون **نصاً حرفياً**
+لا متغيّراً — لو احتجت اختيار بين مفاتيح، مرّر دالة ترجمة لا اسم مفتاح
+(راجع `ProfileContent._count`).
+
 ## الاختبار
 
 ```
-flutter test        # 227 اختبار
+flutter test        # 270 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -137,6 +143,7 @@ flutter analyze     # صفر ملاحظات
 | `verify_email` | `POST /api/auth/checkCode` + `POST /api/email/verification-notification` |
 | `forgot_password` | `POST /api/auth/forgetPassword` |
 | `create_new_password` | `POST /api/auth/resetPassword` |
+| `profile` | `GET /api/profile` |
 
 **مظروف الاستجابة** ⚠️: الـ backend بيرجّع **الفشل بـ HTTP 200** والحالة
 الحقيقية بالجسم (`status: 0` أو `success: false`). `ApiEnvelope` بيكشفها
@@ -158,6 +165,20 @@ data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` ب
 `AnimationController` (حلقات 3s · نقاط 1.2s · دخول لمرة وحدة)، وكل عنصر
 متكرر بياخد نفس المنحنى بإزاحة زمنية بدل متحكّم لكل واحد.
 
+**الملف الشخصي**: `features/profile/` — أول ميزة غير `auth` بالمشروع.
+`GET /api/profile` بيرجّع **نفس كائن المستخدم** تبع استجابة الدخول، فالميزة
+بتعيد استخدام `AuthUser` و`AuthUserModel` من `features/auth/` بدل نسخة
+ثانية بنفس الحقول. استيراد بين ميزتين مقبول هون لأنه كيان domain نقي؛ لو
+ظهر مستهلك ثالث، بينتقل لـ`core/session/` متل `AccountStatus`.
+
+الشاشة كمان **أحدث مصدر لحالة الحساب**: `ProfileCubit` بينادي
+`accountStatusChanged` عند كل تحميل ناجح، لأن التوثيق ممكن يكون اعتُمد بعد
+آخر تسجيل دخول.
+
+⚠️ **الزائر ما بيضرب الـ endpoint**: `ProfilePage` بتفحص `isLoggedIn` قبل
+ما تبني الـ Cubit. بلا هالحارس، فتح التاب كزائر بيرجّع 401 فـ
+`AuthInterceptor` بيفهمها «انتهت الجلسة» وبيسجّل خروج.
+
 **شريط الملاحة**: تاباته لازم تطابق فروع `StatefulShellRoute` عدداً وترتيباً —
 `goBranch` بترمي لو الفهرس خارج المدى. حالياً تابان (`home` و`profile`)
 مقابل فرعين. عند إضافة تاب، أضف فرعه بالراوتر بنفس اللحظة.
@@ -176,6 +197,17 @@ data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` ب
   مش `refresh_token` منفصل بالـ body. السلوك الحالي عند 401 بعد
   انتهاء الصلاحية: تسجيل خروج بدل تجديد صامت — آمن بس مش الأفضل.
   يحتاج تأكيد صريح من الباك اند قبل إعادة كتابة `AuthInterceptor`.
+- ⚠️ **مؤشرات الملف الشخصي وعدّاداته بلا عقد** — التصميم بيعرض «مؤشر
+  المواطنة» و«مؤشر التوثيق» وعدّادات التطوع/المساهمات/التراخيص، وما في
+  ولا endpoint بـ`collection.md` بيرجّعهم. `ProfileStats` كل حقولها
+  `null` والواجهة بتعرض «—» بدل رقم مخترع. أسماء المفاتيح المتوقّعة
+  مكتوبة بـ`CitizenProfileModel._Keys` كتخمين موثّق — لما يثبّتها الباك
+  اند، التعديل بملف واحد.
+- ما في حقل صورة بـ`/api/profile` ولا endpoint لرفعها، فـ`ProfileAvatar`
+  بيعرض حرفَي الاسم. («Drop photo» بملف التصميم أداة محرّر لا عنصر واجهة.)
+- شاشة تعديل بيانات الهوية غير موجودة، فزر «تعديل» ما بينعرض للزائر
+  (`ProfileContent.onEditTap` بتوصل `null`). نفس الشي لأيقونة الإعدادات
+  بـ`ProfilePage.onSettingsTap` لحد ما تنبني شاشة الإعدادات.
 
 **تناقضات بالـ collection تجاهلناها عمداً**:
 - جسم `login` بالتوثيق بيسرد `first_name` و`birth_date` و

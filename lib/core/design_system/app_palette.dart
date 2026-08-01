@@ -56,6 +56,18 @@ abstract final class AppPalette {
   static const Color navy800 = Color(0xFF173763);
 
   // -------------------------
+  // Tints (10% Alpha)
+  // -------------------------
+  //
+  // شفافة لا مدموجة مسبقاً: التصميم بيكتبها `rgba(...,0.10)` فوق بطاقة
+  // بيضا، بس نفس التوكن بينستخدم فوق أسطح مختلفة (وأغمق بالوضع الداكن).
+  // لون مدموج مسبقاً بيصير كذبة أول ما تتغير الخلفية تحته.
+
+  static const Color teal600Tint10 = Color(0x1A237366);
+  static const Color teal400Tint10 = Color(0x1A4DA396);
+  static const Color green600Tint10 = Color(0x1A1B9E4B);
+
+  // -------------------------
   // Dark Neutrals
   // -------------------------
   //

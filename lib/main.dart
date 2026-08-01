@@ -15,6 +15,7 @@ import 'core/settings/cubit/settings_cubit.dart';
 import 'core/settings/cubit/settings_state.dart';
 import 'core/settings/widgets/text_scale_scope.dart';
 import 'features/auth/auth_injection.dart';
+import 'features/profile/profile_injection.dart';
 import 'features/splash/presentation/pages/splash_page.dart';
 
 Future<void> main() async {
@@ -32,6 +33,7 @@ Future<void> main() async {
 
   await setupCoreDependencies();
   registerAuthDependencies(sl);
+  registerProfileDependencies(sl);
 
   // -------------------------
   // Settings

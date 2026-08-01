@@ -28,4 +28,12 @@ class ApiEndpoints {
   /// إعادة إرسال رسالة التحقق (اصطلاح Laravel).
   static const String emailVerificationNotification =
       '$api/email/verification-notification';
+
+  // -------------------------
+  // Profile
+  // -------------------------
+
+  /// بيانات المواطن الحالي. بيحتاج توكن — الباك اند بيحدد المستخدم من
+  /// الـ `Authorization` header لا من مُعرّف بالمسار.
+  static const String profile = '$api/profile';
 }

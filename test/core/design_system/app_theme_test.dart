@@ -107,6 +107,26 @@ void main() {
     test('لون النجاح', () {
       expect(colors.success, const Color(0xFF1B9E4B));
     });
+
+    test('توكنات الملف الشخصي', () {
+      // شفافة عن قصد: نفس التوكن بينستخدم فوق البطاقة البيضا وفوق
+      // خلفية الصفحة، ولون مدموج مسبقاً بيبيّن غلط فوق وحدة منهم.
+      expect(colors.brandSurface, const Color(0x1A237366));
+      expect(colors.successSurface, const Color(0x1A1B9E4B));
+      expect(colors.trackBackground, const Color(0xFFEFEFEF));
+
+      expect(colors.brandSurface.a, lessThan(1));
+      expect(colors.successSurface.a, lessThan(1));
+    });
+
+    test('التوكنات الجديدة إلها نسخة داكنة مختلفة', () {
+      const dark = AppSemanticColors.dark;
+
+      // مسار شريط التقدّم لازم يفتّح/يغمق مع الثيم، وإلا بيختفي.
+      expect(dark.trackBackground, isNot(colors.trackBackground));
+      // لون الهوية بينفتح بالداكن، فتلوينه لازم يتبعه.
+      expect(dark.brandSurface, isNot(colors.brandSurface));
+    });
   });
 
   group('AppThemeContext', () {

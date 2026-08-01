@@ -34,6 +34,15 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
   final Color success;
   final Color warning;
 
+  /// خلفية خفيفة بلون الهوية — أيقونات مؤطّرة وشارات.
+  final Color brandSurface;
+
+  /// نفس الفكرة بلون النجاح — شارة «موثّق».
+  final Color successSurface;
+
+  /// مسار شريط التقدّم الفاضي (الجزء اللي لسه ما تعبّى).
+  final Color trackBackground;
+
   // صندوق التنبيه (شروط الاستخدام)
   final Color noticeBackground;
   final Color noticeForeground;
@@ -58,6 +67,9 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     required this.fieldDisabledBackground,
     required this.success,
     required this.warning,
+    required this.brandSurface,
+    required this.successSurface,
+    required this.trackBackground,
     required this.noticeBackground,
     required this.noticeForeground,
     required this.infoBackground,
@@ -78,6 +90,9 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     fieldDisabledBackground: AppPalette.grey100,
     success: AppPalette.green600,
     warning: AppPalette.amber700,
+    brandSurface: AppPalette.teal600Tint10,
+    successSurface: AppPalette.green600Tint10,
+    trackBackground: AppPalette.grey100,
     noticeBackground: AppPalette.amber50,
     noticeForeground: AppPalette.amber700,
     infoBackground: AppPalette.blue50,
@@ -98,6 +113,10 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     fieldDisabledBackground: AppPalette.darkSurface,
     success: AppPalette.green600,
     warning: AppPalette.amber700,
+    // نسخة الهوية المفتوحة، لأن teal600 بيختفي فوق سطح داكن.
+    brandSurface: AppPalette.teal400Tint10,
+    successSurface: AppPalette.green600Tint10,
+    trackBackground: AppPalette.darkBorder,
     noticeBackground: Color(0xFF2A2213),
     noticeForeground: Color(0xFFE0A93B),
     infoBackground: Color(0xFF16223A),
@@ -118,6 +137,9 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     Color? fieldDisabledBackground,
     Color? success,
     Color? warning,
+    Color? brandSurface,
+    Color? successSurface,
+    Color? trackBackground,
     Color? noticeBackground,
     Color? noticeForeground,
     Color? infoBackground,
@@ -137,6 +159,9 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
           fieldDisabledBackground ?? this.fieldDisabledBackground,
       success: success ?? this.success,
       warning: warning ?? this.warning,
+      brandSurface: brandSurface ?? this.brandSurface,
+      successSurface: successSurface ?? this.successSurface,
+      trackBackground: trackBackground ?? this.trackBackground,
       noticeBackground: noticeBackground ?? this.noticeBackground,
       noticeForeground: noticeForeground ?? this.noticeForeground,
       infoBackground: infoBackground ?? this.infoBackground,
@@ -167,6 +192,9 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
       )!,
       success: Color.lerp(success, other.success, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
+      brandSurface: Color.lerp(brandSurface, other.brandSurface, t)!,
+      successSurface: Color.lerp(successSurface, other.successSurface, t)!,
+      trackBackground: Color.lerp(trackBackground, other.trackBackground, t)!,
       noticeBackground: Color.lerp(
         noticeBackground,
         other.noticeBackground,

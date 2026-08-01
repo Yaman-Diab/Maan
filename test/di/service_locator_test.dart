@@ -14,6 +14,9 @@ import 'package:maan/features/auth/presentation/forgot_password/cubit/forgot_pas
 import 'package:maan/features/auth/presentation/login/cubit/login_cubit.dart';
 import 'package:maan/features/auth/presentation/sign_up/cubit/sign_up_cubit.dart';
 import 'package:maan/features/auth/presentation/verify_email/cubit/verify_email_cubit.dart';
+import 'package:maan/features/profile/domain/repositories/profile_repository.dart';
+import 'package:maan/features/profile/presentation/profile/cubit/profile_cubit.dart';
+import 'package:maan/features/profile/profile_injection.dart';
 
 /// بيتأكد إن نقطة التركيب بتركّب فعلاً.
 ///
@@ -30,6 +33,7 @@ void main() {
     await sl.reset();
     await setupCoreDependencies();
     registerAuthDependencies(sl);
+    registerProfileDependencies(sl);
   });
 
   tearDown(() => sl.reset());
@@ -52,9 +56,16 @@ void main() {
     expect(createNewPassword.state.code, '123456');
   });
 
+  test('سلسلة اعتماديات شاشة الملف الشخصي بتتحل كاملة', () {
+    // ProfileCubit بياخد AppSessionController من الـ core، فحلّه بيثبت
+    // إن ميزة جديدة بتوصل لاعتماديات core بلا ما تسجّلها لحالها.
+    expect(sl<ProfileCubit>(), isA<ProfileCubit>());
+  });
+
   test('الـ repositories مسجّلة بواجهاتها لا بتنفيذاتها', () {
     expect(sl<AuthRepository>(), isA<AuthRepository>());
     expect(sl<SessionRepository>(), isA<SessionRepository>());
+    expect(sl<ProfileRepository>(), isA<ProfileRepository>());
   });
 
   test('تفضيلات العرض مسجّلة كـ singleton عام', () {
