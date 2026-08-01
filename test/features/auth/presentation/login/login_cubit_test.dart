@@ -2,7 +2,9 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:maan/core/error/failure.dart';
 import 'package:maan/core/result/result.dart';
+import 'package:maan/core/session/account_status.dart';
 import 'package:maan/features/auth/domain/entities/auth_session.dart';
+import 'package:maan/features/auth/domain/entities/auth_user.dart';
 import 'package:maan/features/auth/domain/usecases/login_usecase.dart';
 import 'package:maan/features/auth/presentation/login/cubit/login_cubit.dart';
 import 'package:maan/features/auth/presentation/login/cubit/login_state.dart';
@@ -10,7 +12,15 @@ import 'package:mocktail/mocktail.dart';
 
 class _MockLoginUseCase extends Mock implements LoginUseCase {}
 
-const _session = AuthSession(accessToken: 'access', refreshToken: 'refresh');
+const _user = AuthUser(
+  id: 1,
+  firstName: 'Yaman',
+  lastName: 'Diab',
+  email: 'a@b.com',
+  accountStatus: AccountStatus.visitor,
+);
+
+const _session = AuthSession(accessToken: 'access', user: _user);
 
 /// حالة نموذج مكتملة الشروط: بريد وكلمة مرور وموافقة على الشروط.
 const _readyState = LoginState(
@@ -105,7 +115,11 @@ void main() {
           hasTriedSubmit: true,
           status: LoginStatus.submitting,
         ),
-        _readyState.copyWith(hasTriedSubmit: true, status: LoginStatus.success),
+        _readyState.copyWith(
+          hasTriedSubmit: true,
+          status: LoginStatus.success,
+          accountStatus: AccountStatus.visitor,
+        ),
       ],
       verify: (_) {
         verify(

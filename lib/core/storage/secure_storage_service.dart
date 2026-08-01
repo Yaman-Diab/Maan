@@ -2,8 +2,6 @@
 // Secure Storage Service
 // -------------------------
 
-import 'dart:convert';
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageKeys {
@@ -11,7 +9,6 @@ class SecureStorageKeys {
 
   static const String accessToken = 'ACCESS_TOKEN';
   static const String refreshToken = 'REFRESH_TOKEN';
-  static const String userData = 'USER_DATA';
   static const String isGuest = 'IS_GUEST';
   static const String visitorId = 'VISITOR_ID';
   static const String accountStatus = 'ACCOUNT_STATUS';
@@ -91,42 +88,6 @@ class SecureStorageService {
   }
 
   // -------------------------
-  // User
-  // -------------------------
-
-  Future<void> saveUser(Map<String, dynamic> user) async {
-    await _write(key: SecureStorageKeys.userData, value: jsonEncode(user));
-  }
-
-  Future<Map<String, dynamic>?> getUser() async {
-    try {
-      final data = await _read(SecureStorageKeys.userData);
-
-      if (data == null || data.isEmpty) {
-        return null;
-      }
-
-      final decoded = jsonDecode(data);
-
-      if (decoded is Map<String, dynamic>) {
-        return decoded;
-      }
-
-      if (decoded is Map) {
-        return Map<String, dynamic>.from(decoded);
-      }
-
-      return null;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Future<void> clearUser() async {
-    await _delete(SecureStorageKeys.userData);
-  }
-
-  // -------------------------
   // Account Status
   // -------------------------
   //
@@ -191,7 +152,6 @@ class SecureStorageService {
     bool keepVisitorId = false,
   }) async {
     await clearTokens();
-    await clearUser();
 
     // لازم تنمسح مع الجلسة، وإلا بيرث المستخدم التالي صلاحية السابق.
     await clearAccountStatus();

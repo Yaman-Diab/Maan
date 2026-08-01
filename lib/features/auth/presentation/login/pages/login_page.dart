@@ -43,7 +43,9 @@ class _LoginPageState extends State<LoginPage> {
       // AppSessionController اللي بيغذّي refreshListenable تبع GoRouter
       // فيتم التوجيه للرئيسية.
       case LoginStatus.success:
-        sl<AppSessionController>().loginCompleted();
+        sl<AppSessionController>().loginCompleted(
+          accountStatus: state.accountStatus,
+        );
 
       case LoginStatus.failure:
         final message = state.errorMessage;

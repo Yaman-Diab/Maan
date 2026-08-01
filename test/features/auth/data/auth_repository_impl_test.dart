@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:maan/core/error/failure.dart';
 import 'package:maan/core/network/api_client.dart';
+import 'package:maan/core/session/account_status.dart';
 import 'package:maan/core/network/api_request_flags.dart';
 import 'package:maan/core/result/result.dart';
 import 'package:maan/features/auth/data/datasources/auth_remote_data_source.dart';
@@ -60,6 +61,36 @@ ResponseBody _json(Map<String, dynamic> body, int statusCode) {
   );
 }
 
+/// نسخة طبق الأصل عن استجابة `/api/auth/login` الحقيقية (مأخوذة من
+/// لوغ فعلي)، فيما عدا قيمة التوكن — مقصوصة لتبقى مقروءة.
+Map<String, dynamic> _loginResponseBody() {
+  return {
+    'status': 1,
+    'message': 'User logged in successfully',
+    'data': {
+      'id': 1,
+      'first_name': 'Yaman',
+      'last_name': 'Diab',
+      'email': 'yamandiab7@gmail.com',
+      'phone': null,
+      'national_id': null,
+      'birth_date': '2003-01-01',
+      'email_verified_at': null,
+      'privacy_policy_accepted': 0,
+      'terms_of_service_accepted': 0,
+      'fcm_token': null,
+      'account_status': 'visitor',
+      'verification_attempts': 0,
+      'expires_at': null,
+      'created_at': '2026-08-01T04:53:26.000000Z',
+      'updated_at': '2026-08-01T04:53:26.000000Z',
+      'deleted_at': null,
+      'token': 'the-token',
+      'token_type': 'Bearer',
+    },
+  };
+}
+
 ({AuthRepositoryImpl repository, _FakeAdapter adapter}) _build([
   ResponseBody Function()? respond,
 ]) {
@@ -76,7 +107,7 @@ ResponseBody _json(Map<String, dynamic> body, int statusCode) {
 void main() {
   group('login — مطابقة عقد collection.md', () {
     test('POST /api/auth/login بجسم البريد وكلمة المرور', () async {
-      final sut = _build(() => _json({'access': 'a', 'refresh': 'r'}, 200));
+      final sut = _build(() => _json(_loginResponseBody(), 200));
 
       await sut.repository.login(email: 'a@b.com', password: 'secret');
 
@@ -88,7 +119,7 @@ void main() {
     });
 
     test('بيمرّر أعلام تخطي المصادقة لأن الـ endpoint عام', () async {
-      final sut = _build(() => _json({'access': 'a', 'refresh': 'r'}, 200));
+      final sut = _build(() => _json(_loginResponseBody(), 200));
 
       await sut.repository.login(email: 'a@b.com', password: 'secret');
 
@@ -187,11 +218,9 @@ void main() {
     });
   });
 
-  group('قراءة استجابة تسجيل الدخول', () {
-    test('بتقرأ التوكنات من جذر الاستجابة', () async {
-      final sut = _build(
-        () => _json({'access': 'access-token', 'refresh': 'refresh-token'}, 200),
-      );
+  group('قراءة استجابة تسجيل الدخول — الشكل الحقيقي', () {
+    test('بتقرأ التوكن والمستخدم من data', () async {
+      final sut = _build(() => _json(_loginResponseBody(), 200));
 
       final result = await sut.repository.login(
         email: 'a@b.com',
@@ -199,15 +228,15 @@ void main() {
       );
 
       expect(result, isA<Ok<AuthSession>>());
-      expect(result.valueOrNull?.accessToken, 'access-token');
-      expect(result.valueOrNull?.refreshToken, 'refresh-token');
+      expect(result.valueOrNull?.accessToken, 'the-token');
+      expect(result.valueOrNull?.user.id, 1);
+      expect(result.valueOrNull?.user.email, 'yamandiab7@gmail.com');
+      expect(result.valueOrNull?.user.accountStatus, AccountStatus.visitor);
     });
 
-    test('بتقرأ التوكنات لو كانت مغلّفة تحت data', () async {
+    test('بتقرأ التوكن لو كان بجذر الاستجابة بلا غلاف data', () async {
       final sut = _build(
-        () => _json({
-          'data': {'access': 'access-token', 'refresh': 'refresh-token'},
-        }, 200),
+        () => _json(_loginResponseBody()['data'] as Map<String, dynamic>, 200),
       );
 
       final result = await sut.repository.login(
@@ -215,11 +244,14 @@ void main() {
         password: 'secret',
       );
 
-      expect(result.valueOrNull?.accessToken, 'access-token');
+      expect(result.valueOrNull?.accessToken, 'the-token');
     });
 
-    test('نقص توكن بيرجع فشل بدل ما يرمي استثناء', () async {
-      final sut = _build(() => _json({'access': 'only-access'}, 200));
+    test('نقص التوكن بيرجع فشل بدل ما يرمي استثناء', () async {
+      final body = _loginResponseBody();
+      (body['data'] as Map<String, dynamic>).remove('token');
+
+      final sut = _build(() => _json(body, 200));
 
       final result = await sut.repository.login(
         email: 'a@b.com',
@@ -229,6 +261,23 @@ void main() {
       expect(result, isA<Err<AuthSession>>());
       expect(result.failureOrNull, isA<UnknownFailure>());
       expect(result.failureOrNull?.message, 'error_unreadable_response');
+    });
+
+    test('نقص حقول المستخدم بيرجع فشل بدل ما يرمي استثناء', () async {
+      final sut = _build(
+        () => _json({
+          'status': 1,
+          'data': {'id': 1, 'token': 'the-token'},
+        }, 200),
+      );
+
+      final result = await sut.repository.login(
+        email: 'a@b.com',
+        password: 'secret',
+      );
+
+      expect(result, isA<Err<AuthSession>>());
+      expect(result.failureOrNull, isA<UnknownFailure>());
     });
   });
 

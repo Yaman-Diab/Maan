@@ -4,33 +4,26 @@
 
 import 'package:equatable/equatable.dart';
 
-/// جلسة مستخدم مصادَق عليه: التوكنات وبيانات المستخدم.
+import 'auth_user.dart';
+
+/// جلسة مستخدم مصادَق عليه: التوكن وبيانات المستخدم.
 ///
 /// كيان domain نقي — بلا Dio وبلا Flutter وبلا مفاتيح JSON.
 /// تحويل استجابة الشبكة لهذا الكيان مسؤولية `LoginResponseModel`.
+///
+/// توكن واحد لا زوج access/refresh: الـ backend بيستخدم JWT من طراز
+/// `tymon/jwt-auth` (تأكّدنا من بنية التوكن الفعلية)، ونفس التوكن
+/// بينبعت من جديد على `/api/auth/refresh` لتجديد صلاحيته — ما في
+/// refresh token منفصل يُخزَّن.
 final class AuthSession extends Equatable {
   final String accessToken;
-  final String refreshToken;
+  final AuthUser user;
 
-  /// بيانات المستخدم كما رجّعها الـ backend.
-  ///
-  /// لسه `Map` لأن شكل المستخدم غير موثّق من طرف الـ backend، وما في
-  /// أي كود بيقرأه حالياً (بس بينحفظ بالتخزين الآمن). أول ما يتحدّد
-  /// عقد `/users/me/` بينحوّل لكيان `AuthUser` مكتوب الأنواع.
-  final Map<String, dynamic>? user;
-
-  const AuthSession({
-    required this.accessToken,
-    required this.refreshToken,
-    this.user,
-  });
-
-  bool get hasUser => user != null && user!.isNotEmpty;
+  const AuthSession({required this.accessToken, required this.user});
 
   @override
-  List<Object?> get props => [accessToken, refreshToken, user];
+  List<Object?> get props => [accessToken, user];
 
   @override
-  String toString() =>
-      'AuthSession(accessToken: [REDACTED], refreshToken: [REDACTED], user: $user)';
+  String toString() => 'AuthSession(accessToken: [REDACTED], user: $user)';
 }

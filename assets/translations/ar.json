@@ -102,10 +102,13 @@
   "loading": "جارٍ التحميل...",
   "page_not_found_title": "الصفحة غير موجودة",
   "route_not_found": "المسار غير موجود",
-  "home_page_placeholder": "الصفحة الرئيسية",
   "profile_page_placeholder": "صفحة الحساب",
   "nav_home": "الرئيسية",
   "nav_profile": "حسابي",
+
+  "login_verification_title": "فحص تسجيل الدخول",
+  "logout": "تسجيل الخروج",
+  "guest_session_notice": "بتظهر هالشاشة برضو للزوّار — دخولك كزائر حالة صحيحة.",
 
   "error_connection": "تعذر الاتصال بالخادم، تحقق من الإنترنت وحاول مرة أخرى",
   "error_invalid_credentials": "رقم الهاتف أو كلمة المرور غير صحيحة",

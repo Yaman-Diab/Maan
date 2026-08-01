@@ -111,7 +111,7 @@ core/design_system/
 ## الاختبار
 
 ```
-flutter test        # 189 اختبار
+flutter test        # 227 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -169,8 +169,13 @@ data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` ب
   `cubit.nationalIdChanged`، وإضافته لشرط `canSubmit`.
 - ما في شاشة لإدخال رمز إعادة التعيين بين "نسيت كلمة المرور" وشاشة كلمة
   المرور الجديدة، فـ`PasswordResetArgs.code` بتوصل فاضية.
-- `AuthSession.user` لسه `Map<String, dynamic>` لأن الـ collection ما
-  بيوثّق شكل استجابة تسجيل الدخول (`{}` فاضية بالأمثلة).
+- ⚠️ **`TokenRefreshService` مبني على نموذج access/refresh غير موجود
+  فعلياً** — استجابة `login` الحقيقية فيها توكن JWT واحد (`token`) من
+  طراز `tymon/jwt-auth`، وهالمكتبة بترجّع توكن جديد بإعادة إرسال
+  التوكن الحالي (عبر `Authorization` header) لـ`/api/auth/refresh`،
+  مش `refresh_token` منفصل بالـ body. السلوك الحالي عند 401 بعد
+  انتهاء الصلاحية: تسجيل خروج بدل تجديد صامت — آمن بس مش الأفضل.
+  يحتاج تأكيد صريح من الباك اند قبل إعادة كتابة `AuthInterceptor`.
 
 **تناقضات بالـ collection تجاهلناها عمداً**:
 - جسم `login` بالتوثيق بيسرد `first_name` و`birth_date` و

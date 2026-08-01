@@ -41,8 +41,13 @@ class LoginCubit extends Cubit<LoginState> {
     );
 
     switch (result) {
-      case Ok():
-        emit(state.copyWith(status: LoginStatus.success));
+      case Ok(:final value):
+        emit(
+          state.copyWith(
+            status: LoginStatus.success,
+            accountStatus: value.user.accountStatus,
+          ),
+        );
 
       case Err(:final failure):
         emit(

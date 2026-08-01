@@ -13,14 +13,9 @@ class SessionRepositoryImpl implements SessionRepository {
 
   @override
   Future<void> persistSession(AuthSession session) async {
-    await _storage.saveTokens(
-      accessToken: session.accessToken,
-      refreshToken: session.refreshToken,
-    );
-
-    if (session.hasUser) {
-      await _storage.saveUser(session.user!);
-    }
+    // ما في refresh token عند هالـ backend (توكن JWT واحد)، فما بنكتب
+    // قيمة وهمية على `REFRESH_TOKEN` — راجع تعليق `AuthSession`.
+    await _storage.saveAccessToken(session.accessToken);
   }
 
   @override

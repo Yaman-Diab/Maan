@@ -12,6 +12,7 @@ import 'package:maan/features/auth/presentation/sign_up/pages/sign_up_page.dart'
 import 'package:maan/features/auth/presentation/verify_email/pages/verify_email_page.dart';
 import 'package:maan/features/splash/presentation/pages/splash_page.dart';
 import '../../features/app_shell/app_shell_page.dart';
+import '../../features/app_shell/home_verification_page.dart';
 import '../session/account_status.dart';
 import 'app_redirect.dart';
 import 'app_routes.dart';
@@ -117,10 +118,9 @@ class AppRouter {
               GoRoute(
                 path: AppRoutes.home,
                 builder: (context, state) {
-                  return _TempPage(
-                    title: 'nav_home'.tr(),
-                    description: 'home_page_placeholder'.tr(),
-                  );
+                  // مؤقّتة للفحص اليدوي بعد الدخول — راجع التعليق
+                  // بالملف. بتنستبدل بشاشة Home الحقيقية لاحقاً.
+                  return const HomeVerificationPage();
                 },
               ),
             ],

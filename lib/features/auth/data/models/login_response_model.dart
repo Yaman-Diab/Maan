@@ -4,60 +4,45 @@
 
 import '../../../../core/network/api_response_keys.dart';
 import '../../domain/entities/auth_session.dart';
+import 'auth_user_model.dart';
 
-/// قراءة استجابة تسجيل الدخول وتحويلها لكيان [AuthSession].
+/// قراءة استجابة تسجيل الدخول الحقيقية وتحويلها لكيان [AuthSession].
 ///
-/// الـ backend بيرجّع التوكنات إما بجذر الاستجابة أو تحت مفتاح `data`،
-/// فـ[_normalizeResponseData] بتوحّد الشكلين قبل القراءة.
+/// شكل الاستجابة الفعلي (مغلّف تحت `data` زي باقي الـ endpoints):
+/// ```json
+/// {"status":1,"data":{"id":1,"first_name":"...","token":"eyJ...","token_type":"Bearer",...}}
+/// ```
+/// توكن واحد (`token`) لا زوج `access`/`refresh`، وحقول المستخدم بجذر
+/// `data` مباشرة لا تحت مفتاح `user` متداخل.
 class LoginResponseModel {
   final String accessToken;
-  final String refreshToken;
-  final Map<String, dynamic>? user;
+  final AuthUserModel user;
 
-  const LoginResponseModel({
-    required this.accessToken,
-    required this.refreshToken,
-    this.user,
-  });
+  const LoginResponseModel({required this.accessToken, required this.user});
 
   factory LoginResponseModel.fromMap(Map<String, dynamic> json) {
     final data = _normalizeResponseData(json);
 
-    final accessToken = data[ApiResponseKeys.access] as String?;
-    final refreshToken = data[ApiResponseKeys.refresh] as String?;
+    final token = data[ApiResponseKeys.token] as String?;
 
-    if (accessToken == null || accessToken.isEmpty) {
-      throw const FormatException('Login response is missing an access token.');
+    if (token == null || token.isEmpty) {
+      throw const FormatException('Login response is missing a token.');
     }
-
-    if (refreshToken == null || refreshToken.isEmpty) {
-      throw const FormatException('Login response is missing a refresh token.');
-    }
-
-    final user = data[ApiResponseKeys.data] is Map
-        ? Map<String, dynamic>.from(data[ApiResponseKeys.data] as Map)
-        : null;
 
     return LoginResponseModel(
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      user: user,
+      accessToken: token,
+      user: AuthUserModel.fromMap(data),
     );
   }
 
   AuthSession toEntity() {
-    return AuthSession(
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      user: user,
-    );
+    return AuthSession(accessToken: accessToken, user: user.toEntity());
   }
 
   static Map<String, dynamic> _normalizeResponseData(
     Map<String, dynamic> json,
   ) {
-    if (json.containsKey(ApiResponseKeys.access) &&
-        json.containsKey(ApiResponseKeys.refresh)) {
+    if (json.containsKey(ApiResponseKeys.token)) {
       return json;
     }
 
@@ -70,5 +55,5 @@ class LoginResponseModel {
 
   @override
   String toString() =>
-      'LoginResponseModel(accessToken: [REDACTED], refreshToken: [REDACTED], user: $user)';
+      'LoginResponseModel(accessToken: [REDACTED], user: $user)';
 }

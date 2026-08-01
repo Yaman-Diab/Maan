@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:maan/core/error/failure.dart';
 import 'package:maan/core/result/result.dart';
+import 'package:maan/core/session/account_status.dart';
 import 'package:maan/features/auth/domain/entities/auth_session.dart';
+import 'package:maan/features/auth/domain/entities/auth_user.dart';
 import 'package:maan/features/auth/domain/repositories/auth_repository.dart';
 import 'package:maan/features/auth/domain/repositories/session_repository.dart';
 import 'package:maan/features/auth/domain/usecases/login_usecase.dart';
@@ -11,11 +13,15 @@ class _MockAuthRepository extends Mock implements AuthRepository {}
 
 class _MockSessionRepository extends Mock implements SessionRepository {}
 
-const _session = AuthSession(
-  accessToken: 'access',
-  refreshToken: 'refresh',
-  user: {'id': 1},
+const _user = AuthUser(
+  id: 1,
+  firstName: 'Yaman',
+  lastName: 'Diab',
+  email: 'a@b.com',
+  accountStatus: AccountStatus.visitor,
 );
+
+const _session = AuthSession(accessToken: 'access', user: _user);
 
 const _params = LoginParams(email: 'a@b.com', password: 'secret');
 

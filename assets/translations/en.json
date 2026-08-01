@@ -102,10 +102,13 @@
   "loading": "Loading...",
   "page_not_found_title": "Page Not Found",
   "route_not_found": "Route not found",
-  "home_page_placeholder": "Home Page",
   "profile_page_placeholder": "Profile Page",
   "nav_home": "Home",
   "nav_profile": "Profile",
+
+  "login_verification_title": "Login Verification",
+  "logout": "Log out",
+  "guest_session_notice": "This screen also shows for guests - being logged in as a Visitor is a valid state.",
 
   "error_connection": "Unable to connect to the server. Please check your internet connection and try again.",
   "error_invalid_credentials": "Incorrect phone number or password",

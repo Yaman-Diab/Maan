@@ -4,6 +4,8 @@
 
 import 'package:equatable/equatable.dart';
 
+import '../../../../../core/session/account_status.dart';
+
 enum LoginStatus { initial, submitting, success, failure }
 
 /// حالة شاشة تسجيل الدخول.
@@ -21,6 +23,10 @@ final class LoginState extends Equatable {
 
   final String? errorMessage;
 
+  /// حالة حساب المستخدم من استجابة الدخول — بتنمرّر لـ
+  /// `AppSessionController.loginCompleted` عند النجاح.
+  final AccountStatus? accountStatus;
+
   const LoginState({
     this.status = LoginStatus.initial,
     this.email = '',
@@ -28,6 +34,7 @@ final class LoginState extends Equatable {
     this.isTermsAccepted = false,
     this.hasTriedSubmit = false,
     this.errorMessage,
+    this.accountStatus,
   });
 
   bool get isSubmitting => status == LoginStatus.submitting;
@@ -46,6 +53,7 @@ final class LoginState extends Equatable {
     bool? isTermsAccepted,
     bool? hasTriedSubmit,
     String? errorMessage,
+    AccountStatus? accountStatus,
   }) {
     return LoginState(
       status: status ?? this.status,
@@ -56,6 +64,7 @@ final class LoginState extends Equatable {
       // رسالة الخطأ ما بتُورَّث: كل حالة جديدة بتصرّح فيها لو بدها إياها،
       // فما بتعلق سناك بار قديمة على حالة جديدة.
       errorMessage: errorMessage,
+      accountStatus: accountStatus ?? this.accountStatus,
     );
   }
 
@@ -67,5 +76,6 @@ final class LoginState extends Equatable {
     isTermsAccepted,
     hasTriedSubmit,
     errorMessage,
+    accountStatus,
   ];
 }
