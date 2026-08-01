@@ -21,6 +21,13 @@ final class AuthUser extends Equatable {
   final String? phone;
   final String? nationalId;
 
+  /// رابط الصورة الشخصية.
+  ///
+  /// ⚠️ الحقل **مش مؤكّد بعقد الباك اند** — الاستجابة الحقيقية اللي
+  /// عندنا ما فيها صورة. `AuthUserModel` بيجرّب أكثر من اسم شائع،
+  /// وبيضل `null` لو ما لقي شي، فبتنعرض أحرف الاسم.
+  final String? avatarUrl;
+
   /// بصيغة `YYYY-MM-DD` بالاستجابة — لاحظ إنها **تختلف** عن صيغة
   /// الإرسال بالتسجيل (`YYYY/M/D`).
   final DateTime? birthDate;
@@ -46,6 +53,7 @@ final class AuthUser extends Equatable {
     required this.accountStatus,
     this.phone,
     this.nationalId,
+    this.avatarUrl,
     this.birthDate,
     this.emailVerifiedAt,
     this.privacyPolicyAccepted = false,
@@ -67,6 +75,7 @@ final class AuthUser extends Equatable {
     email,
     phone,
     nationalId,
+    avatarUrl,
     birthDate,
     emailVerifiedAt,
     privacyPolicyAccepted,

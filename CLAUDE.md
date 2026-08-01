@@ -87,7 +87,7 @@ core/design_system/
 
 ## الترجمة
 
-`easy_localization` مع `assets/translations/{en,ar}.json` — 150 مفتاح بالملفين.
+`easy_localization` مع `assets/translations/{en,ar}.json` — 154 مفتاح بالملفين.
 
 | القاعدة | التفصيل |
 |---|---|
@@ -117,7 +117,7 @@ core/design_system/
 ## الاختبار
 
 ```
-flutter test        # 270 اختبار
+flutter test        # 284 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -179,6 +179,21 @@ data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` ب
 ما تبني الـ Cubit. بلا هالحارس، فتح التاب كزائر بيرجّع 401 فـ
 `AuthInterceptor` بيفهمها «انتهت الجلسة» وبيسجّل خروج.
 
+**الصورة الشخصية**: خط أنابيب من أربع خطوات —
+`image_picker` ← `image_cropper` ← `flutter_image_compress` ← رفع.
+أول ثلاثة بـ`core/media/ImagePickerService` (عام عن قصد: مرفقات الشكاوى
+وصور التوثيق رح تستخدمه)، والرابعة بطبقة data تبع الميزة. الخدمة بلا
+`BuildContext`: ألوان شاشة القص بتنمرّر كـ`CropperAppearance` من الواجهة.
+
+الناتج مربّع 512px بجودة 85 وبلا EXIF (بيانات الموقع ما بترتفع مع صورة
+عامة). `ProfileState.localAvatarPath` بيخلّي الصورة تبيّن **قبل** رد
+السيرفر، وبينمسح لو فشل الرفع — عرض صورة السيرفر ما استلمها كذبة.
+
+⚠️ **إعدادات منصّة مطلوبة** (معمولة، بس لا تنحذف): `UCropActivity`
+معلَنة بـ`AndroidManifest.xml` — بلاها بينهار التطبيق **وقت التشغيل** لا
+وقت البناء. و`NSCameraUsageDescription` + `NSPhotoLibraryUsageDescription`
+بـ`ios/Runner/Info.plist`، وبلاهم بترفض آبل التطبيق بالمراجعة.
+
 **شريط الملاحة**: تاباته لازم تطابق فروع `StatefulShellRoute` عدداً وترتيباً —
 `goBranch` بترمي لو الفهرس خارج المدى. حالياً تابان (`home` و`profile`)
 مقابل فرعين. عند إضافة تاب، أضف فرعه بالراوتر بنفس اللحظة.
@@ -203,8 +218,15 @@ data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` ب
   `null` والواجهة بتعرض «—» بدل رقم مخترع. أسماء المفاتيح المتوقّعة
   مكتوبة بـ`CitizenProfileModel._Keys` كتخمين موثّق — لما يثبّتها الباك
   اند، التعديل بملف واحد.
-- ما في حقل صورة بـ`/api/profile` ولا endpoint لرفعها، فـ`ProfileAvatar`
-  بيعرض حرفَي الاسم. («Drop photo» بملف التصميم أداة محرّر لا عنصر واجهة.)
+- ⚠️ **رفع الصورة الشخصية مبني على عقد مخمَّن** — `POST /api/profile/avatar`
+  بحقل `avatar` (اصطلاح Laravel)، وما إله ذكر بـ`collection.md`. وكمان
+  استجابة `/api/profile` ما فيها حقل صورة، فـ`AuthUserModel` بيجرّب
+  `avatar_url`/`avatar`/`image_url`/`image`/`photo` بالترتيب. لو ما لقي
+  شي بتنعرض أحرف الاسم. المسار بـ`ApiEndpoints.profileAvatar` واسم الحقل
+  بـ`ProfileRemoteDataSource._avatarField` — نقطتان بس للتصحيح.
+  («Drop photo» بملف التصميم أداة محرّر لا عنصر واجهة.)
+- ما في endpoint لحذف الصورة، فورقة الاختيار فيها «كاميرا» و«معرض» بس
+  بلا «إزالة الصورة».
 - شاشة تعديل بيانات الهوية غير موجودة، فزر «تعديل» ما بينعرض للزائر
   (`ProfileContent.onEditTap` بتوصل `null`). نفس الشي لأيقونة الإعدادات
   بـ`ProfilePage.onSettingsTap` لحد ما تنبني شاشة الإعدادات.

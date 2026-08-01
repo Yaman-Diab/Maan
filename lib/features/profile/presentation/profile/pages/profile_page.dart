@@ -9,9 +9,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../core/design_system/app_theme_context.dart';
 import '../../../../../core/di/service_locator.dart';
+import '../../../../../core/media/image_picker_service.dart';
 import '../../../../../core/session/app_session_controller.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
+import '../widgets/avatar_source_sheet.dart';
 import '../widgets/profile_content.dart';
 import '../widgets/profile_error_view.dart';
 import '../widgets/profile_guest_view.dart';
@@ -81,9 +83,57 @@ class ProfilePage extends StatelessWidget {
 class _ProfileBody extends StatelessWidget {
   const _ProfileBody();
 
+  /// خط الأنابيب: ورقة الاختيار ← اختيار ← قص ← ضغط ← رفع.
+  ///
+  /// الإلغاء بأي خطوة بيرجّع `null` وبنوقف بهدوء — مش خطأ.
+  Future<void> _changeAvatar(BuildContext context) async {
+    final cubit = context.read<ProfileCubit>();
+
+    // بتتبنى قبل أي `await`: بعد الفجوة الزمنية ممكن يكون الـ context
+    // انفصل عن الشجرة.
+    final appearance = _cropperAppearance(context);
+
+    final source = await showAvatarSourceSheet(context);
+
+    if (source == null) return;
+
+    final image = await sl<ImagePickerService>().pickAvatar(
+      source: source,
+      appearance: appearance,
+    );
+
+    if (image == null) return;
+
+    await cubit.uploadAvatar(image);
+  }
+
+  static CropperAppearance _cropperAppearance(BuildContext context) {
+    final scheme = context.scheme;
+
+    return CropperAppearance(
+      toolbarTitle: 'avatar_crop_title'.tr(),
+      toolbarColor: scheme.primary,
+      toolbarWidgetColor: scheme.onPrimary,
+      backgroundColor: scheme.surface,
+      activeControlsWidgetColor: scheme.primary,
+      isDark: Theme.of(context).brightness == Brightness.dark,
+    );
+  }
+
+  void _onStateChanged(BuildContext context, ProfileState state) {
+    final message = state.avatarErrorMessage;
+
+    if (message == null) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ProfileCubit, ProfileState>(
+    return BlocConsumer<ProfileCubit, ProfileState>(
+      listener: _onStateChanged,
       builder: (context, state) {
         if (state.isFirstLoad) {
           return const Center(child: CircularProgressIndicator());
@@ -104,7 +154,12 @@ class _ProfileBody extends StatelessWidget {
             // `always` حتى يشتغل السحب للتحديث حتى لو المحتوى قصير.
             physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 28.h),
-            child: ProfileContent(profile: profile),
+            child: ProfileContent(
+              profile: profile,
+              localAvatarPath: state.localAvatarPath,
+              isUploadingAvatar: state.isUploadingAvatar,
+              onAddPhotoTap: () => _changeAvatar(context),
+            ),
           ),
         );
       },

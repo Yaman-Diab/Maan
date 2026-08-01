@@ -2,8 +2,13 @@
 // Profile Remote Data Source
 // -------------------------
 
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
+
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_endpoints.dart';
+import '../../../../core/network/api_response_keys.dart';
 import '../models/citizen_profile_model.dart';
 
 /// المكان الوحيد اللي بيعرف الـ endpoint داخل ميزة profile.
@@ -12,6 +17,12 @@ import '../models/citizen_profile_model.dart';
 /// `ProfileRepositoryImpl`.
 abstract class ProfileRemoteDataSource {
   Future<CitizenProfileModel> getProfile();
+
+  /// بترجّع رابط الصورة الجديد لو رجّعه السيرفر.
+  Future<String?> uploadAvatar({
+    required Uint8List bytes,
+    required String fileName,
+  });
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
@@ -29,6 +40,49 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     );
 
     return CitizenProfileModel.fromMap(_asJsonMap(response));
+  }
+
+  /// ⚠️ **العقد غير مؤكّد**: لا المسار ولا اسم حقل الملف موثّقين
+  /// بـ`collection.md`. `avatar` هو الاسم الشائع باصطلاح Laravel.
+  /// أي تصحيح من الباك اند بينطبق هون وبـ`ApiEndpoints.profileAvatar`
+  /// وبس.
+  @override
+  Future<String?> uploadAvatar({
+    required Uint8List bytes,
+    required String fileName,
+  }) async {
+    final formData = FormData.fromMap({
+      _avatarField: MultipartFile.fromBytes(bytes, filename: fileName),
+    });
+
+    final response = await _apiClient.request(
+      endpoint: ApiEndpoints.profileAvatar,
+      method: ApiMethod.post,
+      data: formData,
+    );
+
+    return _readAvatarUrl(response);
+  }
+
+  static const String _avatarField = 'avatar';
+
+  /// الرابط ممكن يرجع بالجذر أو تحت `data` أو ما يرجع أبداً. `null`
+  /// نتيجة صحيحة: الواجهة أصلاً بتعرض الملف المحلي بعد الرفع.
+  static String? _readAvatarUrl(dynamic response) {
+    final json = response is Map ? Map<String, dynamic>.from(response) : null;
+
+    if (json == null) return null;
+
+    final data = json[ApiResponseKeys.data];
+    final container = data is Map ? Map<String, dynamic>.from(data) : json;
+
+    for (final key in ['avatar_url', 'avatar', 'image_url', 'image', 'url']) {
+      final value = container[key];
+
+      if (value is String && value.trim().isNotEmpty) return value;
+    }
+
+    return null;
   }
 
   static Map<String, dynamic> _asJsonMap(dynamic response) {

@@ -4,6 +4,12 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<!-- iOS بترفض التطبيق بالمراجعة لو طلب الكاميرا أو الصور بلا سبب
+	     مكتوب، والنص هذا هو اللي بيشوفه المستخدم بنافذة الإذن. -->
+	<key>NSCameraUsageDescription</key>
+	<string>Ma'an needs the camera so you can take a profile photo.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Ma'an needs your photo library so you can choose a profile photo.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

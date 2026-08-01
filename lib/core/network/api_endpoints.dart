@@ -36,4 +36,10 @@ class ApiEndpoints {
   /// بيانات المواطن الحالي. بيحتاج توكن — الباك اند بيحدد المستخدم من
   /// الـ `Authorization` header لا من مُعرّف بالمسار.
   static const String profile = '$api/profile';
+
+  /// ⚠️ **مسار غير مؤكّد** — ما إله ذكر بـ`collection.md`. مبني على
+  /// اصطلاح Laravel المعتاد (`POST` بـ`multipart/form-data`). لما
+  /// يأكّده الباك اند، التعديل هون فقط — راجع
+  /// `ProfileRemoteDataSource.uploadAvatar` لاسم حقل الملف.
+  static const String profileAvatar = '$api/profile/avatar';
 }

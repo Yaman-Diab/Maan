@@ -12,9 +12,18 @@ import 'profile_avatar.dart';
 
 /// الصورة والاسم والبريد وشارة الحالة.
 class ProfileHeader extends StatelessWidget {
-  const ProfileHeader({super.key, required this.user});
+  const ProfileHeader({
+    super.key,
+    required this.user,
+    this.localAvatarPath,
+    this.isUploadingAvatar = false,
+    this.onAddPhotoTap,
+  });
 
   final AuthUser user;
+  final String? localAvatarPath;
+  final bool isUploadingAvatar;
+  final VoidCallback? onAddPhotoTap;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +34,14 @@ class ProfileHeader extends StatelessWidget {
       padding: EdgeInsets.only(top: 22.h, bottom: 26.h),
       child: Row(
         children: [
-          ProfileAvatar(firstName: user.firstName, lastName: user.lastName),
+          ProfileAvatar(
+            firstName: user.firstName,
+            lastName: user.lastName,
+            imageUrl: user.avatarUrl,
+            localImagePath: localAvatarPath,
+            isUploading: isUploadingAvatar,
+            onAddPhotoTap: onAddPhotoTap,
+          ),
 
           SizedBox(width: 14.w),
 

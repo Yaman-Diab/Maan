@@ -17,6 +17,7 @@ class AuthUserModel {
   final String email;
   final String? phone;
   final String? nationalId;
+  final String? avatarUrl;
   final DateTime? birthDate;
   final DateTime? emailVerifiedAt;
   final bool privacyPolicyAccepted;
@@ -34,6 +35,7 @@ class AuthUserModel {
     required this.accountStatus,
     this.phone,
     this.nationalId,
+    this.avatarUrl,
     this.birthDate,
     this.emailVerifiedAt,
     this.privacyPolicyAccepted = false,
@@ -65,6 +67,7 @@ class AuthUserModel {
       email: email,
       phone: json['phone'] as String?,
       nationalId: json['national_id'] as String?,
+      avatarUrl: _firstNonEmptyString(json, _avatarKeys),
       birthDate: _tryParseDate(json['birth_date']),
       emailVerifiedAt: _tryParseDate(json['email_verified_at']),
       privacyPolicyAccepted: _asBool(json['privacy_policy_accepted']),
@@ -85,6 +88,7 @@ class AuthUserModel {
       accountStatus: accountStatus,
       phone: phone,
       nationalId: nationalId,
+      avatarUrl: avatarUrl,
       birthDate: birthDate,
       emailVerifiedAt: emailVerifiedAt,
       privacyPolicyAccepted: privacyPolicyAccepted,
@@ -93,6 +97,30 @@ class AuthUserModel {
       verificationAttempts: verificationAttempts,
       expiresAt: expiresAt,
     );
+  }
+
+  /// ⚠️ اسم حقل الصورة **مش مؤكّد** — الاستجابة الحقيقية اللي عندنا ما
+  /// فيها صورة أصلاً. منجرّب الأسماء الشائعة بالترتيب بدل ما نراهن على
+  /// واحد؛ لو ما وصل ولا واحد بتضل `null` وبتنعرض أحرف الاسم.
+  static const List<String> _avatarKeys = [
+    'avatar_url',
+    'avatar',
+    'image_url',
+    'image',
+    'photo',
+  ];
+
+  static String? _firstNonEmptyString(
+    Map<String, dynamic> json,
+    List<String> keys,
+  ) {
+    for (final key in keys) {
+      final value = json[key];
+
+      if (value is String && value.trim().isNotEmpty) return value;
+    }
+
+    return null;
   }
 
   /// `0`/`1` من الـ backend، لا `true`/`false`.

@@ -49,6 +49,9 @@ dependencies:
   easy_localization: ^3.0.8
   equatable: ^2.0.8
   pinput: ^6.0.2
+  image_picker: ^1.2.3
+  image_cropper: ^12.2.1
+  flutter_image_compress: ^2.5.1
 
 dev_dependencies:
   flutter_test:

@@ -5,6 +5,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
+import '../media/image_picker_service.dart';
 import '../network/api_client.dart';
 import '../network/dio_factory.dart';
 import '../session/app_session_controller.dart';
@@ -67,4 +68,12 @@ Future<void> setupCoreDependencies() async {
   );
 
   sl.registerLazySingleton<ApiClient>(() => ApiClient(sl<Dio>()));
+
+  // -------------------------
+  // Media
+  // -------------------------
+
+  // بالـ core لا بميزة الملف الشخصي: خط أنابيب الصور عام، ورح تحتاجه
+  // مرفقات الشكاوى وصور التوثيق كمان.
+  sl.registerLazySingleton<ImagePickerService>(() => ImagePickerService());
 }

@@ -17,9 +17,20 @@ import 'stat_index_card.dart';
 
 /// جسم الشاشة لما تكون البيانات جاهزة.
 class ProfileContent extends StatelessWidget {
-  const ProfileContent({super.key, required this.profile, this.onEditTap});
+  const ProfileContent({
+    super.key,
+    required this.profile,
+    this.localAvatarPath,
+    this.isUploadingAvatar = false,
+    this.onAddPhotoTap,
+    this.onEditTap,
+  });
 
   final CitizenProfile profile;
+
+  final String? localAvatarPath;
+  final bool isUploadingAvatar;
+  final VoidCallback? onAddPhotoTap;
 
   /// شاشة تعديل الهوية لسه ما انبنت، فبتوصل `null` واليوم ما بينعرض
   /// زر «تعديل» أصلاً. زر بيضغط ولا بيصير شي أسوأ من زر غير موجود.
@@ -33,7 +44,12 @@ class ProfileContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ProfileHeader(user: user),
+        ProfileHeader(
+          user: user,
+          localAvatarPath: localAvatarPath,
+          isUploadingAvatar: isUploadingAvatar,
+          onAddPhotoTap: onAddPhotoTap,
+        ),
 
         ProfileSectionHeader(
           title: 'profile_identity_section'.tr(),

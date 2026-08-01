@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:maan/core/error/failure.dart';
+import 'package:maan/core/media/picked_image.dart';
 import 'package:maan/core/result/result.dart';
 import 'package:maan/core/session/account_status.dart';
 import 'package:maan/core/session/app_session_controller.dart';
@@ -9,13 +12,23 @@ import 'package:maan/core/usecase/usecase.dart';
 import 'package:maan/features/auth/domain/entities/auth_user.dart';
 import 'package:maan/features/profile/domain/entities/citizen_profile.dart';
 import 'package:maan/features/profile/domain/usecases/get_profile_usecase.dart';
+import 'package:maan/features/profile/domain/usecases/upload_avatar_usecase.dart';
 import 'package:maan/features/profile/presentation/profile/cubit/profile_cubit.dart';
 import 'package:maan/features/profile/presentation/profile/cubit/profile_state.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockGetProfileUseCase extends Mock implements GetProfileUseCase {}
 
+class _MockUploadAvatarUseCase extends Mock implements UploadAvatarUseCase {}
+
 class _MockSecureStorageService extends Mock implements SecureStorageService {}
+
+/// صورة وهمية «بعد» خط الأنابيب — الاختيار والقص والضغط برّا الـ Cubit.
+final _pickedImage = PickedImage(
+  path: '/tmp/maan_avatar_1.jpg',
+  bytes: Uint8List.fromList([1, 2, 3]),
+  fileName: 'maan_avatar_1.jpg',
+);
 
 const _verifiedUser = AuthUser(
   id: 7,
@@ -29,15 +42,20 @@ const _profile = CitizenProfile(user: _verifiedUser);
 
 void main() {
   late _MockGetProfileUseCase getProfile;
+  late _MockUploadAvatarUseCase uploadAvatar;
   late _MockSecureStorageService storage;
   late AppSessionController session;
 
   setUpAll(() {
     registerFallbackValue(const NoParams());
+    registerFallbackValue(
+      UploadAvatarParams(bytes: Uint8List(0), fileName: 'x.jpg'),
+    );
   });
 
   setUp(() {
     getProfile = _MockGetProfileUseCase();
+    uploadAvatar = _MockUploadAvatarUseCase();
     storage = _MockSecureStorageService();
     session = AppSessionController(storage: storage);
 
@@ -49,7 +67,7 @@ void main() {
     build: () {
       when(() => getProfile(any())).thenAnswer((_) async => const Ok(_profile));
 
-      return ProfileCubit(getProfile, session);
+      return ProfileCubit(getProfile, uploadAvatar, session);
     },
     act: (cubit) => cubit.load(),
     expect: () => [
@@ -65,7 +83,7 @@ void main() {
         (_) async => const Err(NetworkFailure('error_connection')),
       );
 
-      return ProfileCubit(getProfile, session);
+      return ProfileCubit(getProfile, uploadAvatar, session);
     },
     act: (cubit) => cubit.load(),
     expect: () => [
@@ -82,7 +100,7 @@ void main() {
     build: () {
       when(() => getProfile(any())).thenAnswer((_) async => const Ok(_profile));
 
-      return ProfileCubit(getProfile, session);
+      return ProfileCubit(getProfile, uploadAvatar, session);
     },
     act: (cubit) async {
       await cubit.load();
@@ -96,13 +114,108 @@ void main() {
     },
   );
 
+  group('رفع الصورة الشخصية', () {
+    blocTest<ProfileCubit, ProfileState>(
+      'الصورة بتبيّن فوراً قبل ما يرد السيرفر',
+      build: () {
+        when(
+          () => uploadAvatar(any()),
+        ).thenAnswer((_) async => const Ok('https://cdn.test/a.jpg'));
+
+        return ProfileCubit(getProfile, uploadAvatar, session);
+      },
+      act: (cubit) => cubit.uploadAvatar(_pickedImage),
+      expect: () => [
+        // أول حالة: المسار موجود والرفع شغّال — هون بتظهر الصورة.
+        ProfileState(
+          localAvatarPath: _pickedImage.path,
+          isUploadingAvatar: true,
+        ),
+        ProfileState(localAvatarPath: _pickedImage.path),
+      ],
+    );
+
+    blocTest<ProfileCubit, ProfileState>(
+      'فشل الرفع بيرجّع الصورة القديمة ولا بيخلّي وحدة ما انحفظت',
+      build: () {
+        when(() => uploadAvatar(any())).thenAnswer(
+          (_) async => const Err(NetworkFailure('error_connection')),
+        );
+
+        return ProfileCubit(getProfile, uploadAvatar, session);
+      },
+      act: (cubit) => cubit.uploadAvatar(_pickedImage),
+      expect: () => [
+        ProfileState(
+          localAvatarPath: _pickedImage.path,
+          isUploadingAvatar: true,
+        ),
+        // بلا `localAvatarPath`: عرض صورة السيرفر ما استلمها كذبة.
+        const ProfileState(avatarErrorMessage: 'error_connection'),
+      ],
+    );
+
+    blocTest<ProfileCubit, ProfileState>(
+      'خطأ الرفع ما بيلمس بيانات الشاشة',
+      build: () {
+        when(
+          () => getProfile(any()),
+        ).thenAnswer((_) async => const Ok(_profile));
+        when(() => uploadAvatar(any())).thenAnswer(
+          (_) async => const Err(ServerFailure('error_server')),
+        );
+
+        return ProfileCubit(getProfile, uploadAvatar, session);
+      },
+      act: (cubit) async {
+        await cubit.load();
+        await cubit.uploadAvatar(_pickedImage);
+      },
+      verify: (cubit) {
+        // الملف الشخصي بيضل معروضاً — فشل الصورة سناك بار لا شاشة خطأ.
+        expect(cubit.state.profile, _profile);
+        expect(cubit.state.status, ProfileStatus.success);
+        expect(cubit.state.avatarErrorMessage, 'error_server');
+      },
+    );
+
+    test('البايتات واسم الملف بينمرّروا كما هم', () async {
+      when(() => uploadAvatar(any())).thenAnswer((_) async => const Ok(null));
+
+      await ProfileCubit(
+        getProfile,
+        uploadAvatar,
+        session,
+      ).uploadAvatar(_pickedImage);
+
+      final captured =
+          verify(() => uploadAvatar(captureAny())).captured.single
+              as UploadAvatarParams;
+
+      expect(captured.bytes, _pickedImage.bytes);
+      expect(captured.fileName, 'maan_avatar_1.jpg');
+    });
+
+    test('رابط فاضي من السيرفر مش فشل — الصورة بتضل ظاهرة', () async {
+      // العقد غير مثبّت، فممكن السيرفر ما يرجّع رابطاً أبداً.
+      when(() => uploadAvatar(any())).thenAnswer((_) async => const Ok(null));
+
+      final cubit = ProfileCubit(getProfile, uploadAvatar, session);
+      await cubit.uploadAvatar(_pickedImage);
+
+      expect(cubit.state.localAvatarPath, _pickedImage.path);
+      expect(cubit.state.avatarErrorMessage, isNull);
+      expect(cubit.state.isUploadingAvatar, isFalse);
+    });
+  });
+
   group('مزامنة حالة الحساب مع الجلسة', () {
     test('النجاح بيحدّث AppSessionController', () async {
       when(() => getProfile(any())).thenAnswer((_) async => const Ok(_profile));
 
       expect(session.accountStatus, AccountStatus.unknown);
 
-      await ProfileCubit(getProfile, session).load();
+      await ProfileCubit(getProfile, uploadAvatar, session).load();
 
       // `/api/profile` أحدث مصدر لحالة الحساب — التوثيق ممكن يكون
       // اعتُمد بعد آخر تسجيل دخول.
@@ -115,7 +228,7 @@ void main() {
         (_) async => const Err(ServerFailure('error_server')),
       );
 
-      await ProfileCubit(getProfile, session).load();
+      await ProfileCubit(getProfile, uploadAvatar, session).load();
 
       expect(session.accountStatus, AccountStatus.unknown);
       verifyNever(() => storage.saveAccountStatus(any()));

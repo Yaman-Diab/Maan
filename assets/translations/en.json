@@ -132,6 +132,10 @@
   "account_status_not_verified": "Not verified",
   "account_status_pending": "Pending verification",
   "account_status_blocked": "Blocked",
+  "avatar_sheet_title": "Profile photo",
+  "avatar_source_camera": "Take a photo",
+  "avatar_source_gallery": "Choose from gallery",
+  "avatar_crop_title": "Crop photo",
 
   "login_verification_title": "Login Verification",
   "logout": "Log out",

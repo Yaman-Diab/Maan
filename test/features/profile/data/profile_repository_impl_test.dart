@@ -1,4 +1,5 @@
 import 'dart:convert';
+// ignore: unnecessary_import — Uint8List مستخدمة صراحةً بحالات الرفع.
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -123,6 +124,74 @@ void main() {
       expect(profile.user.fullName, 'Yaman Diab');
       expect(profile.user.accountStatus, AccountStatus.verified);
       expect(profile.stats.isEmpty, isTrue);
+    });
+  });
+
+  group('رفع الصورة الشخصية', () {
+    test('POST بـ multipart على /api/profile/avatar بحقل اسمه avatar', () async {
+      final built = _buildWith(
+        () => _json({'status': 1, 'data': {'avatar_url': 'https://cdn/a.jpg'}}, 200),
+      );
+
+      await built.repository.uploadAvatar(
+        bytes: Uint8List.fromList([1, 2, 3]),
+        fileName: 'avatar.jpg',
+      );
+
+      final captured = built.adapter.captured!;
+      expect(captured.method, 'POST');
+      expect(captured.path, '/api/profile/avatar');
+
+      final data = captured.data;
+      expect(data, isA<FormData>());
+
+      // اسم الحقل جزء من العقد غير المؤكّد — تثبيته هون بيخلّي أي
+      // تغيير عليه قراراً واعياً لا انزلاقاً صامتاً.
+      final files = (data as FormData).files;
+      expect(files, hasLength(1));
+      expect(files.single.key, 'avatar');
+      expect(files.single.value.filename, 'avatar.jpg');
+    });
+
+    test('بتقرأ الرابط الجديد لو رجّعه السيرفر', () async {
+      final built = _buildWith(
+        () => _json({'data': {'avatar_url': 'https://cdn/a.jpg'}}, 200),
+      );
+
+      final result = await built.repository.uploadAvatar(
+        bytes: Uint8List.fromList([1]),
+        fileName: 'a.jpg',
+      );
+
+      expect((result as Ok).value, 'https://cdn/a.jpg');
+    });
+
+    test('غياب الرابط نجاح بقيمة null لا فشل', () async {
+      // العقد غير مثبّت — ممكن يرجّع رسالة بس.
+      final built = _buildWith(
+        () => _json({'status': 1, 'message': 'uploaded'}, 200),
+      );
+
+      final result = await built.repository.uploadAvatar(
+        bytes: Uint8List.fromList([1]),
+        fileName: 'a.jpg',
+      );
+
+      expect(result, isA<Ok>());
+      expect((result as Ok).value, isNull);
+    });
+
+    test('413 بتتحوّل لـ Failure بدل ما ترمي', () async {
+      final built = _buildWith(
+        () => _json({'message': 'Payload too large'}, 413),
+      );
+
+      final result = await built.repository.uploadAvatar(
+        bytes: Uint8List.fromList([1]),
+        fileName: 'a.jpg',
+      );
+
+      expect(result, isA<Err>());
     });
   });
 

@@ -16,6 +16,7 @@ AuthUser _user({
   AccountStatus status = AccountStatus.verified,
   String? nationalId = '123456789012',
   DateTime? birthDate,
+  String? avatarUrl,
 }) {
   return AuthUser(
     id: 7,
@@ -24,6 +25,7 @@ AuthUser _user({
     email: 'mohamed.ahmed@gmail.com',
     accountStatus: status,
     nationalId: nationalId,
+    avatarUrl: avatarUrl,
     birthDate: birthDate ?? DateTime(1998, 10, 12),
   );
 }
@@ -33,6 +35,12 @@ Future<void> _pump(
   CitizenProfile profile, {
   TextDirection direction = TextDirection.ltr,
   ThemeData? theme,
+  String? localAvatarPath,
+  bool isUploadingAvatar = false,
+  VoidCallback? onAddPhotoTap,
+  // `pumpAndSettle` بتعلّق مع الحركات اللانهائية (مؤشّر التقدّم)، فبنقدّم
+  // الوقت يدوياً بهالحالات.
+  bool settle = true,
 }) async {
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = _designSize;
@@ -53,7 +61,12 @@ Future<void> _pump(
           textDirection: direction,
           child: Scaffold(
             body: SingleChildScrollView(
-              child: ProfileContent(profile: profile),
+              child: ProfileContent(
+                profile: profile,
+                localAvatarPath: localAvatarPath,
+                isUploadingAvatar: isUploadingAvatar,
+                onAddPhotoTap: onAddPhotoTap,
+              ),
             ),
           ),
         ),
@@ -61,7 +74,12 @@ Future<void> _pump(
     ),
   );
 
-  await tester.pumpAndSettle();
+  if (settle) {
+    await tester.pumpAndSettle();
+  } else {
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+  }
 }
 
 void main() {
@@ -170,15 +188,81 @@ void main() {
   });
 
   group('الصورة', () {
-    testWidgets('أحرف الاسم بدل صورة — ما في حقل صورة بالباك اند', (
-      tester,
-    ) async {
+    testWidgets('بلا صورة بتنعرض أحرف الاسم', (tester) async {
       await _pump(tester, CitizenProfile(user: _user()));
 
       expect(find.byType(ProfileAvatar), findsOneWidget);
       expect(find.text('MA'), findsOneWidget);
-      // ولا شي بيحمّل صورة: لا شبكة ولا أصل.
+      // ولا شي بيحمّل صورة: لا شبكة ولا ملف.
       expect(find.byType(Image), findsNothing);
+    });
+
+    testWidgets('زر «+» ما بينعرض بلا معالج — ما منعرض زر بلا وظيفة', (
+      tester,
+    ) async {
+      await _pump(tester, CitizenProfile(user: _user()));
+
+      expect(find.byIcon(Icons.add_rounded), findsNothing);
+    });
+
+    testWidgets('زر «+» بينعرض وبيستجيب للضغط', (tester) async {
+      var taps = 0;
+
+      await _pump(
+        tester,
+        CitizenProfile(user: _user()),
+        onAddPhotoTap: () => taps++,
+      );
+
+      expect(find.byIcon(Icons.add_rounded), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.add_rounded));
+      await tester.pump();
+
+      expect(taps, 1);
+    });
+
+    testWidgets('وقت الرفع بيختفي «+» وبيبيّن مؤشّر تقدّم', (tester) async {
+      await _pump(
+        tester,
+        CitizenProfile(user: _user()),
+        isUploadingAvatar: true,
+        onAddPhotoTap: () {},
+        settle: false,
+      );
+
+      // ضغطة ثانية والرفع شغّال بتبلبل الحالة، فالزر بينشال.
+      expect(find.byIcon(Icons.add_rounded), findsNothing);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
+
+    testWidgets('الملف المحلي بيسبق أحرف الاسم', (tester) async {
+      await _pump(
+        tester,
+        CitizenProfile(user: _user()),
+        localAvatarPath: '/does/not/exist.jpg',
+      );
+
+      // المسار المحلي أحدث من رابط السيرفر ومن الأحرف، فبينعرض هو.
+      final image = tester.widget<Image>(find.byType(Image));
+      expect(image.image, isA<FileImage>());
+
+      // مسار غلط ما بيرمي: `errorBuilder` بيرجّع الأحرف بدل أيقونة
+      // صورة مكسورة. (فشل القراءة نفسه IO حقيقي وما بيكتمل بزمن
+      // الاختبار المزيّف، فمنكتفي بإثبات إنه ما في انهيار.)
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('رابط السيرفر بينعرض لما ما يكون في ملف محلي', (tester) async {
+      await _pump(
+        tester,
+        CitizenProfile(
+          user: _user(avatarUrl: 'https://cdn.test/photo.jpg'),
+        ),
+      );
+
+      final image = tester.widget<Image>(find.byType(Image));
+      expect(image.image, isA<NetworkImage>());
     });
   });
 
