@@ -42,10 +42,14 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     return CitizenProfileModel.fromMap(_asJsonMap(response));
   }
 
-  /// ⚠️ **العقد غير مؤكّد**: لا المسار ولا اسم حقل الملف موثّقين
-  /// بـ`collection.md`. `avatar` هو الاسم الشائع باصطلاح Laravel.
-  /// أي تصحيح من الباك اند بينطبق هون وبـ`ApiEndpoints.profileAvatar`
-  /// وبس.
+  /// الصورة بتنرفع عبر `POST /api/profile/update` — مسار تحديث الملف
+  /// الشخصي العام، لا endpoint مخصّص للصورة.
+  ///
+  /// منبعت **حقل الصورة لحاله**: الباك اند بيحدّث اللي وصله فقط، فإرسال
+  /// باقي الحقول معه بيخاطر بالكتابة فوق قيم ما قصد المستخدم يغيّرها.
+  ///
+  /// ⚠️ **اسم الحقل غير مؤكّد** — `avatar` تخمين باصطلاح Laravel. أي
+  /// تصحيح بينطبق على [_avatarField] وبس.
   @override
   Future<String?> uploadAvatar({
     required Uint8List bytes,
@@ -56,7 +60,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     });
 
     final response = await _apiClient.request(
-      endpoint: ApiEndpoints.profileAvatar,
+      endpoint: ApiEndpoints.profileUpdate,
       method: ApiMethod.post,
       data: formData,
     );

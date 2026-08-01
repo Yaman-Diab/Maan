@@ -143,7 +143,7 @@ flutter analyze     # صفر ملاحظات
 | `verify_email` | `POST /api/auth/checkCode` + `POST /api/email/verification-notification` |
 | `forgot_password` | `POST /api/auth/forgetPassword` |
 | `create_new_password` | `POST /api/auth/resetPassword` |
-| `profile` | `GET /api/profile` |
+| `profile` | `GET /api/profile` + `POST /api/profile/update` |
 
 **مظروف الاستجابة** ⚠️: الـ backend بيرجّع **الفشل بـ HTTP 200** والحالة
 الحقيقية بالجسم (`status: 0` أو `success: false`). `ApiEnvelope` بيكشفها
@@ -218,18 +218,20 @@ data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` ب
   `null` والواجهة بتعرض «—» بدل رقم مخترع. أسماء المفاتيح المتوقّعة
   مكتوبة بـ`CitizenProfileModel._Keys` كتخمين موثّق — لما يثبّتها الباك
   اند، التعديل بملف واحد.
-- ⚠️ **رفع الصورة الشخصية مبني على عقد مخمَّن** — `POST /api/profile/avatar`
-  بحقل `avatar` (اصطلاح Laravel)، وما إله ذكر بـ`collection.md`. وكمان
-  استجابة `/api/profile` ما فيها حقل صورة، فـ`AuthUserModel` بيجرّب
-  `avatar_url`/`avatar`/`image_url`/`image`/`photo` بالترتيب. لو ما لقي
-  شي بتنعرض أحرف الاسم. المسار بـ`ApiEndpoints.profileAvatar` واسم الحقل
-  بـ`ProfileRemoteDataSource._avatarField` — نقطتان بس للتصحيح.
+- ⚠️ **أسماء حقول تحديث الملف الشخصي مخمَّنة** — المسار
+  `POST /api/profile/update` مؤكّد من الباك اند، بس اسم حقل الصورة
+  (`avatar`) لأ. وكمان استجابة `/api/profile` ما فيها حقل صورة،
+  فـ`AuthUserModel` بيجرّب `avatar_url`/`avatar`/`image_url`/`image`/
+  `photo` بالترتيب؛ لو ما لقي شي بتنعرض أحرف الاسم. نقطة التصحيح
+  الوحيدة: `ProfileRemoteDataSource._avatarField`.
   («Drop photo» بملف التصميم أداة محرّر لا عنصر واجهة.)
 - ما في endpoint لحذف الصورة، فورقة الاختيار فيها «كاميرا» و«معرض» بس
   بلا «إزالة الصورة».
 - شاشة تعديل بيانات الهوية غير موجودة، فزر «تعديل» ما بينعرض للزائر
-  (`ProfileContent.onEditTap` بتوصل `null`). نفس الشي لأيقونة الإعدادات
-  بـ`ProfilePage.onSettingsTap` لحد ما تنبني شاشة الإعدادات.
+  (`ProfileContent.onEditTap` بتوصل `null`). لما تنبني بتضرب نفس
+  `POST /api/profile/update` تبع الصورة — الفرق بس بالحقول المرسلة.
+  نفس الشي لأيقونة الإعدادات بـ`ProfilePage.onSettingsTap` لحد ما
+  تنبني شاشة الإعدادات.
 
 **تناقضات بالـ collection تجاهلناها عمداً**:
 - جسم `login` بالتوثيق بيسرد `first_name` و`birth_date` و

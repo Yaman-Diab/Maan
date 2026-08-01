@@ -37,9 +37,13 @@ class ApiEndpoints {
   /// الـ `Authorization` header لا من مُعرّف بالمسار.
   static const String profile = '$api/profile';
 
-  /// ⚠️ **مسار غير مؤكّد** — ما إله ذكر بـ`collection.md`. مبني على
-  /// اصطلاح Laravel المعتاد (`POST` بـ`multipart/form-data`). لما
-  /// يأكّده الباك اند، التعديل هون فقط — راجع
-  /// `ProfileRemoteDataSource.uploadAvatar` لاسم حقل الملف.
-  static const String profileAvatar = '$api/profile/avatar';
+  /// تحديث الملف الشخصي — **مؤكّد من الباك اند** (مش موجود
+  /// بـ`collection.md`، فهذا مصدره الوحيد).
+  ///
+  /// مسار واحد لكل تعديل، والصورة الشخصية وحدة من حقوله لا endpoint
+  /// مستقل. يعني شاشة تعديل بيانات الهوية لما تنبني بتضرب نفس المسار.
+  ///
+  /// ⚠️ لسه غير مؤكّد: **أسماء الحقول** — راجع
+  /// `ProfileRemoteDataSource._avatarField`.
+  static const String profileUpdate = '$api/profile/update';
 }

@@ -128,7 +128,7 @@ void main() {
   });
 
   group('رفع الصورة الشخصية', () {
-    test('POST بـ multipart على /api/profile/avatar بحقل اسمه avatar', () async {
+    test('POST بـ multipart على /api/profile/update بحقل اسمه avatar', () async {
       final built = _buildWith(
         () => _json({'status': 1, 'data': {'avatar_url': 'https://cdn/a.jpg'}}, 200),
       );
@@ -140,7 +140,7 @@ void main() {
 
       final captured = built.adapter.captured!;
       expect(captured.method, 'POST');
-      expect(captured.path, '/api/profile/avatar');
+      expect(captured.path, '/api/profile/update');
 
       final data = captured.data;
       expect(data, isA<FormData>());
@@ -151,6 +151,10 @@ void main() {
       expect(files, hasLength(1));
       expect(files.single.key, 'avatar');
       expect(files.single.value.filename, 'avatar.jpg');
+
+      // المسار بيحدّث الملف كاملاً، فإرسال حقول ثانية معه بيكتب فوق
+      // قيم ما قصد المستخدم يغيّرها. الصورة لحالها.
+      expect(data.fields, isEmpty);
     });
 
     test('بتقرأ الرابط الجديد لو رجّعه السيرفر', () async {
