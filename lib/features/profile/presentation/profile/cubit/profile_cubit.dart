@@ -9,16 +9,22 @@ import '../../../../../core/result/result.dart';
 import '../../../../../core/session/app_session_controller.dart';
 import '../../../../../core/usecase/usecase.dart';
 import '../../../domain/usecases/get_profile_usecase.dart';
+import '../../../domain/usecases/remove_avatar_usecase.dart';
 import '../../../domain/usecases/upload_avatar_usecase.dart';
 import 'profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   final GetProfileUseCase _getProfile;
   final UploadAvatarUseCase _uploadAvatar;
+  final RemoveAvatarUseCase _removeAvatar;
   final AppSessionController _session;
 
-  ProfileCubit(this._getProfile, this._uploadAvatar, this._session)
-    : super(const ProfileState());
+  ProfileCubit(
+    this._getProfile,
+    this._uploadAvatar,
+    this._removeAvatar,
+    this._session,
+  ) : super(const ProfileState());
 
   /// بتتنادى عند فتح الشاشة وعند السحب للتحديث.
   Future<void> load() async {
@@ -35,7 +41,16 @@ class ProfileCubit extends Cubit<ProfileState> {
         // بيسمع لهالمتحكّم، فحراسة المسارات بتتحدّث بلا سطر إضافي.
         _session.accountStatusChanged(value.user.accountStatus);
 
-        emit(state.copyWith(status: ProfileStatus.success, profile: value));
+        emit(
+          state.copyWith(
+            status: ProfileStatus.success,
+            profile: value,
+            // بيانات طازة من السيرفر بتلغي أي علم محلي قديم — هي
+            // المرجع الحقيقي هلق، مش أثر عملية سابقة بهالجلسة.
+            clearLocalAvatar: true,
+            avatarRemoved: false,
+          ),
+        );
 
       case Err(:final failure):
         emit(
@@ -72,6 +87,38 @@ class ProfileCubit extends Cubit<ProfileState> {
           state.copyWith(
             clearLocalAvatar: true,
             isUploadingAvatar: false,
+            avatarErrorMessage: failure.message,
+          ),
+        );
+    }
+  }
+
+  /// إزالة الصورة الشخصية — راجع تحذير العقد بـ`RemoveAvatarUseCase`.
+  ///
+  /// نفس نمط [uploadAvatar]: تفاؤلي (الأحرف بتبيّن فوراً)، وبيرجع
+  /// للصورة القديمة لو فشل الطلب.
+  Future<void> removeAvatar() async {
+    emit(
+      state.copyWith(
+        clearLocalAvatar: true,
+        avatarRemoved: true,
+        isRemovingAvatar: true,
+      ),
+    );
+
+    final result = await _removeAvatar(const NoParams());
+
+    if (isClosed) return;
+
+    switch (result) {
+      case Ok():
+        emit(state.copyWith(isRemovingAvatar: false));
+
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            avatarRemoved: false,
+            isRemovingAvatar: false,
             avatarErrorMessage: failure.message,
           ),
         );

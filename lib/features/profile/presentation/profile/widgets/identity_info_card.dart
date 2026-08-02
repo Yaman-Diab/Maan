@@ -33,6 +33,20 @@ class IdentityInfoCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
+                child: _Field(label: 'first_name'.tr(), value: user.firstName),
+              ),
+              SizedBox(width: 16.w),
+              Expanded(
+                child: _Field(label: 'last_name'.tr(), value: user.lastName),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 20.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
                 child: _Field(
                   label: 'national_id'.tr(),
                   value: user.nationalId ?? _missingValue,
@@ -44,21 +58,6 @@ class IdentityInfoCard extends StatelessWidget {
                   label: 'date_of_birth'.tr(),
                   value: _formatDate(user.birthDate),
                 ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 20.h),
-
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: _Field(label: 'first_name'.tr(), value: user.firstName),
-              ),
-              SizedBox(width: 16.w),
-              Expanded(
-                child: _Field(label: 'last_name'.tr(), value: user.lastName),
               ),
             ],
           ),

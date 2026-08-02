@@ -13,6 +13,10 @@ abstract final class AppRoutes {
   static const String register = '/register';
   static const String verifyEmail = '/verify-email';
   static const String forgotPassword = '/forgot-password';
+
+  /// تأكيد رمز الاستعادة — بين `forgotPassword` و`createNewPassword`.
+  static const String verifyResetCode = '/verify-reset-code';
+
   static const String createNewPassword = '/create-new-password';
 
   // --------redirect-----------------

@@ -3,6 +3,10 @@ import 'package:easy_localization/easy_localization.dart';
 class SignUpFormValidators {
   const SignUpFormValidators._();
 
+  /// أطول اسم حقيقي موثّق حوالي 35 حرف؛ 50 هامش آمن بلا ما يفتح المجال
+  /// لنص عشوائي طويل بحقل اسم.
+  static const int nameMaxLength = 50;
+
   /// [fieldName] بيوصل مترجم أصلاً من موقع الاستدعاء (`'first_name'.tr()`)
   /// وبينحط بالرسالة عبر `namedArgs`، فترتيب الكلمة بيتبع قواعد كل لغة
   /// بدل ما ينبني بالتسلسل الإنجليزي.

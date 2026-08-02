@@ -22,4 +22,12 @@ abstract class ProfileRepository {
     required Uint8List bytes,
     required String fileName,
   });
+
+  /// إزالة الصورة الشخصية.
+  ///
+  /// ⚠️ **بلا endpoint مخصّص** — نفس `POST /api/profile/update`، بس
+  /// بحقل `image` فاضي. الافتراض إن الباك اند بيفهم القيمة الفاضية
+  /// كـ«امسح الصورة الحالية» لسه غير مؤكّد؛ نقطة التصحيح الوحيدة
+  /// `ProfileRemoteDataSource.removeAvatar`.
+  Future<Result<void>> removeAvatar();
 }

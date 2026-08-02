@@ -35,6 +35,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
     });
   }
 
+  @override
+  Future<Result<void>> removeAvatar() {
+    return _guard(_remoteDataSource.removeAvatar);
+  }
+
   Future<Result<T>> _guard<T>(Future<T> Function() operation) async {
     try {
       return Ok(await operation());

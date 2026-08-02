@@ -12,6 +12,7 @@ import 'package:maan/core/usecase/usecase.dart';
 import 'package:maan/features/auth/domain/entities/auth_user.dart';
 import 'package:maan/features/profile/domain/entities/citizen_profile.dart';
 import 'package:maan/features/profile/domain/usecases/get_profile_usecase.dart';
+import 'package:maan/features/profile/domain/usecases/remove_avatar_usecase.dart';
 import 'package:maan/features/profile/domain/usecases/upload_avatar_usecase.dart';
 import 'package:maan/features/profile/presentation/profile/cubit/profile_cubit.dart';
 import 'package:maan/features/profile/presentation/profile/cubit/profile_state.dart';
@@ -20,6 +21,8 @@ import 'package:mocktail/mocktail.dart';
 class _MockGetProfileUseCase extends Mock implements GetProfileUseCase {}
 
 class _MockUploadAvatarUseCase extends Mock implements UploadAvatarUseCase {}
+
+class _MockRemoveAvatarUseCase extends Mock implements RemoveAvatarUseCase {}
 
 class _MockSecureStorageService extends Mock implements SecureStorageService {}
 
@@ -43,6 +46,7 @@ const _profile = CitizenProfile(user: _verifiedUser);
 void main() {
   late _MockGetProfileUseCase getProfile;
   late _MockUploadAvatarUseCase uploadAvatar;
+  late _MockRemoveAvatarUseCase removeAvatar;
   late _MockSecureStorageService storage;
   late AppSessionController session;
 
@@ -56,18 +60,22 @@ void main() {
   setUp(() {
     getProfile = _MockGetProfileUseCase();
     uploadAvatar = _MockUploadAvatarUseCase();
+    removeAvatar = _MockRemoveAvatarUseCase();
     storage = _MockSecureStorageService();
     session = AppSessionController(storage: storage);
 
     when(() => storage.saveAccountStatus(any())).thenAnswer((_) async {});
   });
 
+  ProfileCubit buildCubit() =>
+      ProfileCubit(getProfile, uploadAvatar, removeAvatar, session);
+
   blocTest<ProfileCubit, ProfileState>(
     'النجاح: loading ثم success مع البيانات',
     build: () {
       when(() => getProfile(any())).thenAnswer((_) async => const Ok(_profile));
 
-      return ProfileCubit(getProfile, uploadAvatar, session);
+      return buildCubit();
     },
     act: (cubit) => cubit.load(),
     expect: () => [
@@ -83,7 +91,7 @@ void main() {
         (_) async => const Err(NetworkFailure('error_connection')),
       );
 
-      return ProfileCubit(getProfile, uploadAvatar, session);
+      return buildCubit();
     },
     act: (cubit) => cubit.load(),
     expect: () => [
@@ -100,7 +108,7 @@ void main() {
     build: () {
       when(() => getProfile(any())).thenAnswer((_) async => const Ok(_profile));
 
-      return ProfileCubit(getProfile, uploadAvatar, session);
+      return buildCubit();
     },
     act: (cubit) async {
       await cubit.load();
@@ -122,7 +130,7 @@ void main() {
           () => uploadAvatar(any()),
         ).thenAnswer((_) async => const Ok('https://cdn.test/a.jpg'));
 
-        return ProfileCubit(getProfile, uploadAvatar, session);
+        return buildCubit();
       },
       act: (cubit) => cubit.uploadAvatar(_pickedImage),
       expect: () => [
@@ -142,7 +150,7 @@ void main() {
           (_) async => const Err(NetworkFailure('error_connection')),
         );
 
-        return ProfileCubit(getProfile, uploadAvatar, session);
+        return buildCubit();
       },
       act: (cubit) => cubit.uploadAvatar(_pickedImage),
       expect: () => [
@@ -165,7 +173,7 @@ void main() {
           (_) async => const Err(ServerFailure('error_server')),
         );
 
-        return ProfileCubit(getProfile, uploadAvatar, session);
+        return buildCubit();
       },
       act: (cubit) async {
         await cubit.load();
@@ -182,11 +190,7 @@ void main() {
     test('البايتات واسم الملف بينمرّروا كما هم', () async {
       when(() => uploadAvatar(any())).thenAnswer((_) async => const Ok(null));
 
-      await ProfileCubit(
-        getProfile,
-        uploadAvatar,
-        session,
-      ).uploadAvatar(_pickedImage);
+      await buildCubit().uploadAvatar(_pickedImage);
 
       final captured =
           verify(() => uploadAvatar(captureAny())).captured.single
@@ -200,12 +204,73 @@ void main() {
       // العقد غير مثبّت، فممكن السيرفر ما يرجّع رابطاً أبداً.
       when(() => uploadAvatar(any())).thenAnswer((_) async => const Ok(null));
 
-      final cubit = ProfileCubit(getProfile, uploadAvatar, session);
+      final cubit = buildCubit();
       await cubit.uploadAvatar(_pickedImage);
 
       expect(cubit.state.localAvatarPath, _pickedImage.path);
       expect(cubit.state.avatarErrorMessage, isNull);
       expect(cubit.state.isUploadingAvatar, isFalse);
+    });
+  });
+
+  group('إزالة الصورة الشخصية', () {
+    blocTest<ProfileCubit, ProfileState>(
+      'الإزالة تفاؤلية: الأحرف بتبيّن فوراً قبل رد السيرفر',
+      build: () {
+        when(() => removeAvatar(any())).thenAnswer((_) async => const Ok(null));
+
+        return buildCubit();
+      },
+      act: (cubit) => cubit.removeAvatar(),
+      expect: () => [
+        const ProfileState(avatarRemoved: true, isRemovingAvatar: true),
+        const ProfileState(avatarRemoved: true),
+      ],
+    );
+
+    blocTest<ProfileCubit, ProfileState>(
+      'فشل الإزالة بيرجّع الصورة القديمة',
+      build: () {
+        when(() => removeAvatar(any())).thenAnswer(
+          (_) async => const Err(ServerFailure('error_server')),
+        );
+
+        return buildCubit();
+      },
+      act: (cubit) => cubit.removeAvatar(),
+      expect: () => [
+        const ProfileState(avatarRemoved: true, isRemovingAvatar: true),
+        // `avatarRemoved` رجعت `false`: عرض الأحرف بدل صورة ما انمسحت
+        // فعلياً بالسيرفر كذبة.
+        const ProfileState(avatarErrorMessage: 'error_server'),
+      ],
+    );
+
+    test('بتمسح أي صورة محلية موجودة من رفع سابق هالجلسة', () async {
+      when(() => uploadAvatar(any())).thenAnswer((_) async => const Ok(null));
+      when(() => removeAvatar(any())).thenAnswer((_) async => const Ok(null));
+
+      final cubit = buildCubit();
+      await cubit.uploadAvatar(_pickedImage);
+      expect(cubit.state.localAvatarPath, _pickedImage.path);
+
+      await cubit.removeAvatar();
+
+      expect(cubit.state.localAvatarPath, isNull);
+      expect(cubit.state.avatarRemoved, isTrue);
+    });
+
+    test('إعادة تحميل ناجحة بتلغي علم الإزالة — بيانات السيرفر هي المرجع', () async {
+      when(() => getProfile(any())).thenAnswer((_) async => const Ok(_profile));
+      when(() => removeAvatar(any())).thenAnswer((_) async => const Ok(null));
+
+      final cubit = buildCubit();
+      await cubit.removeAvatar();
+      expect(cubit.state.avatarRemoved, isTrue);
+
+      await cubit.load();
+
+      expect(cubit.state.avatarRemoved, isFalse);
     });
   });
 
@@ -215,7 +280,7 @@ void main() {
 
       expect(session.accountStatus, AccountStatus.unknown);
 
-      await ProfileCubit(getProfile, uploadAvatar, session).load();
+      await buildCubit().load();
 
       // `/api/profile` أحدث مصدر لحالة الحساب — التوثيق ممكن يكون
       // اعتُمد بعد آخر تسجيل دخول.
@@ -228,7 +293,7 @@ void main() {
         (_) async => const Err(ServerFailure('error_server')),
       );
 
-      await ProfileCubit(getProfile, uploadAvatar, session).load();
+      await buildCubit().load();
 
       expect(session.accountStatus, AccountStatus.unknown);
       verifyNever(() => storage.saveAccountStatus(any()));

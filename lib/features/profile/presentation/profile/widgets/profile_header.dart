@@ -16,12 +16,17 @@ class ProfileHeader extends StatelessWidget {
     super.key,
     required this.user,
     this.localAvatarPath,
+    this.avatarRemoved = false,
     this.isUploadingAvatar = false,
     this.onAddPhotoTap,
   });
 
   final AuthUser user;
   final String? localAvatarPath;
+
+  /// بتلغي `user.avatarUrl` بالعرض — راجع `ProfileState.avatarRemoved`.
+  final bool avatarRemoved;
+
   final bool isUploadingAvatar;
   final VoidCallback? onAddPhotoTap;
 
@@ -37,7 +42,7 @@ class ProfileHeader extends StatelessWidget {
           ProfileAvatar(
             firstName: user.firstName,
             lastName: user.lastName,
-            imageUrl: user.avatarUrl,
+            imageUrl: avatarRemoved ? null : user.avatarUrl,
             localImagePath: localAvatarPath,
             isUploading: isUploadingAvatar,
             onAddPhotoTap: onAddPhotoTap,

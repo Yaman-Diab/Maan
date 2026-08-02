@@ -67,6 +67,7 @@ class SignUpForm extends StatelessWidget {
                       hintText: 'first_name_hint'.tr(),
                       keyBoardType: TextInputType.name,
                       autofillHints: const [AutofillHints.givenName],
+                      maxLength: SignUpFormValidators.nameMaxLength,
                       onChanged: cubit.firstNameChanged,
                       validationMessage: (value) =>
                           SignUpFormValidators.requiredName(
@@ -86,6 +87,7 @@ class SignUpForm extends StatelessWidget {
                       hintText: 'last_name_hint'.tr(),
                       keyBoardType: TextInputType.name,
                       autofillHints: const [AutofillHints.familyName],
+                      maxLength: SignUpFormValidators.nameMaxLength,
                       onChanged: cubit.lastNameChanged,
                       validationMessage: (value) =>
                           SignUpFormValidators.requiredName(value, 'last_name'.tr()),
@@ -124,6 +126,7 @@ class SignUpForm extends StatelessWidget {
                 hintText: 'enter_email'.tr(),
                 keyBoardType: TextInputType.emailAddress,
                 autofillHints: const [AutofillHints.email],
+                maxLength: AppValidators.emailMaxLength,
                 onChanged: cubit.emailChanged,
                 validationMessage: AppValidators.emailValidator,
               ),
@@ -137,6 +140,7 @@ class SignUpForm extends StatelessWidget {
                 hintText: 'enter_password'.tr(),
                 textInputAction: TextInputAction.next,
                 autofillHints: const [AutofillHints.newPassword],
+                maxLength: AppValidators.passwordMaxLength,
                 onChanged: cubit.passwordChanged,
                 validationMessage: AppValidators.passwordValidator,
               ),
@@ -152,6 +156,7 @@ class SignUpForm extends StatelessWidget {
                 hintText: 'enter_confirm_password'.tr(),
                 textInputAction: TextInputAction.done,
                 autofillHints: const [AutofillHints.newPassword],
+                maxLength: AppValidators.passwordMaxLength,
                 onChanged: cubit.confirmPasswordChanged,
                 validationMessage: (value) =>
                     AppValidators.confirmPasswordValidator(

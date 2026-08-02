@@ -85,9 +85,27 @@ core/design_system/
 ⏳ **ناقص**: شاشة الإعدادات نفسها — الأنابيب جاهزة، بس `SettingsCubit`
 لسه ما إله واجهة. راجع `FLOW.md` › Settings Flow.
 
+## حدود طول الحقول
+
+`CustomTextFormField.maxLength` (وبيتمرّر عبر `PasswordTextFormField`)
+بيمنع الكتابة/اللصق بعد الحد مباشرة عبر `LengthLimitingTextInputFormatter`
+— لا رسالة تحقّق بعد الإدخال، ولا عدّاد أحرف مرسوم (`counterText: ''`):
+التصميم ما فيه هالعنصر.
+
+| الحد | القيمة | ليش |
+|---|---|---|
+| `AppValidators.emailMaxLength` | 254 | الحد الفعلي حسب RFC 5321 |
+| `AppValidators.passwordMaxLength` | 64 | bcrypt بيقصّ عند 72 بايت بصمت (ثغرة معروفة لا مجرد سعة) |
+| `SignUpFormValidators.nameMaxLength` | 50 | أطول اسم حقيقي موثّق ~35 حرف |
+
+⚠️ **كلمة مرور تسجيل الدخول بلا `maxLength` عمداً** — عكس كل حقول كلمة
+المرور التانية. هاي كلمة مرور **موجودة أصلاً** بحساب، ممكن اتنشأت قبل
+أي سياسة حالية؛ حدّها بيقفل صاحبها برّا حسابه نهائياً لو كانت أطول من
+64. نفس منطق فصل `loginPasswordValidator` عن `passwordValidator`.
+
 ## الترجمة
 
-`easy_localization` مع `assets/translations/{en,ar}.json` — 154 مفتاح بالملفين.
+`easy_localization` مع `assets/translations/{en,ar}.json` — 156 مفتاح بالملفين.
 
 | القاعدة | التفصيل |
 |---|---|
@@ -117,7 +135,7 @@ core/design_system/
 ## الاختبار
 
 ```
-flutter test        # 284 اختبار
+flutter test        # 325 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -142,8 +160,10 @@ flutter analyze     # صفر ملاحظات
 | `sign_up` | `POST /api/auth/register` |
 | `verify_email` | `POST /api/auth/checkCode` + `POST /api/email/verification-notification` |
 | `forgot_password` | `POST /api/auth/forgetPassword` |
+| `verify_reset_code` | `POST /api/auth/checkCode` + `POST /api/auth/forgetPassword` (إعادة إرسال) |
 | `create_new_password` | `POST /api/auth/resetPassword` |
 | `profile` | `GET /api/profile` + `POST /api/profile/update` |
+| `verification` ⏳ | `POST /api/verification/store` |
 
 **مظروف الاستجابة** ⚠️: الـ backend بيرجّع **الفشل بـ HTTP 200** والحالة
 الحقيقية بالجسم (`status: 0` أو `success: false`). `ApiEnvelope` بيكشفها
@@ -194,6 +214,31 @@ data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` ب
 وقت البناء. و`NSCameraUsageDescription` + `NSPhotoLibraryUsageDescription`
 بـ`ios/Runner/Info.plist`، وبلاهم بترفض آبل التطبيق بالمراجعة.
 
+**401 عند تسجيل الدخول معناه بيانات خاطئة، لا جلسة منتهية**: `FailureMapper`
+العام بيترجم أي 401 لرسالة «سجّل دخولك من جديد» — صحيح لـ endpoint محمي
+فقد توكنه، غلط تماماً لمحاولة دخول أصلاً ما إلها جلسة. الباك اند الحقيقي
+بيرجّع 401 بلا حقل `code` (بس `message` نصّي)، فمسار التصنيف حسب الكود
+القديم ما كان يشتغل أبداً مع هالباك اند. `AuthRepositoryImpl.login`
+بيمسك `ApiException` صراحة قبل `FailureMapper` ويحوّل 401 لـ
+`AuthFailure('error_invalid_credentials')` مباشرة — تمييز خاص بمعرفة
+endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعرفه (401 بمكان
+تاني بالتطبيق لسه لازم يعني جلسة منتهية).
+
+**توثيق الهوية** (`features/verification/`) ⏳: `domain` و`data` بس —
+الشاشة لسه ما انبنت، فما في `Cubit` ولا واجهة. المسار
+`POST /api/verification/store` مؤكّد من الباك اند مع مثال استجابة حقيقي
+(`national_id` + `images[]`). العدد **صورتين بالضبط لا حد أدنى** —
+رسالة الباك اند الحقيقية "must contain 2 items" يعني قاعدة `size:2`،
+مش `min:2`. كيان `VerificationRequest` منفصل عن `AccountStatus`: الأول
+حالة الطلب نفسه (`pending` هي القيمة الوحيدة المؤكّدة)، والثاني حالة
+الحساب العامة اللي بيغيّرها الباك اند بعد المراجعة.
+
+⚠️ **صور التوثيق مش صورة بروفايل** — لما تُبنى شاشة الاختيار، **ما
+تستخدم** `ImagePickerService.pickAvatar` مباشرة: هاي بتقصّ مربّع دائري
+512px مصمّم لأفاتار، وصور الهوية/السيلفي بتحتاج مسار اختيار بلا قصّ
+دائري (وممكن نسب عرض مختلفة). الخدمة عامة عن قصد فهي المكان الصح
+لإضافة ميثود ثانية لا لإعادة استخدام `pickAvatar` كما هو.
+
 **شريط الملاحة**: تاباته لازم تطابق فروع `StatefulShellRoute` عدداً وترتيباً —
 `goBranch` بترمي لو الفهرس خارج المدى. حالياً تابان (`home` و`profile`)
 مقابل فرعين. عند إضافة تاب، أضف فرعه بالراوتر بنفس اللحظة.
@@ -203,8 +248,13 @@ data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` ب
   فبيرجع خطأ تحقق من السيرفر. الحقل موجود بـ`SignUpState` والـ request
   model، فالناقص بس `TextFormField` بـ`sign_up_form.dart` وربطه بـ
   `cubit.nationalIdChanged`، وإضافته لشرط `canSubmit`.
-- ما في شاشة لإدخال رمز إعادة التعيين بين "نسيت كلمة المرور" وشاشة كلمة
-  المرور الجديدة، فـ`PasswordResetArgs.code` بتوصل فاضية.
+- ⚠️ **تأكيد رمز الاستعادة بيمرّ على endpoint تأكيد البريد** — شاشة
+  `verify_reset_code` بتضرب `POST /api/auth/checkCode`، وهو نفسه اللي
+  بيستخدمه تأكيد البريد بعد التسجيل. إنه **يقبل رموز الاستعادة** مفترَض
+  لا مؤكّد، وكمان مش مؤكّد إذا **بيستهلك الرمز** فيفشل `resetPassword`
+  بعده برسالة رمز غير صالح. لو طلع بيستهلكه، البديل إلغاء التحقق
+  بالسيرفر والاكتفاء بفحص الشكل — تعديل بـ`VerificationCodeCubit.submit`
+  وبس. يحتاج تأكيد من الباك اند.
 - ⚠️ **`TokenRefreshService` مبني على نموذج access/refresh غير موجود
   فعلياً** — استجابة `login` الحقيقية فيها توكن JWT واحد (`token`) من
   طراز `tymon/jwt-auth`، وهالمكتبة بترجّع توكن جديد بإعادة إرسال
@@ -226,8 +276,15 @@ data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` ب
   إنه نفسه بالقراءة، بس هاد لسه تخمين. لو ما لقي شي بتنعرض أحرف الاسم.
   نقطة التصحيح الوحيدة: `ProfileRemoteDataSource._avatarField`.
   («Drop photo» بملف التصميم أداة محرّر لا عنصر واجهة.)
-- ما في endpoint لحذف الصورة، فورقة الاختيار فيها «كاميرا» و«معرض» بس
-  بلا «إزالة الصورة».
+- ⚠️ **إزالة الصورة مبنية على عقد مخمَّن بالكامل** — ما في endpoint
+  مخصّص، فـ`ProfileRepository.removeAvatar` بيبعت نفس
+  `POST /api/profile/update` بحقل `image` **نصّي فاضي** (لا `null` —
+  `multipart/form-data` ما بيحمل قيمة فاضية غير نص فاضي). الافتراض إن
+  الباك اند بيقرأ الحقل الفاضي كـ«امسح الصورة الحالية» **لسه ما إله
+  مثال استجابة حقيقي**، على عكس الرفع. نقطة التصحيح الوحيدة:
+  `ProfileRemoteDataSource.removeAvatar`. الإزالة تفاؤلية بنفس نمط
+  الرفع (`ProfileState.avatarRemoved`) وبترجع الصورة القديمة لو فشل
+  الطلب.
 - شاشة تعديل بيانات الهوية غير موجودة، فزر «تعديل» ما بينعرض للزائر
   (`ProfileContent.onEditTap` بتوصل `null`). لما تنبني بتضرب نفس
   `POST /api/profile/update` تبع الصورة — الفرق بس بالحقول المرسلة.

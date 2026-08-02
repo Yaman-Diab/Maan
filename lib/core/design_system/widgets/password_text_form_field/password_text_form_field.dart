@@ -16,6 +16,7 @@ class PasswordTextFormField extends StatelessWidget {
     this.onChanged,
     this.textInputAction = TextInputAction.next,
     this.autofillHints,
+    this.maxLength,
   });
 
   final TextEditingController controller;
@@ -24,6 +25,7 @@ class PasswordTextFormField extends StatelessWidget {
   final void Function(String)? onChanged;
   final TextInputAction? textInputAction;
   final Iterable<String>? autofillHints;
+  final int? maxLength;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +44,7 @@ class PasswordTextFormField extends StatelessWidget {
             onChanged: onChanged,
             textInputAction: textInputAction,
             autofillHints: autofillHints,
+            maxLength: maxLength,
             suffixIcon: IconButton(
               onPressed: context.read<PasswordFieldCubit>().toggleVisibility,
               icon: isHidden

@@ -120,6 +120,7 @@ class ApiErrorMessages {
   }) {
     switch (statusCode) {
       case ApiStatusCodes.badRequest:
+      case ApiStatusCodes.unprocessableEntity:
         return fallbackMessage ?? 'error_bad_request'.tr();
 
       case ApiStatusCodes.unauthorized:

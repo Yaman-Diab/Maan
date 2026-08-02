@@ -23,6 +23,8 @@ abstract class ProfileRemoteDataSource {
     required Uint8List bytes,
     required String fileName,
   });
+
+  Future<void> removeAvatar();
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
@@ -66,6 +68,23 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     );
 
     return _readAvatarUrl(response);
+  }
+
+  /// نفس مسار الرفع بحقل `image` فاضي — لا `null`: `multipart/form-data`
+  /// ما بيحمل قيمة فاضية أصلاً غير نص فاضي.
+  ///
+  /// ⚠️ **افتراض غير مؤكّد**: إن الباك اند بيقرأ حقل نصّي فاضي باسم
+  /// `image` كـ«امسح الصورة الحالية». ما في مثال استجابة حقيقي لهالحالة
+  /// بعد — لو ما اشتغل، هون نقطة التصحيح الوحيدة.
+  @override
+  Future<void> removeAvatar() async {
+    final formData = FormData.fromMap({_avatarField: ''});
+
+    await _apiClient.request(
+      endpoint: ApiEndpoints.profileUpdate,
+      method: ApiMethod.post,
+      data: formData,
+    );
   }
 
   /// اسم الحقل كما بينتظره `POST /api/profile/update`.

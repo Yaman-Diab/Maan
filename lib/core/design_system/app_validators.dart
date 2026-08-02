@@ -4,6 +4,19 @@ import 'password_policy.dart';
 
 class AppValidators {
   // -------------------------
+  // Field Limits
+  // -------------------------
+
+  /// الحد الأقصى الفعلي لعنوان بريد صالح حسب RFC 5321 — رقم معياري
+  /// لا تخمين، وبيطابق `varchar(255)` الافتراضي لأعمدة Laravel.
+  static const int emailMaxLength = 254;
+
+  /// bcrypt (مُشفّر Laravel الافتراضي) بيقصّ عند 72 بايت — أي حرف بعدها
+  /// بينتجاهل بصمت، وهاد معروف كثغرة (bcrypt truncation) لا مجرد قيد
+  /// سعة. 64 هامش آمن تحتها وبعيد عن أي كلمة مرور بشرية حقيقية.
+  static const int passwordMaxLength = 64;
+
+  // -------------------------
   // Email Validator
   // -------------------------
   static String? emailValidator(String? value) {

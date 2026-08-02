@@ -36,6 +36,7 @@ Future<void> _pump(
   TextDirection direction = TextDirection.ltr,
   ThemeData? theme,
   String? localAvatarPath,
+  bool avatarRemoved = false,
   bool isUploadingAvatar = false,
   VoidCallback? onAddPhotoTap,
   // `pumpAndSettle` بتعلّق مع الحركات اللانهائية (مؤشّر التقدّم)، فبنقدّم
@@ -64,6 +65,7 @@ Future<void> _pump(
               child: ProfileContent(
                 profile: profile,
                 localAvatarPath: localAvatarPath,
+                avatarRemoved: avatarRemoved,
                 isUploadingAvatar: isUploadingAvatar,
                 onAddPhotoTap: onAddPhotoTap,
               ),
@@ -263,6 +265,21 @@ void main() {
 
       final image = tester.widget<Image>(find.byType(Image));
       expect(image.image, isA<NetworkImage>());
+    });
+
+    testWidgets('avatarRemoved بتلغي رابط السيرفر — الأحرف بتنعرض بدله', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        CitizenProfile(
+          user: _user(avatarUrl: 'https://cdn.test/photo.jpg'),
+        ),
+        avatarRemoved: true,
+      );
+
+      expect(find.byType(Image), findsNothing);
+      expect(find.text('MA'), findsOneWidget);
     });
   });
 

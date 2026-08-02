@@ -2,7 +2,12 @@
 // Auth Repository Impl
 // -------------------------
 
+import 'package:easy_localization/easy_localization.dart';
+
+import '../../../../core/error/failure.dart';
 import '../../../../core/error/failure_mapper.dart';
+import '../../../../core/network/api_exception.dart';
+import '../../../../core/network/api_status_codes.dart';
 import '../../../../core/result/result.dart';
 import '../../domain/entities/auth_session.dart';
 import '../../domain/entities/birth_date.dart';
@@ -24,14 +29,28 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Result<AuthSession>> login({
     required String email,
     required String password,
-  }) {
-    return _guard(() async {
+  }) async {
+    try {
       final response = await _remoteDataSource.login(
         LoginRequestModel(email: email, password: password),
       );
 
-      return response.toEntity();
-    });
+      return Ok(response.toEntity());
+    } on ApiException catch (error) {
+      // 401 هون معناها الوحيد المنطقي إن البريد أو كلمة المرور غلط —
+      // ما في جلسة أصلاً قبل الدخول لتنتهي. الباك اند الحقيقي بيرجّع
+      // هالحالة **بلا** حقل `code` (بس `message`)، فـ`FailureMapper`
+      // العام ما بيميّزها عن 401 حقيقي لجلسة منتهية وبيرجع الرسالة
+      // العامة «سجّل دخولك من جديد» غلط. التمييز هون لأنه معرفة خاصة
+      // بـ endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعرفه.
+      if (error.statusCode == ApiStatusCodes.unauthorized) {
+        return Err(AuthFailure('error_invalid_credentials'.tr()));
+      }
+
+      return Err(FailureMapper.fromApiException(error));
+    } catch (error) {
+      return Err(FailureMapper.fromError(error));
+    }
   }
 
   @override
@@ -95,15 +114,6 @@ class AuthRepositoryImpl implements AuthRepository {
         ),
       );
     });
-  }
-
-  /// كل الميثودات بتتشارك نفس حدّ الأمان، فما ينكرر try/catch ست مرات.
-  Future<Result<T>> _guard<T>(Future<T> Function() operation) async {
-    try {
-      return Ok(await operation());
-    } catch (error) {
-      return Err(FailureMapper.fromError(error));
-    }
   }
 
   /// نسخة للعمليات اللي ما بترجّع قيمة — `Ok(await ...)` ما بتشتغل مع `void`.

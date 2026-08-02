@@ -22,6 +22,7 @@ import 'presentation/forgot_password/cubit/forgot_password_cubit.dart';
 import 'presentation/login/cubit/login_cubit.dart';
 import 'presentation/sign_up/cubit/sign_up_cubit.dart';
 import 'presentation/verify_email/cubit/verify_email_cubit.dart';
+import 'presentation/verify_reset_code/cubit/verify_reset_code_cubit.dart';
 
 /// تسجيل اعتماديات ميزة auth.
 ///
@@ -93,6 +94,16 @@ void registerAuthDependencies(GetIt sl) {
     (email, _) => VerifyEmailCubit(
       sl<CheckCodeUseCase>(),
       sl<ResendVerificationUseCase>(),
+      email: email,
+    ),
+  );
+
+  // بتاخد البريد من المسار متل `VerifyEmailCubit`، بس بتعيد الإرسال عبر
+  // `forgetPassword` لأن ما في endpoint مخصّص لإعادة رمز الاستعادة.
+  sl.registerFactoryParam<VerifyResetCodeCubit, String, void>(
+    (email, _) => VerifyResetCodeCubit(
+      sl<CheckCodeUseCase>(),
+      sl<ForgetPasswordUseCase>(),
       email: email,
     ),
   );

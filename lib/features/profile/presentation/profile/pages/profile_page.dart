@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../../core/design_system/app_theme_context.dart';
 import '../../../../../core/di/service_locator.dart';
@@ -83,19 +84,32 @@ class ProfilePage extends StatelessWidget {
 class _ProfileBody extends StatelessWidget {
   const _ProfileBody();
 
-  /// خط الأنابيب: ورقة الاختيار ← اختيار ← قص ← ضغط ← رفع.
+  /// خط الأنابيب: ورقة الاختيار ← اختيار ← قص ← ضغط ← رفع (أو إزالة
+  /// مباشرة لو هيك اختار).
   ///
   /// الإلغاء بأي خطوة بيرجّع `null` وبنوقف بهدوء — مش خطأ.
-  Future<void> _changeAvatar(BuildContext context) async {
+  Future<void> _changeAvatar(BuildContext context, {required bool hasAvatar}) async {
     final cubit = context.read<ProfileCubit>();
 
     // بتتبنى قبل أي `await`: بعد الفجوة الزمنية ممكن يكون الـ context
     // انفصل عن الشجرة.
     final appearance = _cropperAppearance(context);
 
-    final source = await showAvatarSourceSheet(context);
+    final action = await showAvatarSourceSheet(
+      context,
+      showRemoveOption: hasAvatar,
+    );
 
-    if (source == null) return;
+    if (action == null) return;
+
+    if (action == AvatarSourceAction.remove) {
+      await cubit.removeAvatar();
+      return;
+    }
+
+    final source = action == AvatarSourceAction.camera
+        ? ImageSource.camera
+        : ImageSource.gallery;
 
     final image = await sl<ImagePickerService>().pickAvatar(
       source: source,
@@ -148,6 +162,11 @@ class _ProfileBody extends StatelessWidget {
           );
         }
 
+        // «إزالة الصورة» بورقة الاختيار ما إلها معنى لو ما في صورة
+        // حالياً — محلية ولا من السيرفر.
+        final hasAvatar =
+            state.localAvatarPath != null || state.displayedAvatarUrl != null;
+
         return RefreshIndicator(
           onRefresh: context.read<ProfileCubit>().load,
           child: SingleChildScrollView(
@@ -157,8 +176,11 @@ class _ProfileBody extends StatelessWidget {
             child: ProfileContent(
               profile: profile,
               localAvatarPath: state.localAvatarPath,
+              avatarRemoved: state.avatarRemoved,
               isUploadingAvatar: state.isUploadingAvatar,
-              onAddPhotoTap: () => _changeAvatar(context),
+              isRemovingAvatar: state.isRemovingAvatar,
+              onAddPhotoTap: () =>
+                  _changeAvatar(context, hasAvatar: hasAvatar),
             ),
           ),
         );

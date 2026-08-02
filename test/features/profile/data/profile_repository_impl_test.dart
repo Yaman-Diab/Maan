@@ -199,6 +199,44 @@ void main() {
     });
   });
 
+  group('إزالة الصورة الشخصية', () {
+    test('POST بنفس مسار التحديث بحقل image نصّي فاضي — لا file', () async {
+      final built = _buildWith(() => _json({'status': 1}, 200));
+
+      await built.repository.removeAvatar();
+
+      final captured = built.adapter.captured!;
+      expect(captured.method, 'POST');
+      expect(captured.path, '/api/profile/update');
+
+      final data = captured.data as FormData;
+
+      // فاضي يعني حقل نصّي بقيمة فاضية، مش ملف — هيك بيتفرّق شكلياً
+      // عن الرفع (اللي بيبعت `MultipartFile` بنفس الاسم).
+      expect(data.files, isEmpty);
+      expect(data.fields.single.key, 'image');
+      expect(data.fields.single.value, '');
+    });
+
+    test('بترجّع Ok لو نجح الطلب', () async {
+      final built = _buildWith(() => _json({'status': 1}, 200));
+
+      final result = await built.repository.removeAvatar();
+
+      expect(result, isA<Ok>());
+    });
+
+    test('فشل السيرفر بيتحوّل لـ Failure', () async {
+      final built = _buildWith(
+        () => _json({'message': 'Server error'}, 500),
+      );
+
+      final result = await built.repository.removeAvatar();
+
+      expect(result, isA<Err>());
+    });
+  });
+
   group('تحويل الأخطاء لـ Failure', () {
     test('انقطاع الاتصال بيصير NetworkFailure', () async {
       final dio = Dio(BaseOptions(baseUrl: 'https://example.test'));

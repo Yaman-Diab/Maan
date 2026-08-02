@@ -10,6 +10,7 @@ import 'package:maan/features/auth/presentation/forgot_password/pages/forgot_pas
 import 'package:maan/features/auth/presentation/login/pages/login_page.dart';
 import 'package:maan/features/auth/presentation/sign_up/pages/sign_up_page.dart';
 import 'package:maan/features/auth/presentation/verify_email/pages/verify_email_page.dart';
+import 'package:maan/features/auth/presentation/verify_reset_code/pages/verify_reset_code_page.dart';
 import 'package:maan/features/profile/presentation/profile/pages/profile_page.dart';
 import 'package:maan/features/splash/presentation/pages/splash_page.dart';
 import '../../features/app_shell/app_shell_page.dart';
@@ -86,9 +87,24 @@ class AppRouter {
         path: AppRoutes.forgotPassword,
         builder: (context, state) {
           return ForgotPasswordPage(
-            onCodeSent: (email) => context.push(
+            // الرمز بينتأكّد بالشاشة الجاية قبل كلمة المرور الجديدة —
+            // بلاها كان `code` بيوصل فاضي و`resetPassword` بيرفض.
+            onCodeSent: (email) =>
+                context.push(AppRoutes.verifyResetCode, extra: email),
+          );
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.verifyResetCode,
+        builder: (context, state) {
+          final email = state.extra as String? ?? '';
+
+          return VerifyResetCodePage(
+            email: email,
+            onCodeVerified: (code) => context.push(
               AppRoutes.createNewPassword,
-              extra: PasswordResetArgs(email: email),
+              extra: PasswordResetArgs(email: email, code: code),
             ),
           );
         },

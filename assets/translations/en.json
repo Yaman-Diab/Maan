@@ -71,6 +71,8 @@
   "verify_your_email": "Verify Your Email",
   "verify_email_sent_notice": "A verification code has been sent to your email.",
   "verify_email_check_spam": "Please check your inbox or spam folder.",
+  "verify_reset_code_title": "Enter the verification code",
+  "verify_reset_code_subtitle": "We sent a password reset code to your email.",
   "verifying": "Verifying...",
   "verify_email_button": "Verify Email",
   "resend_code_prefix": "You can resend the code in ",
@@ -135,6 +137,7 @@
   "avatar_sheet_title": "Profile photo",
   "avatar_source_camera": "Take a photo",
   "avatar_source_gallery": "Choose from gallery",
+  "avatar_source_remove": "Remove photo",
   "avatar_crop_title": "Crop photo",
 
   "login_verification_title": "Login Verification",

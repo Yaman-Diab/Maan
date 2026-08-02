@@ -108,7 +108,10 @@ class FailureMapper {
       return AuthFailure(message, code: code);
     }
 
-    if (statusCode == ApiStatusCodes.badRequest) {
+    // 422 هو رمز Laravel الفعلي لأخطاء التحقق — 400 مضاف كمان لأنه
+    // الرمز الموثّق بـ`collection.md` لبعض المسارات القديمة.
+    if (statusCode == ApiStatusCodes.badRequest ||
+        statusCode == ApiStatusCodes.unprocessableEntity) {
       return ValidationFailure(
         message,
         code: code,

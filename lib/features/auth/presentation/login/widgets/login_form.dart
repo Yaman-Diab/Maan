@@ -75,6 +75,7 @@ class LoginForm extends StatelessWidget {
                       validationMessage: AppValidators.emailValidator,
                       keyBoardType: TextInputType.emailAddress,
                       autofillHints: const [AutofillHints.email],
+                      maxLength: AppValidators.emailMaxLength,
                       onChanged: cubit.emailChanged,
                     ),
                   ),
@@ -91,6 +92,12 @@ class LoginForm extends StatelessWidget {
                       hintText: 'enter_password'.tr(),
                       textInputAction: TextInputAction.done,
                       autofillHints: const [AutofillHints.password],
+                      // ⚠️ عمداً بلا maxLength هون — عكس password_hint
+                      // بالإنشاء. هاي كلمة مرور **موجودة أصلاً** بحساب،
+                      // ممكن كانت اتنشأت قبل أي سياسة حالية أو بمسار
+                      // تاني. حدّها بيقفل صاحبها برّا حسابه نهائياً لو
+                      // كانت أطول — نفس منطق فصل loginPasswordValidator
+                      // عن passwordValidator سابقاً.
                       onChanged: cubit.passwordChanged,
                     ),
                   ),

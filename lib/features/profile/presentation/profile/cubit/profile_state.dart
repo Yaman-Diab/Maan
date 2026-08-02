@@ -26,8 +26,18 @@ final class ProfileState extends Equatable {
 
   final bool isUploadingAvatar;
 
-  /// خطأ الرفع منفصل عن [errorMessage]: فشل رفع الصورة ما بيخرّب الشاشة
-  /// كلها، فبينعرض كـ SnackBar والملف بيضل ظاهر.
+  /// إزالة صريحة صارت هالجلسة — بتسبق `user.avatarUrl` بالعرض بالضبط
+  /// متل [localAvatarPath]، فالصورة القديمة ما ترجع تبيّن حتى لو
+  /// `profile` القديم لسه فيه رابطها.
+  ///
+  /// بتنمسح تلقائياً مع أي [profile] جديد (`load()`): البيانات الطازة
+  /// من السيرفر هي المرجع الحقيقي، مش علم محلي قديم.
+  final bool avatarRemoved;
+
+  final bool isRemovingAvatar;
+
+  /// خطأ الرفع أو الإزالة — منفصل عن [errorMessage]: فشل عملية الصورة ما
+  /// بيخرّب الشاشة كلها، فبينعرض كـ SnackBar والباقي بيضل ظاهر.
   final String? avatarErrorMessage;
 
   const ProfileState({
@@ -36,6 +46,8 @@ final class ProfileState extends Equatable {
     this.errorMessage,
     this.localAvatarPath,
     this.isUploadingAvatar = false,
+    this.avatarRemoved = false,
+    this.isRemovingAvatar = false,
     this.avatarErrorMessage,
   });
 
@@ -52,6 +64,8 @@ final class ProfileState extends Equatable {
     String? localAvatarPath,
     bool clearLocalAvatar = false,
     bool? isUploadingAvatar,
+    bool? avatarRemoved,
+    bool? isRemovingAvatar,
     String? avatarErrorMessage,
   }) {
     return ProfileState(
@@ -65,10 +79,20 @@ final class ProfileState extends Equatable {
           ? null
           : (localAvatarPath ?? this.localAvatarPath),
       isUploadingAvatar: isUploadingAvatar ?? this.isUploadingAvatar,
+      // `profile` جديد بيصفّرها ضمنياً عبر [displayedAvatarUrl] — بس
+      // ما بنصفّرها هون كمان حتى ما تنقلب `false` بمنتصف عملية إزالة
+      // شغّالة (مثلاً بعد `load()` من سحبة تحديث متزامنة).
+      avatarRemoved: avatarRemoved ?? this.avatarRemoved,
+      isRemovingAvatar: isRemovingAvatar ?? this.isRemovingAvatar,
       // نفس منطق `errorMessage` — سناك بار مرة وحدة لا مع كل rebuild.
       avatarErrorMessage: avatarErrorMessage,
     );
   }
+
+  /// رابط الصورة اللي المفروض تنعرض من السيرفر — `null` لو انمسحت
+  /// هالجلسة حتى لو `profile` القديم لسه فيه رابطها.
+  String? get displayedAvatarUrl =>
+      avatarRemoved ? null : profile?.user.avatarUrl;
 
   @override
   List<Object?> get props => [
@@ -77,6 +101,8 @@ final class ProfileState extends Equatable {
     errorMessage,
     localAvatarPath,
     isUploadingAvatar,
+    avatarRemoved,
+    isRemovingAvatar,
     avatarErrorMessage,
   ];
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
 
@@ -22,6 +23,7 @@ class CustomTextFormField extends StatelessWidget {
     this.readOnly = false,
     this.width,
     this.autofillHints,
+    this.maxLength,
   });
 
   final String? hintText;
@@ -43,6 +45,12 @@ class CustomTextFormField extends StatelessWidget {
   final double? width;
   final Iterable<String>? autofillHints;
 
+  /// حد أقصى لعدد الأحرف — يمنع الكتابة/اللصق بعده مباشرة عند مصدره
+  /// (`LengthLimitingTextInputFormatter`)، لا رسالة تحقّق بعد الإدخال.
+  /// بلا عدّاد أحرف مرسوم: التصميم ما فيه هالعنصر، فـ`counterText: ''`
+  /// بتلغي عدّاد Flutter الافتراضي.
+  final int? maxLength;
+
   @override
   Widget build(BuildContext context) {
     final scheme = context.scheme;
@@ -62,11 +70,15 @@ class CustomTextFormField extends StatelessWidget {
         autofillHints: autofillHints,
         obscureText: obscureText,
         validator: validationMessage,
+        inputFormatters: maxLength == null
+            ? null
+            : [LengthLimitingTextInputFormatter(maxLength)],
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(
             vertical: 12.h,
             horizontal: 16.w,
           ),
+          counterText: maxLength == null ? null : '',
           fillColor: fillColor ?? context.colors.fieldBackground,
           filled: true,
           hintText: hintText,

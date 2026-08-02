@@ -50,6 +50,7 @@ class CreateNewPasswordForm extends StatelessWidget {
                 hintText: 'enter_password'.tr(),
                 textInputAction: TextInputAction.next,
                 autofillHints: const [AutofillHints.newPassword],
+                maxLength: AppValidators.passwordMaxLength,
                 onChanged: cubit.passwordChanged,
                 validationMessage: AppValidators.passwordValidator,
               ),
@@ -64,6 +65,7 @@ class CreateNewPasswordForm extends StatelessWidget {
                 hintText: 'enter_confirm_password'.tr(),
                 textInputAction: TextInputAction.done,
                 autofillHints: const [AutofillHints.newPassword],
+                maxLength: AppValidators.passwordMaxLength,
                 onChanged: cubit.confirmPasswordChanged,
                 validationMessage: (value) =>
                     AppValidators.confirmPasswordValidator(

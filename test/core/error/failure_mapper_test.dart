@@ -140,6 +140,28 @@ void main() {
       expect(failure, isA<ValidationFailure>());
       expect((failure as ValidationFailure).fieldErrors, isNull);
     });
+
+    // 422 هو رمز Laravel الفعلي لأخطاء التحقق — الباك اند بيرجّعه هو لا
+    // 400. كان في اختبار مسمّى «422» بمكان تاني بس جسمه المزيّف كان
+    // 400 فعلياً، فهالمسار ما كان منفحوص أبداً وكل خطأ تحقق حقيقي كان
+    // بيضيع كـUnknownFailure عام.
+    test('422 بتقرأ أخطاء الحقول من errors متل 400 بالضبط', () {
+      final failure = FailureMapper.fromApiException(
+        _exception(
+          statusCode: 422,
+          data: {
+            'errors': {
+              'images': ['The images field must contain 2 items.'],
+            },
+          },
+        ),
+      );
+
+      expect(failure, isA<ValidationFailure>());
+      expect((failure as ValidationFailure).fieldErrors, {
+        'images': ['The images field must contain 2 items.'],
+      });
+    });
   });
 
   group('FailureMapper.fromError', () {

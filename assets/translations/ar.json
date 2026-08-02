@@ -71,6 +71,8 @@
   "verify_your_email": "تحقّق من بريدك الإلكتروني",
   "verify_email_sent_notice": "تم إرسال رمز التحقق إلى بريدك الإلكتروني.",
   "verify_email_check_spam": "يرجى التحقق من صندوق الوارد أو مجلد الرسائل غير المرغوب فيها.",
+  "verify_reset_code_title": "أدخل رمز التحقق",
+  "verify_reset_code_subtitle": "أرسلنا رمز إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.",
   "verifying": "جارٍ التحقق...",
   "verify_email_button": "تحقّق من البريد الإلكتروني",
   "resend_code_prefix": "يمكنك إعادة إرسال الرمز خلال ",
@@ -135,6 +137,7 @@
   "avatar_sheet_title": "الصورة الشخصية",
   "avatar_source_camera": "التقاط صورة",
   "avatar_source_gallery": "اختيار من المعرض",
+  "avatar_source_remove": "إزالة الصورة",
   "avatar_crop_title": "قصّ الصورة",
 
   "login_verification_title": "فحص تسجيل الدخول",

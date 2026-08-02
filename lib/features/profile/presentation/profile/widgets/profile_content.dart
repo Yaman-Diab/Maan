@@ -21,7 +21,9 @@ class ProfileContent extends StatelessWidget {
     super.key,
     required this.profile,
     this.localAvatarPath,
+    this.avatarRemoved = false,
     this.isUploadingAvatar = false,
+    this.isRemovingAvatar = false,
     this.onAddPhotoTap,
     this.onEditTap,
   });
@@ -29,7 +31,9 @@ class ProfileContent extends StatelessWidget {
   final CitizenProfile profile;
 
   final String? localAvatarPath;
+  final bool avatarRemoved;
   final bool isUploadingAvatar;
+  final bool isRemovingAvatar;
   final VoidCallback? onAddPhotoTap;
 
   /// شاشة تعديل الهوية لسه ما انبنت، فبتوصل `null` واليوم ما بينعرض
@@ -47,7 +51,10 @@ class ProfileContent extends StatelessWidget {
         ProfileHeader(
           user: user,
           localAvatarPath: localAvatarPath,
-          isUploadingAvatar: isUploadingAvatar,
+          avatarRemoved: avatarRemoved,
+          // عملية وحدة بس تشتغل بلحظة معيّنة (رفع أو إزالة)، فبكفي
+          // مؤشّر تقدّم واحد يعكس الاثنين.
+          isUploadingAvatar: isUploadingAvatar || isRemovingAvatar,
           onAddPhotoTap: onAddPhotoTap,
         ),
 

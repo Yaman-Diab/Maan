@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:maan/core/di/service_locator.dart';
 
+import '../../verification_code/cubit/verification_code_state.dart';
 import '../cubit/verify_email_cubit.dart';
-import '../cubit/verify_email_state.dart';
 import '../widgets/verify_email_form.dart';
 
 class VerifyEmailPage extends StatefulWidget {
@@ -29,17 +29,17 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
     super.dispose();
   }
 
-  void _onStateChanged(BuildContext context, VerifyEmailState state) {
+  void _onStateChanged(BuildContext context, VerificationCodeState state) {
     // إعادة إرسال ناجحة بتفرّغ الرمز بالحالة، فبنعكسها على الحقل.
     if (state.code.isEmpty && _pinController.text.isNotEmpty) {
       _pinController.clear();
     }
 
     switch (state.status) {
-      case VerifyEmailStatus.success:
+      case VerificationCodeStatus.success:
         widget.onVerified?.call();
 
-      case VerifyEmailStatus.failure:
+      case VerificationCodeStatus.failure:
         final message = state.errorMessage;
         if (message == null) return;
 
@@ -47,8 +47,8 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
           ..hideCurrentSnackBar()
           ..showSnackBar(SnackBar(content: Text(message)));
 
-      case VerifyEmailStatus.initial:
-      case VerifyEmailStatus.submitting:
+      case VerificationCodeStatus.initial:
+      case VerificationCodeStatus.submitting:
         break;
     }
   }
@@ -57,7 +57,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   Widget build(BuildContext context) {
     return BlocProvider<VerifyEmailCubit>(
       create: (_) => sl<VerifyEmailCubit>(param1: widget.email),
-      child: BlocConsumer<VerifyEmailCubit, VerifyEmailState>(
+      child: BlocConsumer<VerifyEmailCubit, VerificationCodeState>(
         listener: _onStateChanged,
         builder: (context, state) {
           return VerifyEmailForm(

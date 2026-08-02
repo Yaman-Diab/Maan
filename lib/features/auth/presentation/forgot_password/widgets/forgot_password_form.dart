@@ -67,6 +67,7 @@ class ForgotPasswordForm extends StatelessWidget {
                               keyBoardType: TextInputType.emailAddress,
                               textInputAction: TextInputAction.done,
                               autofillHints: const [AutofillHints.email],
+                              maxLength: AppValidators.emailMaxLength,
                               onChanged: cubit.emailChanged,
                             ),
                           ),

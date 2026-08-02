@@ -13,6 +13,11 @@ class ApiStatusCodes {
   static const int forbidden = 403;
   static const int notFound = 404;
   static const int gone = 410;
+
+  /// رمز Laravel القياسي لأخطاء التحقق — هو اللي بيرجّعه الباك اند
+  /// فعلياً، لا 400. راجع `FailureMapper._fromStatusCode`.
+  static const int unprocessableEntity = 422;
+
   static const int tooManyRequests = 429;
 
   static const int redirect = 302;

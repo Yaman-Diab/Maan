@@ -17,6 +17,9 @@ import 'package:maan/features/auth/presentation/verify_email/cubit/verify_email_
 import 'package:maan/features/profile/domain/repositories/profile_repository.dart';
 import 'package:maan/features/profile/presentation/profile/cubit/profile_cubit.dart';
 import 'package:maan/features/profile/profile_injection.dart';
+import 'package:maan/features/verification/domain/repositories/verification_repository.dart';
+import 'package:maan/features/verification/domain/usecases/submit_verification_usecase.dart';
+import 'package:maan/features/verification/verification_injection.dart';
 
 /// بيتأكد إن نقطة التركيب بتركّب فعلاً.
 ///
@@ -34,6 +37,7 @@ void main() {
     await setupCoreDependencies();
     registerAuthDependencies(sl);
     registerProfileDependencies(sl);
+    registerVerificationDependencies(sl);
   });
 
   tearDown(() => sl.reset());
@@ -66,6 +70,12 @@ void main() {
     expect(sl<AuthRepository>(), isA<AuthRepository>());
     expect(sl<SessionRepository>(), isA<SessionRepository>());
     expect(sl<ProfileRepository>(), isA<ProfileRepository>());
+    expect(sl<VerificationRepository>(), isA<VerificationRepository>());
+  });
+
+  test('سلسلة اعتماديات التوثيق بتتحل — بلا واجهة لسه', () {
+    // الشاشة لسه ما انبنت، فمنتأكد من الـ use case لحاله بدل Cubit.
+    expect(sl<SubmitVerificationUseCase>(), isA<SubmitVerificationUseCase>());
   });
 
   test('تفضيلات العرض مسجّلة كـ singleton عام', () {

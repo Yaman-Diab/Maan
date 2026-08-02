@@ -17,6 +17,7 @@ import 'core/settings/widgets/text_scale_scope.dart';
 import 'features/auth/auth_injection.dart';
 import 'features/profile/profile_injection.dart';
 import 'features/splash/presentation/pages/splash_page.dart';
+import 'features/verification/verification_injection.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +35,7 @@ Future<void> main() async {
   await setupCoreDependencies();
   registerAuthDependencies(sl);
   registerProfileDependencies(sl);
+  registerVerificationDependencies(sl);
 
   // -------------------------
   // Settings

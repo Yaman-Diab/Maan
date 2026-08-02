@@ -1,17 +1,23 @@
 // -------------------------
-// Verify Email State
+// Verification Code State
 // -------------------------
 
 import 'package:equatable/equatable.dart';
 
-enum VerifyEmailStatus { initial, submitting, success, failure }
+enum VerificationCodeStatus { initial, submitting, success, failure }
 
-final class VerifyEmailState extends Equatable {
+/// حالة مشتركة لكل شاشة بتطلب رمزاً وصل على البريد.
+///
+/// شاشتان بتستخدموها اليوم: تأكيد البريد بعد التسجيل، وتأكيد رمز
+/// استعادة كلمة المرور. الاثنتان بتضربوا نفس `POST /api/auth/checkCode`
+/// وبتعرضوا نفس الواجهة — الفرق الوحيد **إعادة الإرسال** ووين بيروح
+/// المستخدم بعد النجاح، وهدول الاثنين برّا الحالة.
+final class VerificationCodeState extends Equatable {
   final String email;
   final int codeLength;
   final String code;
 
-  final VerifyEmailStatus status;
+  final VerificationCodeStatus status;
   final bool isResending;
 
   /// العدّ التنازلي قبل ما يُسمح بطلب رمز جديد.
@@ -25,11 +31,11 @@ final class VerifyEmailState extends Equatable {
   /// خطأ عام بيظهر كـ SnackBar.
   final String? errorMessage;
 
-  const VerifyEmailState({
+  const VerificationCodeState({
     required this.email,
     this.codeLength = 6,
     this.code = '',
-    this.status = VerifyEmailStatus.initial,
+    this.status = VerificationCodeStatus.initial,
     this.isResending = false,
     this.remainingSeconds = 0,
     this.isHelpVisible = false,
@@ -37,7 +43,7 @@ final class VerifyEmailState extends Equatable {
     this.errorMessage,
   });
 
-  bool get isSubmitting => status == VerifyEmailStatus.submitting;
+  bool get isSubmitting => status == VerificationCodeStatus.submitting;
 
   bool get hasCodeError => codeError != null;
 
@@ -45,16 +51,16 @@ final class VerifyEmailState extends Equatable {
 
   bool get canSubmit => code.trim().length == codeLength && !isSubmitting;
 
-  VerifyEmailState copyWith({
+  VerificationCodeState copyWith({
     String? code,
-    VerifyEmailStatus? status,
+    VerificationCodeStatus? status,
     bool? isResending,
     int? remainingSeconds,
     bool? isHelpVisible,
     String? codeError,
     String? errorMessage,
   }) {
-    return VerifyEmailState(
+    return VerificationCodeState(
       email: email,
       codeLength: codeLength,
       code: code ?? this.code,

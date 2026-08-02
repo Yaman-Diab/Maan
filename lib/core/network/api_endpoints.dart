@@ -46,4 +46,14 @@ class ApiEndpoints {
   /// ⚠️ لسه غير مؤكّد: **أسماء الحقول** — راجع
   /// `ProfileRemoteDataSource._avatarField`.
   static const String profileUpdate = '$api/profile/update';
+
+  // -------------------------
+  // Verification
+  // -------------------------
+
+  /// تقديم طلب توثيق هوية — `national_id` + صورتين بالضبط (`images[]`).
+  /// رسالة الباك اند عند مخالفة العدد: "must contain 2 items" —
+  /// يعني قاعدة `size:2` لا `min:2`، فالعدد ثابت لا حد أدنى.
+  /// مؤكّد من الباك اند مع مثال استجابة حقيقي.
+  static const String verificationStore = '$api/verification/store';
 }
