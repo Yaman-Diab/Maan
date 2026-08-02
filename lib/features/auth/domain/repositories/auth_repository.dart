@@ -4,7 +4,7 @@
 
 import '../../../../core/result/result.dart';
 import '../entities/auth_session.dart';
-import '../entities/birth_date.dart';
+import 'package:maan/core/domain/birth_date.dart';
 
 /// عقد المصادقة كما تراه طبقة الـ domain.
 ///

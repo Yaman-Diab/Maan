@@ -13,8 +13,11 @@ import 'package:maan/features/auth/presentation/create_new_password/cubit/create
 import 'package:maan/features/auth/presentation/forgot_password/cubit/forgot_password_cubit.dart';
 import 'package:maan/features/auth/presentation/login/cubit/login_cubit.dart';
 import 'package:maan/features/auth/presentation/sign_up/cubit/sign_up_cubit.dart';
+import 'package:maan/features/auth/domain/entities/auth_user.dart';
 import 'package:maan/features/auth/presentation/verify_email/cubit/verify_email_cubit.dart';
+import 'package:maan/core/session/account_status.dart';
 import 'package:maan/features/profile/domain/repositories/profile_repository.dart';
+import 'package:maan/features/profile/presentation/edit_identity/cubit/edit_identity_cubit.dart';
 import 'package:maan/features/profile/presentation/profile/cubit/profile_cubit.dart';
 import 'package:maan/features/profile/profile_injection.dart';
 import 'package:maan/features/verification/domain/repositories/verification_repository.dart';
@@ -64,6 +67,20 @@ void main() {
     // ProfileCubit بياخد AppSessionController من الـ core، فحلّه بيثبت
     // إن ميزة جديدة بتوصل لاعتماديات core بلا ما تسجّلها لحالها.
     expect(sl<ProfileCubit>(), isA<ProfileCubit>());
+  });
+
+  test('EditIdentityCubit بيتبنى بـ factoryParam من AuthUser', () {
+    const user = AuthUser(
+      id: 1,
+      firstName: 'Yaman',
+      lastName: 'Diab',
+      email: 'a@b.com',
+      accountStatus: AccountStatus.visitor,
+    );
+
+    final cubit = sl<EditIdentityCubit>(param1: user);
+
+    expect(cubit.state.firstName, 'Yaman');
   });
 
   test('الـ repositories مسجّلة بواجهاتها لا بتنفيذاتها', () {

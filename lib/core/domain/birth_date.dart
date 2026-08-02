@@ -34,6 +34,71 @@ final class BirthDate extends Equatable {
     return DateTime(year, month + 1, 0).day;
   }
 
+  // -------------------------
+  // قيم عجلات الاختيار
+  // -------------------------
+  //
+  // دوال نقية على الأجزاء الثلاثة، مش getters على حالة شاشة — لأن
+  // شاشتين بتستخدموها (التسجيل وتعديل الهوية) وكانت منسوخة بالاثنتين.
+  // مكانها هون لأنها قواعد التاريخ نفسه لا قواعد عرض.
+
+  /// أقصى يوم متاح للشهر/السنة المختارين، مع قيم افتراضية آمنة لو
+  /// المستخدم لسه ما اختار.
+  static int maxSelectableDay({int? month, int? year}) {
+    return daysInMonth(
+      year ?? maxAllowedYear(),
+      month ?? DateTime.now().month,
+    );
+  }
+
+  /// اليوم اللي المفروض تفتح عليه العجلة — مقصوص لحدود الشهر.
+  static int initialDay({int? day, int? month, int? year}) {
+    final maxDay = maxSelectableDay(month: month, year: year);
+    final selected = day ?? 1;
+
+    if (selected < 1) return 1;
+    if (selected > maxDay) return maxDay;
+
+    return selected;
+  }
+
+  static int initialMonth([int? month]) {
+    final selected = month ?? DateTime.now().month;
+
+    if (selected < 1 || selected > 12) return DateTime.now().month;
+
+    return selected;
+  }
+
+  static int initialYear([int? year]) {
+    final maxYear = maxAllowedYear();
+    final selected = year ?? maxYear;
+
+    if (selected < minimumYear || selected > maxYear) return maxYear;
+
+    return selected;
+  }
+
+  /// السنوات المتاحة، الأحدث أولاً.
+  static List<int> selectableYears() {
+    final maxYear = maxAllowedYear();
+
+    return List.generate(
+      maxYear - minimumYear + 1,
+      (index) => maxYear - index,
+    );
+  }
+
+  /// بيقصّ اليوم المختار لو صار خارج حدود الشهر/السنة الجديدة
+  /// (مثلاً 31 ثم شهر فيه 30 يوم). بيرجّع `null` لو ما في يوم مختار.
+  static int? clampDay({required int? day, int? month, int? year}) {
+    if (day == null) return null;
+
+    final maxDay = maxSelectableDay(month: month, year: year);
+
+    return day > maxDay ? maxDay : day;
+  }
+
   /// بيتحقق من الأجزاء قبل ما تتكوّن قيمة صالحة.
   ///
   /// بيرجّع `null` لو التاريخ سليم. [now] بتنحقن بالاختبارات حتى ما

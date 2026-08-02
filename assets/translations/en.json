@@ -68,6 +68,14 @@
   "updating": "Updating...",
   "update_password": "Update Password",
 
+  "edit_identity_title": "Edit Identity Information",
+  "edit_identity_national_id_helper": "This will be used to verify your identity",
+  "edit_identity_editable_notice": "You can edit this information until your identity is verified.",
+  "edit_identity_locked_notice": "Your identity is verified and can no longer be edited.",
+  "save_changes": "Save Changes",
+  "saving": "Saving...",
+  "identity_updated_message": "Identity information saved",
+
   "verify_your_email": "Verify Your Email",
   "verify_email_sent_notice": "A verification code has been sent to your email.",
   "verify_email_check_spam": "Please check your inbox or spam folder.",

@@ -2,7 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:maan/core/error/failure.dart';
 import 'package:maan/core/result/result.dart';
-import 'package:maan/features/auth/domain/entities/birth_date.dart';
+import 'package:maan/core/domain/birth_date.dart';
 import 'package:maan/features/auth/domain/usecases/register_usecase.dart';
 import 'package:maan/features/auth/presentation/sign_up/cubit/sign_up_cubit.dart';
 import 'package:maan/features/auth/presentation/sign_up/cubit/sign_up_state.dart';

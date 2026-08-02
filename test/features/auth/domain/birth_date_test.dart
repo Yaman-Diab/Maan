@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:maan/features/auth/domain/entities/birth_date.dart';
+import 'package:maan/core/domain/birth_date.dart';
 
 /// تاريخ ثابت حتى ما يعتمد التحقق على يوم تشغيل الاختبار.
 final _now = DateTime(2026, 7, 29);

@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:maan/core/design_system/widgets/app_submit_button.dart';
 
 import '../../verification_code/cubit/verification_code_state.dart';
 import '../../verification_code/widgets/verification_code_scaffold.dart';
-import '../../verification_code/widgets/verification_submit_button.dart';
 import '../cubit/verify_email_cubit.dart';
 import 'verify_email_header.dart';
 
@@ -29,7 +29,7 @@ class VerifyEmailForm extends StatelessWidget {
       pinController: pinController,
       pinFocusNode: pinFocusNode,
       header: VerifyEmailHeader(email: state.email),
-      submitLabel: VerificationSubmitButton(
+      submitLabel: AppSubmitButton(
         canSubmit: state.canSubmit,
         isSubmitting: state.isSubmitting,
         label: 'verify_email_button'.tr(),

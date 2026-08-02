@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:maan/core/design_system/widgets/app_button.dart';
 
-/// زر إرسال الرمز. النص بيجي من الشاشة لأن كل تدفّق بيسمّي الفعل بطريقته
-/// («تحقّق من البريد الإلكتروني» مقابل «تأكيد الرمز»).
-class VerificationSubmitButton extends StatelessWidget {
-  const VerificationSubmitButton({
+/// زر إرسال بحالتَي `canSubmit`/`isSubmitting` — النص بيجي من الشاشة
+/// لأن كل تدفّق بيسمّي فعله بطريقته («تحقّق من البريد» مقابل «حفظ
+/// التعديلات»).
+class AppSubmitButton extends StatelessWidget {
+  const AppSubmitButton({
     super.key,
     required this.canSubmit,
     required this.isSubmitting,

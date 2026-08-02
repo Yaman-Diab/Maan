@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
 import 'package:maan/core/design_system/app_validators.dart';
+import 'package:maan/core/design_system/widgets/birth_date_fields.dart';
 import 'package:maan/core/design_system/widgets/custom_text_form_field.dart';
 import 'package:maan/core/design_system/widgets/labeled_field.dart';
 import 'package:maan/core/design_system/widgets/or_divider.dart';
@@ -12,9 +13,8 @@ import 'package:maan/core/design_system/widgets/password_text_form_field/passwor
 import '../../shared/widgets/password_rules_indicator.dart';
 import '../cubit/sign_up_cubit.dart';
 import '../cubit/sign_up_state.dart';
-import '../validators/sign_up_form_validators.dart';
 import 'auth_footer_sign_in.dart';
-import 'birthday_fields.dart';
+
 import 'sign_up_header.dart';
 import 'sign_up_submit_button.dart';
 import '../../shared/widgets/terms_agreement_field.dart';
@@ -67,10 +67,10 @@ class SignUpForm extends StatelessWidget {
                       hintText: 'first_name_hint'.tr(),
                       keyBoardType: TextInputType.name,
                       autofillHints: const [AutofillHints.givenName],
-                      maxLength: SignUpFormValidators.nameMaxLength,
+                      maxLength: AppValidators.nameMaxLength,
                       onChanged: cubit.firstNameChanged,
                       validationMessage: (value) =>
-                          SignUpFormValidators.requiredName(
+                          AppValidators.requiredName(
                             value,
                             'first_name'.tr(),
                           ),
@@ -87,18 +87,22 @@ class SignUpForm extends StatelessWidget {
                       hintText: 'last_name_hint'.tr(),
                       keyBoardType: TextInputType.name,
                       autofillHints: const [AutofillHints.familyName],
-                      maxLength: SignUpFormValidators.nameMaxLength,
+                      maxLength: AppValidators.nameMaxLength,
                       onChanged: cubit.lastNameChanged,
                       validationMessage: (value) =>
-                          SignUpFormValidators.requiredName(value, 'last_name'.tr()),
+                          AppValidators.requiredName(value, 'last_name'.tr()),
                     ),
                   ),
                 ),
               ],
             ),
             SizedBox(height: 18.h),
-            BirthdayFields(
-              state: state,
+            BirthDateFields(
+              label: 'your_birthday'.tr(),
+              day: state.day,
+              month: state.month,
+              year: state.year,
+              error: state.birthDateError,
               dayController: controllers.day,
               monthController: controllers.month,
               yearController: controllers.year,

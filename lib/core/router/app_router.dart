@@ -11,6 +11,8 @@ import 'package:maan/features/auth/presentation/login/pages/login_page.dart';
 import 'package:maan/features/auth/presentation/sign_up/pages/sign_up_page.dart';
 import 'package:maan/features/auth/presentation/verify_email/pages/verify_email_page.dart';
 import 'package:maan/features/auth/presentation/verify_reset_code/pages/verify_reset_code_page.dart';
+import 'package:maan/features/auth/domain/entities/auth_user.dart';
+import 'package:maan/features/profile/presentation/edit_identity/pages/edit_identity_page.dart';
 import 'package:maan/features/profile/presentation/profile/pages/profile_page.dart';
 import 'package:maan/features/splash/presentation/pages/splash_page.dart';
 import '../../features/app_shell/app_shell_page.dart';
@@ -119,6 +121,28 @@ class AppRouter {
             code: args?.code ?? '',
             onPasswordChanged: () => context.go(AppRoutes.login),
           );
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.editIdentity,
+        builder: (context, state) {
+          // `AuthUser` هون كيان domain لا شي حساس بالـ URL، فمرورها
+          // بالذاكرة عبر `extra` آمن — نفس منطق `route_args.dart`.
+          //
+          // الوصول الوحيد لهالمسار من `ProfilePage` وبيمرّر `user` دائماً؛
+          // `null` بس لو حد فتح الرابط مباشرة بلا `extra` — فبنرجعه
+          // للملف الشخصي بهدوء بدل انهيار على `as AuthUser`.
+          final user = state.extra as AuthUser?;
+
+          if (user == null) {
+            return _TempPage(
+              title: 'page_not_found_title'.tr(),
+              description: 'route_not_found'.tr(),
+            );
+          }
+
+          return EditIdentityPage(user: user);
         },
       ),
 

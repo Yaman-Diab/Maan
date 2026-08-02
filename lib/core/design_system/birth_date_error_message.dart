@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 
-import '../../domain/entities/birth_date.dart';
+import 'package:maan/core/domain/birth_date.dart';
 
 /// ترجمة خطأ الـ domain لرسالة عرض.
 ///

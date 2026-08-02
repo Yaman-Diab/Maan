@@ -10,7 +10,7 @@ import '../../../../core/network/api_exception.dart';
 import '../../../../core/network/api_status_codes.dart';
 import '../../../../core/result/result.dart';
 import '../../domain/entities/auth_session.dart';
-import '../../domain/entities/birth_date.dart';
+import 'package:maan/core/domain/birth_date.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
 import '../models/auth_request_models.dart';

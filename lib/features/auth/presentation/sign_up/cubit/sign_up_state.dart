@@ -4,7 +4,7 @@
 
 import 'package:equatable/equatable.dart';
 
-import '../../../domain/entities/birth_date.dart';
+import 'package:maan/core/domain/birth_date.dart';
 import '../../../domain/entities/password_checks.dart';
 
 enum SignUpStatus { initial, submitting, success, failure }
@@ -77,51 +77,17 @@ final class SignUpState extends Equatable {
   // Picker Values
   // -------------------------
 
-  int get maxDayForSelectedMonthYear {
-    return BirthDate.daysInMonth(
-      year ?? BirthDate.maxAllowedYear(),
-      month ?? DateTime.now().month,
-    );
-  }
+  int get maxDayForSelectedMonthYear =>
+      BirthDate.maxSelectableDay(month: month, year: year);
 
-  int get initialDay {
-    final selected = day ?? 1;
+  int get initialDay =>
+      BirthDate.initialDay(day: day, month: month, year: year);
 
-    if (selected < 1) return 1;
-    if (selected > maxDayForSelectedMonthYear) {
-      return maxDayForSelectedMonthYear;
-    }
+  int get initialMonth => BirthDate.initialMonth(month);
 
-    return selected;
-  }
+  int get initialYear => BirthDate.initialYear(year);
 
-  int get initialMonth {
-    final selected = month ?? DateTime.now().month;
-
-    if (selected < 1 || selected > 12) return DateTime.now().month;
-
-    return selected;
-  }
-
-  int get initialYear {
-    final maxYear = BirthDate.maxAllowedYear();
-    final selected = year ?? maxYear;
-
-    if (selected < BirthDate.minimumYear || selected > maxYear) {
-      return maxYear;
-    }
-
-    return selected;
-  }
-
-  List<int> get yearValues {
-    final maxYear = BirthDate.maxAllowedYear();
-
-    return List.generate(
-      maxYear - BirthDate.minimumYear + 1,
-      (index) => maxYear - index,
-    );
-  }
+  List<int> get yearValues => BirthDate.selectableYears();
 
   SignUpState copyWith({
     SignUpStatus? status,

@@ -24,6 +24,7 @@ class CustomTextFormField extends StatelessWidget {
     this.width,
     this.autofillHints,
     this.maxLength,
+    this.digitsOnly = false,
   });
 
   final String? hintText;
@@ -51,6 +52,9 @@ class CustomTextFormField extends StatelessWidget {
   /// بتلغي عدّاد Flutter الافتراضي.
   final int? maxLength;
 
+  /// بيرفض أي حرف مش رقم عند الكتابة/اللصق — للرقم الوطني.
+  final bool digitsOnly;
+
   @override
   Widget build(BuildContext context) {
     final scheme = context.scheme;
@@ -70,9 +74,12 @@ class CustomTextFormField extends StatelessWidget {
         autofillHints: autofillHints,
         obscureText: obscureText,
         validator: validationMessage,
-        inputFormatters: maxLength == null
+        inputFormatters: !digitsOnly && maxLength == null
             ? null
-            : [LengthLimitingTextInputFormatter(maxLength)],
+            : [
+                if (digitsOnly) FilteringTextInputFormatter.digitsOnly,
+                if (maxLength != null) LengthLimitingTextInputFormatter(maxLength),
+              ],
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(
             vertical: 12.h,

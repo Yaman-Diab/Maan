@@ -9,6 +9,7 @@ const _designSize = Size(375, 812);
 Future<TextEditingController> _pump(
   WidgetTester tester, {
   int? maxLength,
+  bool digitsOnly = false,
 }) async {
   final controller = TextEditingController();
 
@@ -23,6 +24,7 @@ Future<TextEditingController> _pump(
             keyBoardType: TextInputType.text,
             validationMessage: (_) => null,
             maxLength: maxLength,
+            digitsOnly: digitsOnly,
           ),
         ),
       ),
@@ -57,5 +59,21 @@ void main() {
 
     // التصميم ما فيه عنصر عدّاد أحرف — `counterText: ''` لازم يلغيه.
     expect(find.textContaining('/50'), findsNothing);
+  });
+
+  testWidgets('digitsOnly بيرفض الحروف وبيقبل الأرقام بس', (tester) async {
+    final controller = await _pump(tester, digitsOnly: true);
+
+    await tester.enterText(find.byType(TextFormField), 'a1b2c3');
+
+    expect(controller.text, '123');
+  });
+
+  testWidgets('digitsOnly مع maxLength بيطبّق الاثنين مع بعض', (tester) async {
+    final controller = await _pump(tester, digitsOnly: true, maxLength: 3);
+
+    await tester.enterText(find.byType(TextFormField), 'a1b2c3d4e5');
+
+    expect(controller.text, '123');
   });
 }

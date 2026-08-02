@@ -85,6 +85,38 @@ core/design_system/
 ⏳ **ناقص**: شاشة الإعدادات نفسها — الأنابيب جاهزة، بس `SettingsCubit`
 لسه ما إله واجهة. راجع `FLOW.md` › Settings Flow.
 
+## تاريخ الميلاد — مصدر واحد
+
+شاشتان بتستخدموه (التسجيل وتعديل الهوية)، فكل شي مشترك انتقل لـ`core`:
+
+| الملف | المسؤولية |
+|---|---|
+| `core/domain/birth_date.dart` | الكيان + قواعد التحقق + **قيم العجلات** (`initialDay`, `selectableYears`, `clampDay`, `maxSelectableDay`) كدوال ثابتة نقية |
+| `core/design_system/birth_date_error_message.dart` | ترجمة `BirthDateError` لرسالة عرض |
+| `core/design_system/widgets/birth_date_fields.dart` | الحقول الثلاثة + فتح العجلات |
+
+`BirthDate` بـ`core/domain/` مش بـ`features/auth/` لنفس سبب `AccountStatus`:
+صار عابراً للميزات لما احتاجته `profile.updateIdentity`.
+
+⚠️ **الودجت بتاخد الأجزاء الثلاثة كقيم لا حالة شاشة** — لأن كل شاشة
+`State` تبعها نوع مختلف. أي منطق تاريخ جديد مكانه `BirthDate` لا
+الـ`State`، وإلا بينكرر مرتين من جديد.
+
+## عجلة الاختيار (`number_picker_sheet`)
+
+الخروج **بلا زر** بيقبل القيمة فقط إذا تحرّكت العجلة فعلاً؛ وإلا ما
+بيغيّر شي. قاعدة وحدة بتخدم الحالتين: حقل فيه قيمة وما تحرّكت العجلة →
+«لا تغيير» = نفس القيمة؛ وحقل فاضي → بيضل فاضي بدل ما نخترع له تاريخاً.
+
+⚠️ **ثلاث إيماءات خروج، مسارَين مختلفين بـFlutter**:
+* نقرة برّا + رجوع النظام → `Navigator.maybePop` → بيمسكها `PopScope`.
+* سحب الورقة للأسفل → `BottomSheet.onClosing` بينادي `Navigator.pop`
+  المباشر بلا قيمة، **فبيتجاوز `PopScope`**.
+
+لهيك القيمة الحالية بتتتبّع بمتغيّر **برّا** الورقة (`movedTo`) لا بحالتها
+— حالة الورقة بتنهدم قبل ما نقدر نقرأها بحالة السحب. تعديل هالملف بلا
+الانتباه لهالفرق بيرجّع باگ «السحب بيلغي بينما النقر بيقبل».
+
 ## حدود طول الحقول
 
 `CustomTextFormField.maxLength` (وبيتمرّر عبر `PasswordTextFormField`)
@@ -96,7 +128,8 @@ core/design_system/
 |---|---|---|
 | `AppValidators.emailMaxLength` | 254 | الحد الفعلي حسب RFC 5321 |
 | `AppValidators.passwordMaxLength` | 64 | bcrypt بيقصّ عند 72 بايت بصمت (ثغرة معروفة لا مجرد سعة) |
-| `SignUpFormValidators.nameMaxLength` | 50 | أطول اسم حقيقي موثّق ~35 حرف |
+| `AppValidators.nameMaxLength` | 50 | أطول اسم حقيقي موثّق ~35 حرف |
+| `AppValidators.nationalIdMaxLength` | 12 | أطول رقم وطني بالمنطقة |
 
 ⚠️ **كلمة مرور تسجيل الدخول بلا `maxLength` عمداً** — عكس كل حقول كلمة
 المرور التانية. هاي كلمة مرور **موجودة أصلاً** بحساب، ممكن اتنشأت قبل
@@ -105,7 +138,7 @@ core/design_system/
 
 ## الترجمة
 
-`easy_localization` مع `assets/translations/{en,ar}.json` — 156 مفتاح بالملفين.
+`easy_localization` مع `assets/translations/{en,ar}.json` — 164 مفتاح بالملفين.
 
 | القاعدة | التفصيل |
 |---|---|
@@ -135,7 +168,7 @@ core/design_system/
 ## الاختبار
 
 ```
-flutter test        # 325 اختبار
+flutter test        # 360 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -163,6 +196,7 @@ flutter analyze     # صفر ملاحظات
 | `verify_reset_code` | `POST /api/auth/checkCode` + `POST /api/auth/forgetPassword` (إعادة إرسال) |
 | `create_new_password` | `POST /api/auth/resetPassword` |
 | `profile` | `GET /api/profile` + `POST /api/profile/update` |
+| `edit_identity` | `POST /api/profile/update` (نفس مسار الصورة) |
 | `verification` ⏳ | `POST /api/verification/store` |
 
 **مظروف الاستجابة** ⚠️: الـ backend بيرجّع **الفشل بـ HTTP 200** والحالة
@@ -285,11 +319,23 @@ endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعر
   `ProfileRemoteDataSource.removeAvatar`. الإزالة تفاؤلية بنفس نمط
   الرفع (`ProfileState.avatarRemoved`) وبترجع الصورة القديمة لو فشل
   الطلب.
-- شاشة تعديل بيانات الهوية غير موجودة، فزر «تعديل» ما بينعرض للزائر
-  (`ProfileContent.onEditTap` بتوصل `null`). لما تنبني بتضرب نفس
-  `POST /api/profile/update` تبع الصورة — الفرق بس بالحقول المرسلة.
-  نفس الشي لأيقونة الإعدادات بـ`ProfilePage.onSettingsTap` لحد ما
-  تنبني شاشة الإعدادات.
+- ⚠️ **حقول تعديل الهوية (`features/profile/presentation/edit_identity/`)
+  غير مؤكّدة** — نفس `POST /api/profile/update` تبع الصورة، بأسماء حقول
+  موروثة من عقد `/api/auth/register` المؤكّد (`first_name`، `last_name`،
+  `national_id`، `birth_date` بصيغة `YYYY/M/D`) — مش مؤكّدة بشكل مستقل
+  لهالمسار. نقطة التصحيح الوحيدة `ProfileRemoteDataSource.updateIdentity`.
+- ⚠️ **القفل بيعتمد على `verified` بس، مش على طلب توثيق قيد المراجعة** —
+  `EditIdentityCubit.isLocked` بيتحدّد من `AccountStatus.verified` فقط.
+  لو المستخدم بعت طلب توثيق (`features/verification/`) وصار قيد
+  المراجعة، الحساب بيضل `visitor` (ما في قيمة `AccountStatus` مخصّصة
+  لـ«قيد المراجعة»)، فالشاشة بتسمح بالتعديل رغم إنه منطقياً خطر: لو
+  المستخدم غيّر `national_id` بعد ما بعت صوره، الموظّف يلي عم يراجع
+  بيصير عنده رقم مختلف عن يلي بالصور. `AuthUser.verificationAttempts`/
+  `expiresAt` أقرب إشارة متوفّرة لـ«قيد المراجعة»، بس معناها بعد
+  الإرسال مباشرة **غير مجرَّب**. يحتاج تأكيد من الباك اند قبل ما يصير
+  فيه قفل إضافي.
+- شاشة الإعدادات غير موجودة، فأيقونتها بـ`ProfilePage.onSettingsTap`
+  ما بتنعرض لحد ما تُبنى.
 
 **تناقضات بالـ collection تجاهلناها عمداً**:
 - جسم `login` بالتوثيق بيسرد `first_name` و`birth_date` و

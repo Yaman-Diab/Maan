@@ -5,7 +5,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/result/result.dart';
-import '../../../domain/entities/birth_date.dart';
+import 'package:maan/core/domain/birth_date.dart';
 import '../../../domain/usecases/register_usecase.dart';
 import 'sign_up_state.dart';
 
@@ -61,15 +61,11 @@ class SignUpCubit extends Cubit<SignUpState> {
   }
 
   int? _clampedDay({int? month, int? year}) {
-    final day = state.day;
-    if (day == null) return null;
-
-    final maxDay = BirthDate.daysInMonth(
-      year ?? state.year ?? BirthDate.maxAllowedYear(),
-      month ?? state.month ?? DateTime.now().month,
+    return BirthDate.clampDay(
+      day: state.day,
+      month: month ?? state.month,
+      year: year ?? state.year,
     );
-
-    return day > maxDay ? maxDay : day;
   }
 
   // -------------------------

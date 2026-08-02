@@ -8,6 +8,7 @@ import 'package:maan/core/error/failure.dart';
 import 'package:maan/core/network/api_client.dart';
 import 'package:maan/core/result/result.dart';
 import 'package:maan/core/session/account_status.dart';
+import 'package:maan/core/domain/birth_date.dart';
 import 'package:maan/features/profile/data/datasources/profile_remote_data_source.dart';
 import 'package:maan/features/profile/data/repositories/profile_repository_impl.dart';
 
@@ -234,6 +235,68 @@ void main() {
       final result = await built.repository.removeAvatar();
 
       expect(result, isA<Err>());
+    });
+  });
+
+  group('تحديث بيانات الهوية', () {
+    test('POST بنفس مسار التحديث بحقول الهوية — بلا ملف', () async {
+      final built = _buildWith(() => _json({'status': 1}, 200));
+
+      await built.repository.updateIdentity(
+        firstName: 'Yaman',
+        lastName: 'Diab',
+        nationalId: '123456789012',
+        birthDate: const BirthDate(day: 1, month: 2, year: 2003),
+      );
+
+      final captured = built.adapter.captured!;
+      expect(captured.method, 'POST');
+      expect(captured.path, '/api/profile/update');
+
+      final data = captured.data as FormData;
+      expect(data.files, isEmpty);
+
+      final fields = {for (final f in data.fields) f.key: f.value};
+      expect(fields['first_name'], 'Yaman');
+      expect(fields['last_name'], 'Diab');
+      expect(fields['national_id'], '123456789012');
+      // نفس صيغة الإرسال بالتسجيل — راجع `BirthDate.apiFormat`، لا
+      // صيغة `YYYY-MM-DD` يلي بترجّعها `GET /api/profile`.
+      expect(fields['birth_date'], '2003/2/1');
+    });
+
+    test('بترجّع Ok لو نجح الطلب', () async {
+      final built = _buildWith(() => _json({'status': 1}, 200));
+
+      final result = await built.repository.updateIdentity(
+        firstName: 'Yaman',
+        lastName: 'Diab',
+        nationalId: '123456789012',
+        birthDate: const BirthDate(day: 1, month: 2, year: 2003),
+      );
+
+      expect(result, isA<Ok>());
+    });
+
+    test('422 بتتحوّل لـ ValidationFailure', () async {
+      final built = _buildWith(
+        () => _json({
+          'success': false,
+          'message': 'Validation Error.',
+          'errors': {
+            'national_id': ['The national id has already been taken.'],
+          },
+        }, 422),
+      );
+
+      final result = await built.repository.updateIdentity(
+        firstName: 'Yaman',
+        lastName: 'Diab',
+        nationalId: '123456789012',
+        birthDate: const BirthDate(day: 1, month: 2, year: 2003),
+      );
+
+      expect((result as Err).failure, isA<ValidationFailure>());
     });
   });
 

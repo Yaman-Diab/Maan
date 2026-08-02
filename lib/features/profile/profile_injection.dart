@@ -6,12 +6,15 @@ import 'package:get_it/get_it.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/session/app_session_controller.dart';
+import '../auth/domain/entities/auth_user.dart';
 import 'data/datasources/profile_remote_data_source.dart';
 import 'data/repositories/profile_repository_impl.dart';
 import 'domain/repositories/profile_repository.dart';
 import 'domain/usecases/get_profile_usecase.dart';
 import 'domain/usecases/remove_avatar_usecase.dart';
+import 'domain/usecases/update_identity_usecase.dart';
 import 'domain/usecases/upload_avatar_usecase.dart';
+import 'presentation/edit_identity/cubit/edit_identity_cubit.dart';
 import 'presentation/profile/cubit/profile_cubit.dart';
 
 void registerProfileDependencies(GetIt sl) {
@@ -43,6 +46,10 @@ void registerProfileDependencies(GetIt sl) {
     () => RemoveAvatarUseCase(sl<ProfileRepository>()),
   );
 
+  sl.registerLazySingleton<UpdateIdentityUseCase>(
+    () => UpdateIdentityUseCase(sl<ProfileRepository>()),
+  );
+
   // -------------------------
   // Presentation
   // -------------------------
@@ -54,5 +61,9 @@ void registerProfileDependencies(GetIt sl) {
       sl<RemoveAvatarUseCase>(),
       sl<AppSessionController>(),
     ),
+  );
+
+  sl.registerFactoryParam<EditIdentityCubit, AuthUser, void>(
+    (user, _) => EditIdentityCubit(sl<UpdateIdentityUseCase>(), user: user),
   );
 }

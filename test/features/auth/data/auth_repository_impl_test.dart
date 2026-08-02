@@ -11,7 +11,7 @@ import 'package:maan/core/result/result.dart';
 import 'package:maan/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:maan/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:maan/features/auth/domain/entities/auth_session.dart';
-import 'package:maan/features/auth/domain/entities/birth_date.dart';
+import 'package:maan/core/domain/birth_date.dart';
 
 /// محوّل Dio مزيّف: بيمسك الطلب الصادر وبيرجّع رد جاهز.
 class _FakeAdapter implements HttpClientAdapter {

@@ -68,6 +68,14 @@
   "updating": "جارٍ التحديث...",
   "update_password": "تحديث كلمة المرور",
 
+  "edit_identity_title": "تعديل بيانات الهوية",
+  "edit_identity_national_id_helper": "سوف تُستخدم هذه المعلومة للتحقق من هويتك",
+  "edit_identity_editable_notice": "يمكنك تعديل هذه البيانات إلى حين التحقق من هويتك",
+  "edit_identity_locked_notice": "هويتك موثّقة ولا يمكن تعديلها بعد الآن.",
+  "save_changes": "حفظ التعديلات",
+  "saving": "جارٍ الحفظ...",
+  "identity_updated_message": "تم حفظ بيانات الهوية",
+
   "verify_your_email": "تحقّق من بريدك الإلكتروني",
   "verify_email_sent_notice": "تم إرسال رمز التحقق إلى بريدك الإلكتروني.",
   "verify_email_check_spam": "يرجى التحقق من صندوق الوارد أو مجلد الرسائل غير المرغوب فيها.",

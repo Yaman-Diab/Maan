@@ -25,4 +25,8 @@ abstract final class AppRoutes {
 
   static const String home = '/home';
   static const String profile = '/profile';
+
+  /// تعديل بيانات الهوية — فرعي عن `profile`، بتوصلها `AuthUser` كامل
+  /// عبر `extra` لتعبئة الحقول.
+  static const String editIdentity = '/profile/edit-identity';
 }

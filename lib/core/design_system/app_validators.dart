@@ -16,6 +16,44 @@ class AppValidators {
   /// سعة. 64 هامش آمن تحتها وبعيد عن أي كلمة مرور بشرية حقيقية.
   static const int passwordMaxLength = 64;
 
+  /// أطول اسم حقيقي موثّق ~35 حرف، فـ50 هامش مريح.
+  static const int nameMaxLength = 50;
+
+  /// أطول رقم وطني بالمنطقة ~12 خانة.
+  static const int nationalIdMaxLength = 12;
+
+  // -------------------------
+  // Name Validator
+  // -------------------------
+
+  /// حقل اسم مطلوب — بيستخدمه التسجيل وتعديل الهوية.
+  ///
+  /// [fieldName] بيوصل مترجم أصلاً من موقع الاستدعاء (`'first_name'.tr()`)
+  /// وبينحط بالرسالة عبر `namedArgs`، فترتيب الكلمة بيتبع قواعد كل لغة
+  /// بدل ما ينبني بالتسلسل الإنجليزي.
+  static String? requiredName(String? value, String fieldName) {
+    if (value == null || value.trim().isEmpty) {
+      return 'field_required'.tr(namedArgs: {'field': fieldName});
+    }
+
+    if (value.trim().length < 2) {
+      return 'field_too_short'.tr(namedArgs: {'field': fieldName});
+    }
+
+    return null;
+  }
+
+  /// الرقم الوطني مطلوب. بلا فحص طول أدنى: عدد الخانات بيختلف حسب
+  /// الجهة المُصدِرة، والباك اند هو المرجع — فحص محلي متشدّد بيحجب
+  /// أرقاماً صحيحة.
+  static String? requiredNationalId(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'field_required'.tr(namedArgs: {'field': 'national_id'.tr()});
+    }
+
+    return null;
+  }
+
   // -------------------------
   // Email Validator
   // -------------------------

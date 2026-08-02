@@ -5,6 +5,7 @@
 import 'dart:typed_data';
 
 import '../../../../core/result/result.dart';
+import 'package:maan/core/domain/birth_date.dart';
 import '../entities/citizen_profile.dart';
 
 abstract class ProfileRepository {
@@ -30,4 +31,19 @@ abstract class ProfileRepository {
   /// كـ«امسح الصورة الحالية» لسه غير مؤكّد؛ نقطة التصحيح الوحيدة
   /// `ProfileRemoteDataSource.removeAvatar`.
   Future<Result<void>> removeAvatar();
+
+  /// تحديث بيانات الهوية الأساسية — الاسم الأول والأخير والرقم الوطني
+  /// وتاريخ الميلاد.
+  ///
+  /// ⚠️ نفس `POST /api/profile/update` تبع الصورة، بأسماء حقول
+  /// موروثة من عقد `/api/auth/register` المؤكّد (`first_name`،
+  /// `last_name`، `national_id`، `birth_date` بصيغة `YYYY/M/D`) — مش
+  /// مؤكّدة بشكل مستقل لهالمسار تحديداً. راجع
+  /// `ProfileRemoteDataSource.updateIdentity`.
+  Future<Result<void>> updateIdentity({
+    required String firstName,
+    required String lastName,
+    required String nationalId,
+    required BirthDate birthDate,
+  });
 }

@@ -6,7 +6,7 @@ import 'package:equatable/equatable.dart';
 
 import '../../../../core/result/result.dart';
 import '../../../../core/usecase/usecase.dart';
-import '../entities/birth_date.dart';
+import 'package:maan/core/domain/birth_date.dart';
 import '../repositories/auth_repository.dart';
 
 final class RegisterParams extends Equatable {

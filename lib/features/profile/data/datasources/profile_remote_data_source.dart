@@ -9,6 +9,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_response_keys.dart';
+import 'package:maan/core/domain/birth_date.dart';
 import '../models/citizen_profile_model.dart';
 
 /// المكان الوحيد اللي بيعرف الـ endpoint داخل ميزة profile.
@@ -25,6 +26,13 @@ abstract class ProfileRemoteDataSource {
   });
 
   Future<void> removeAvatar();
+
+  Future<void> updateIdentity({
+    required String firstName,
+    required String lastName,
+    required String nationalId,
+    required BirthDate birthDate,
+  });
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
@@ -79,6 +87,33 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   @override
   Future<void> removeAvatar() async {
     final formData = FormData.fromMap({_avatarField: ''});
+
+    await _apiClient.request(
+      endpoint: ApiEndpoints.profileUpdate,
+      method: ApiMethod.post,
+      data: formData,
+    );
+  }
+
+  /// نفس مسار الصورة، بحقول الهوية بدل `image`.
+  ///
+  /// ⚠️ **أسماء الحقول موروثة من عقد `/api/auth/register` المؤكّد**، مش
+  /// مؤكّدة بشكل مستقل لهالمسار. `birth_date` بصيغة `YYYY/M/D` — نفس
+  /// صيغة الإرسال بالتسجيل، **لا** صيغة `YYYY-MM-DD` يلي بيرجّعها
+  /// `GET /api/profile` (الصيغتان مختلفتان، راجع تعليق `AuthUser`).
+  @override
+  Future<void> updateIdentity({
+    required String firstName,
+    required String lastName,
+    required String nationalId,
+    required BirthDate birthDate,
+  }) async {
+    final formData = FormData.fromMap({
+      'first_name': firstName,
+      'last_name': lastName,
+      'national_id': nationalId,
+      'birth_date': birthDate.apiFormat,
+    });
 
     await _apiClient.request(
       endpoint: ApiEndpoints.profileUpdate,

@@ -6,12 +6,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../../core/design_system/app_theme_context.dart';
 import '../../../../../core/di/service_locator.dart';
 import '../../../../../core/media/image_picker_service.dart';
+import '../../../../../core/router/app_routes.dart';
 import '../../../../../core/session/app_session_controller.dart';
+import '../../../domain/entities/citizen_profile.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
 import '../widgets/avatar_source_sheet.dart';
@@ -121,6 +124,27 @@ class _ProfileBody extends StatelessWidget {
     await cubit.uploadAvatar(image);
   }
 
+  /// بيفتح شاشة التعديل وبيحدّث الملف عند الرجوع بنجاح — `true` بس لو
+  /// الشاشة قفلت نفسها بعد حفظ ناجح (راجع `EditIdentityPage`).
+  Future<void> _editIdentity(BuildContext context, CitizenProfile profile) async {
+    final cubit = context.read<ProfileCubit>();
+
+    final saved = await context.push<bool>(
+      AppRoutes.editIdentity,
+      extra: profile.user,
+    );
+
+    if (saved != true || !context.mounted) return;
+
+    await cubit.load();
+
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text('identity_updated_message'.tr())));
+  }
+
   static CropperAppearance _cropperAppearance(BuildContext context) {
     final scheme = context.scheme;
 
@@ -181,6 +205,7 @@ class _ProfileBody extends StatelessWidget {
               isRemovingAvatar: state.isRemovingAvatar,
               onAddPhotoTap: () =>
                   _changeAvatar(context, hasAvatar: hasAvatar),
+              onEditTap: () => _editIdentity(context, profile),
             ),
           ),
         );
