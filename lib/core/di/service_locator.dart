@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import '../media/image_picker_service.dart';
 import '../network/api_client.dart';
 import '../network/dio_factory.dart';
+import '../permissions/app_permission_service.dart';
 import '../session/app_session_controller.dart';
 import '../session/session_manager.dart';
 import '../settings/cubit/settings_cubit.dart';
@@ -76,4 +77,12 @@ Future<void> setupCoreDependencies() async {
   // بالـ core لا بميزة الملف الشخصي: خط أنابيب الصور عام، ورح تحتاجه
   // مرفقات الشكاوى وصور التوثيق كمان.
   sl.registerLazySingleton<ImagePickerService>(() => ImagePickerService());
+
+  // -------------------------
+  // Permissions
+  // -------------------------
+
+  sl.registerLazySingleton<AppPermissionService>(
+    () => const AppPermissionService(),
+  );
 }

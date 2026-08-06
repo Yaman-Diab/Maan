@@ -103,6 +103,43 @@ Map<String, dynamic> _wrongImageCountBody() {
   };
 }
 
+/// نسخة طبق الأصل عن استجابة `POST /api/verification/update` الحقيقية.
+Map<String, dynamic> _updateSuccessBody() {
+  return {
+    'status': 1,
+    'message': 'Verification request updated successfully.',
+    'data': {
+      'id': 2,
+      'user_id': 2,
+      'national_id': '01234567892',
+      'status': 'pending',
+      'created_at': '2026-08-02T19:36:44.000000Z',
+      'updated_at': '2026-08-02T19:38:08.000000Z',
+      'deleted_at': null,
+      'images': [
+        {
+          'id': 3,
+          'verification_request_id': 2,
+          'image_url':
+              'http://localhost/storage/uploads/personalPhotos/1785699404_350c2ba3-810b-4d00-aa05-414aface6c98.JPG',
+          'created_at': '2026-08-02T19:36:44.000000Z',
+          'updated_at': '2026-08-02T19:36:44.000000Z',
+          'deleted_at': null,
+        },
+        {
+          'id': 4,
+          'verification_request_id': 2,
+          'image_url':
+              'http://localhost/storage/uploads/personalPhotos/1785699404_f6d5108e-bbaf-4645-8dd3-3fd5c4d1bcb3.png',
+          'created_at': '2026-08-02T19:36:44.000000Z',
+          'updated_at': '2026-08-02T19:36:44.000000Z',
+          'deleted_at': null,
+        },
+      ],
+    },
+  };
+}
+
 List<PickedImage> _twoImages() {
   return [
     PickedImage(
@@ -198,6 +235,48 @@ void main() {
         (result as Ok).value.status,
         VerificationRequestStatus.unknown,
       );
+    });
+  });
+
+  group('تعديل طلب توثيق قائم — الاستجابة الحقيقية', () {
+    test('POST على /api/verification/update بحقلَي id وnational_id بس', () async {
+      final built = _buildWith(() => _json(_updateSuccessBody(), 200));
+
+      await built.repository.update(requestId: 2, nationalId: '01234567892');
+
+      final captured = built.adapter.captured!;
+      expect(captured.method, 'POST');
+      expect(captured.path, '/api/verification/update');
+
+      final data = captured.data as FormData;
+
+      // ⚠️ الصور مش جزء من هالطلب — تثبيت هيك بيخلّي أي إضافة مستقبلية
+      // لحقل صور هون قراراً واعياً لا انزلاقاً صامتاً.
+      expect(data.files, isEmpty);
+      expect(
+        data.fields.singleWhere((f) => f.key == 'id').value,
+        '2',
+      );
+      expect(
+        data.fields.singleWhere((f) => f.key == 'national_id').value,
+        '01234567892',
+      );
+    });
+
+    test('بتقرأ الحقول المحدَّثة — نفس شكل استجابة store', () async {
+      final built = _buildWith(() => _json(_updateSuccessBody(), 200));
+
+      final result = await built.repository.update(
+        requestId: 2,
+        nationalId: '01234567892',
+      );
+
+      final request = (result as Ok).value;
+      expect(request.id, 2);
+      expect(request.userId, 2);
+      expect(request.nationalId, '01234567892');
+      expect(request.status, VerificationRequestStatus.pending);
+      expect(request.images, hasLength(2));
     });
   });
 

@@ -53,6 +53,15 @@ dependencies:
   image_cropper: ^12.2.1
   flutter_image_compress: ^2.5.1
 
+  # للإعدادات: فتح إعدادات النظام تبع التطبيق من صفَّي الموقع والكاميرا.
+  # ما بنستخدم فحص حالة الإذن (`Permission.x.status`) — راجع تعليق
+  # AppPermissionService لسبب موثّق.
+  permission_handler: ^13.0.0
+
+  # رقم الإصدار المعروض بالإعدادات — بيُقرأ من بيانات البناء الحقيقية
+  # بدل نص ثابت بينحرف عن `pubspec.yaml` أول ما يترفع الإصدار.
+  package_info_plus: ^10.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -68,6 +77,15 @@ dev_dependencies:
   # interfaces, and cubits through bloc_test's state-sequence assertions.
   bloc_test: ^10.0.0
   mocktail: ^1.0.4
+
+# `permission_handler_android` 14.0.0 نشرة كسورة — `android/build.gradle.kts`
+# تبعها بتستخدم `kotlin { compilerOptions { ... } }` بدون ما تطبّق Kotlin
+# Gradle Plugin أصلاً (بس بالـ classpath)، فبينكسر البناء بـ"Unresolved
+# reference: kotlin/compilerOptions/jvmTarget". هاي كمان بتجرّ AGP 9.0.1 —
+# غير مستقر لسه. تثبيت 12.1.0 (آخر نشرة سليمة قبلها) لحد ما تنطلع نشرة
+# مصلَّحة من `permission_handler_android`.
+dependency_overrides:
+  permission_handler_android: 12.1.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

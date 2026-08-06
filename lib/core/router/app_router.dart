@@ -14,6 +14,7 @@ import 'package:maan/features/auth/presentation/verify_reset_code/pages/verify_r
 import 'package:maan/features/auth/domain/entities/auth_user.dart';
 import 'package:maan/features/profile/presentation/edit_identity/pages/edit_identity_page.dart';
 import 'package:maan/features/profile/presentation/profile/pages/profile_page.dart';
+import 'package:maan/features/settings/presentation/pages/settings_page.dart';
 import 'package:maan/features/splash/presentation/pages/splash_page.dart';
 import '../../features/app_shell/app_shell_page.dart';
 import '../../features/app_shell/home_verification_page.dart';
@@ -146,6 +147,13 @@ class AppRouter {
         },
       ),
 
+      GoRoute(
+        path: AppRoutes.settings,
+        builder: (context, state) {
+          return const SettingsPage();
+        },
+      ),
+
       // -------------------------
       // Main App Shell
       // -------------------------
@@ -174,8 +182,7 @@ class AppRouter {
                 builder: (context, state) {
                   return ProfilePage(
                     onSignInTap: () => context.go(AppRoutes.login),
-                    // شاشة الإعدادات لسه ما انبنت — راجع `CLAUDE.md`.
-                    // لما تجهز: onSettingsTap: () => context.push(...).
+                    onSettingsTap: () => context.push(AppRoutes.settings),
                   );
                 },
               ),

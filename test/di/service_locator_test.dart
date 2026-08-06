@@ -22,6 +22,7 @@ import 'package:maan/features/profile/presentation/profile/cubit/profile_cubit.d
 import 'package:maan/features/profile/profile_injection.dart';
 import 'package:maan/features/verification/domain/repositories/verification_repository.dart';
 import 'package:maan/features/verification/domain/usecases/submit_verification_usecase.dart';
+import 'package:maan/features/verification/domain/usecases/update_verification_usecase.dart';
 import 'package:maan/features/verification/verification_injection.dart';
 
 /// بيتأكد إن نقطة التركيب بتركّب فعلاً.
@@ -93,6 +94,7 @@ void main() {
   test('سلسلة اعتماديات التوثيق بتتحل — بلا واجهة لسه', () {
     // الشاشة لسه ما انبنت، فمنتأكد من الـ use case لحاله بدل Cubit.
     expect(sl<SubmitVerificationUseCase>(), isA<SubmitVerificationUseCase>());
+    expect(sl<UpdateVerificationUseCase>(), isA<UpdateVerificationUseCase>());
   });
 
   test('تفضيلات العرض مسجّلة كـ singleton عام', () {

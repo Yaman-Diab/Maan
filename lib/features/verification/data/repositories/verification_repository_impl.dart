@@ -18,14 +18,35 @@ class VerificationRepositoryImpl implements VerificationRepository {
   Future<Result<VerificationRequest>> submit({
     required String nationalId,
     required List<PickedImage> images,
-  }) async {
-    try {
+  }) {
+    return _guard(() async {
       final model = await _remoteDataSource.submit(
         nationalId: nationalId,
         images: images,
       );
 
-      return Ok(model.toEntity());
+      return model.toEntity();
+    });
+  }
+
+  @override
+  Future<Result<VerificationRequest>> update({
+    required int requestId,
+    required String nationalId,
+  }) {
+    return _guard(() async {
+      final model = await _remoteDataSource.update(
+        requestId: requestId,
+        nationalId: nationalId,
+      );
+
+      return model.toEntity();
+    });
+  }
+
+  Future<Result<T>> _guard<T>(Future<T> Function() operation) async {
+    try {
+      return Ok(await operation());
     } catch (error) {
       return Err(FailureMapper.fromError(error));
     }

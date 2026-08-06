@@ -29,4 +29,8 @@ abstract final class AppRoutes {
   /// تعديل بيانات الهوية — فرعي عن `profile`، بتوصلها `AuthUser` كامل
   /// عبر `extra` لتعبئة الحقول.
   static const String editIdentity = '/profile/edit-identity';
+
+  /// تفضيلات التطبيق — فرعي عن `profile`، مدخلها الوحيد أيقونة الترس
+  /// بشريط الملف الشخصي.
+  static const String settings = '/profile/settings';
 }

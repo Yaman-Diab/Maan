@@ -7,7 +7,7 @@ class AppConfig {
 
   static const String baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'https://187-127-71-164.sslip.io',
+    defaultValue: 'http://10.0.2.2:8000/',
   );
 
   static const Duration connectTimeout = Duration(seconds: 20);

@@ -8,7 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../core/design_system/app_theme_context.dart';
 import '../../../../auth/domain/entities/auth_user.dart';
-import 'profile_card.dart';
+import '../../../../../core/design_system/widgets/app_card.dart';
 
 /// بيانات الهوية بشبكة 2×2.
 ///
@@ -25,7 +25,7 @@ class IdentityInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ProfileCard(
+    return AppCard(
       padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 22.h),
       child: Column(
         children: [

@@ -82,8 +82,48 @@ core/design_system/
 **حجم الخط**: `_TextScaleScope` بـ`main.dart` بيضرب تفضيل المستخدم
 بإعداد النظام (ما بيستبدله) وبيحدّه بـ1.6 حتى ما ينكسر التخطيط.
 
-⏳ **ناقص**: شاشة الإعدادات نفسها — الأنابيب جاهزة، بس `SettingsCubit`
-لسه ما إله واجهة. راجع `FLOW.md` › Settings Flow.
+**شاشة الإعدادات**: `features/settings/presentation/pages/settings_page.dart`
+— بلا `domain`/`data`، لأنها كلها عرض/تفاعل مع أشياء موجودة أصلاً
+(`SettingsCubit`، `AppSessionController`، `AppPermissionService`).
+المسار `/profile/settings` (فرعي عن `profile`، `context.push` من أيقونة
+الترس بشريط `ProfilePage` — بتظهر للزائر كمان لأن الثيم/اللغة/حجم الخط
+مفيدة قبل الدخول). الأقسام: المظهر (ثيم + حجم خط، عبر `SettingsCubit`
+الموجود)، اللغة (`context.setLocale` من `easy_localization` مباشرة —
+بلا cubit، لأن الحزمة نفسها بتخزّن وبترجع التفضيل عبر `saveLocale`)،
+الخصوصية (روابط `openAppSettings()` بس — راجع الملاحظة تحت)، حول
+التطبيق (رقم الإصدار عبر `package_info_plus`، الباقي روابط "قريباً")،
+والحساب (خروج مؤكَّد بورقة، حذف حساب — راجع فجوة تحت).
+
+⚠️ **بلا فحص صلاحيات حي عمداً**: أضفنا `permission_handler` **بس**
+لـ`openAppSettings()` (فتح إعدادات النظام)، مش لفحص `Permission.x.status`.
+السبب: خط أنابيب الصور الحالي (`image_picker`) بيعتمد على تفويض عبر
+Intent بأندرويد (`ACTION_IMAGE_CAPTURE`/photo picker)، مش أذونات وقت
+تشغيل مباشرة — فحص حالة ساذج كان رح يعرض "غير مسموح" حتى لو خط الأنابيب
+شغّال فعلياً. `AppPermissionService` (`core/permissions/`) بالتالي
+عندها بس `openSystemSettings()`.
+
+⚠️ **`_SettingsControlRow` (بالصفحة نفسها)**: صف «تسمية + عنصر تحكّم»
+(الثيم/حجم الخط/اللغة) — `Flexible` **حول التسمية بس**، مش حول
+الطرفين متل `AppSectionHeader`. لو حطينا `Flexible` عالاثنين، Flutter
+بيقسم المساحة 50/50 بغض النظر عن الحاجة الفعلية، فبينكسر عنصر التحكّم
+(شرائح متعددة أعرض من نصف الصف). القاعدة: العنصر التفاعلي ياخد حجمه
+كامل دائماً، والتسمية تنقطع بـ ellipsis لو لزم — لا العكس.
+
+⚠️ **فجوة**: حذف الحساب بالشاشة **بلا endpoint حقيقي** — الورقة
+والتأكيد جاهزين، بس التنفيذ بيعرض رسالة "غير متاح حالياً" بدل طلب
+فعلي. نقطة التصحيح الوحيدة `SettingsPage._deleteAccount`.
+
+**اختبارات `EasyLocalization` بملفات مستقلة عمداً**
+(`test/features/settings/settings_page_test.dart` +
+`settings_page_guest_test.dart`): تأكّدنا تجريبياً إن ماونت ثانٍ لودجت
+`EasyLocalization` **داخل نفس ملف الاختبار** بيرجّع شجرة ودجتات فاضية
+تماماً بلا أي استثناء ظاهر (على الأغلب حالة سباق داخلية بكاش تحميل
+الترجمة عبر عمليات pump متتالية بنفس الـ isolate). الحل: ماونت واحد بس
+لكل ملف — سيناريوهات الجلسة المسجّلة تنفّذ **تسلسلياً** جوّا اختبار
+`testWidgets` وحيد، وسيناريو الزائر (يحتاج حالة أولية مختلفة) بملف
+منفصل حتى ياخد الماونت الأول الموثوق تبع عملية الاختبار (كل ملف بياخد
+isolate مستقل بـ`flutter test`). أي شاشة جديدة محتاجة `context.locale`/
+`context.setLocale` (لا `.tr()` وحدها) بده تتبع نفس النمط.
 
 ## تاريخ الميلاد — مصدر واحد
 
@@ -138,7 +178,7 @@ core/design_system/
 
 ## الترجمة
 
-`easy_localization` مع `assets/translations/{en,ar}.json` — 164 مفتاح بالملفين.
+`easy_localization` مع `assets/translations/{en,ar}.json` — 189 مفتاح بالملفين.
 
 | القاعدة | التفصيل |
 |---|---|
@@ -168,7 +208,7 @@ core/design_system/
 ## الاختبار
 
 ```
-flutter test        # 360 اختبار
+flutter test        # 366 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -197,7 +237,7 @@ flutter analyze     # صفر ملاحظات
 | `create_new_password` | `POST /api/auth/resetPassword` |
 | `profile` | `GET /api/profile` + `POST /api/profile/update` |
 | `edit_identity` | `POST /api/profile/update` (نفس مسار الصورة) |
-| `verification` ⏳ | `POST /api/verification/store` |
+| `verification` ⏳ | `POST /api/verification/store` + `POST /api/verification/update` (تصحيح) |
 
 **مظروف الاستجابة** ⚠️: الـ backend بيرجّع **الفشل بـ HTTP 200** والحالة
 الحقيقية بالجسم (`status: 0` أو `success: false`). `ApiEnvelope` بيكشفها
@@ -233,6 +273,13 @@ data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` ب
 ما تبني الـ Cubit. بلا هالحارس، فتح التاب كزائر بيرجّع 401 فـ
 `AuthInterceptor` بيفهمها «انتهت الجلسة» وبيسجّل خروج.
 
+**`AppCard`/`AppSectionHeader` بـ`core/design_system/widgets/`** — كانوا
+`ProfileCard`/`ProfileSectionHeader` بهالميزة، انتقلوا لـ`core` لما
+احتاجتهم شاشة الإعدادات كمان (نفس سبب `BirthDate`/`AppValidators`: ودجت
+عرض بحت بلا اعتماديّة domain، مستهلَك من ميزتين). أي widget جديد
+بمواصفات مشابهة (بلا حالة، بلا استيراد من `domain/` الميزة) وبيبان
+احتمال استخدامه بميزة تانية — انقله لـ`core` **قبل** ما يتكرّر، مش بعد.
+
 **الصورة الشخصية**: خط أنابيب من أربع خطوات —
 `image_picker` ← `image_cropper` ← `flutter_image_compress` ← رفع.
 أول ثلاثة بـ`core/media/ImagePickerService` (عام عن قصد: مرفقات الشكاوى
@@ -266,6 +313,13 @@ endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعر
 مش `min:2`. كيان `VerificationRequest` منفصل عن `AccountStatus`: الأول
 حالة الطلب نفسه (`pending` هي القيمة الوحيدة المؤكّدة)، والثاني حالة
 الحساب العامة اللي بيغيّرها الباك اند بعد المراجعة.
+
+**تعديل طلب قائم**: `POST /api/verification/update` — تصحيح رقم وطني
+غلط بطلب لسه `pending`، مؤكّد مع مثال استجابة حقيقي (نفس شكل `store`
+بالضبط). ⚠️ الجسم مؤكّد **جزئياً**: `id` (معرّف الطلب) + `national_id`
+بس — **الصور مش جزء من هالطلب**. ما في مسار مؤكّد لتصحيح صورة غلط
+بطلب قائم؛ نقطة التصحيح الوحيدة لو تأكّد لاحقاً:
+`VerificationRemoteDataSource.update`.
 
 ⚠️ **صور التوثيق مش صورة بروفايل** — لما تُبنى شاشة الاختيار، **ما
 تستخدم** `ImagePickerService.pickAvatar` مباشرة: هاي بتقصّ مربّع دائري
@@ -334,8 +388,6 @@ endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعر
   `expiresAt` أقرب إشارة متوفّرة لـ«قيد المراجعة»، بس معناها بعد
   الإرسال مباشرة **غير مجرَّب**. يحتاج تأكيد من الباك اند قبل ما يصير
   فيه قفل إضافي.
-- شاشة الإعدادات غير موجودة، فأيقونتها بـ`ProfilePage.onSettingsTap`
-  ما بتنعرض لحد ما تُبنى.
 
 **تناقضات بالـ collection تجاهلناها عمداً**:
 - جسم `login` بالتوثيق بيسرد `first_name` و`birth_date` و

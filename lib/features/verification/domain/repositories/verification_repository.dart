@@ -19,4 +19,15 @@ abstract class VerificationRepository {
     required String nationalId,
     required List<PickedImage> images,
   });
+
+  /// تصحيح رقم وطني بطلب توثيق **قائم لسه قيد المراجعة** — بلا إعادة
+  /// رفع الصور. [requestId] هو `VerificationRequest.id` تبع الطلب
+  /// الأصلي، مش أي مُعرّف تاني.
+  ///
+  /// ⚠️ الصور مش جزء من هالعملية — العقد المؤكّد بس `id` + `national_id`.
+  /// لو المستخدم بده يصحّح صورة غلط، ما في مسار مؤكّد لهيك لسه.
+  Future<Result<VerificationRequest>> update({
+    required int requestId,
+    required String nationalId,
+  });
 }

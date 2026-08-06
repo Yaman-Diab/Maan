@@ -15,6 +15,11 @@ abstract class VerificationRemoteDataSource {
     required String nationalId,
     required List<PickedImage> images,
   });
+
+  Future<VerificationRequestModel> update({
+    required int requestId,
+    required String nationalId,
+  });
 }
 
 class VerificationRemoteDataSourceImpl implements VerificationRemoteDataSource {
@@ -52,6 +57,28 @@ class VerificationRemoteDataSourceImpl implements VerificationRemoteDataSource {
     return VerificationRequestModel.fromMap(_asJsonMap(response));
   }
 
+  /// ⚠️ الصور مش جزء من هالطلب — العقد المؤكّد بس `id` + `national_id`.
+  /// راجع تحذير `VerificationRepository.update`.
+  @override
+  Future<VerificationRequestModel> update({
+    required int requestId,
+    required String nationalId,
+  }) async {
+    final formData = FormData.fromMap({
+      _requestIdField: requestId,
+      _nationalIdField: nationalId,
+    });
+
+    final response = await _apiClient.request(
+      endpoint: ApiEndpoints.verificationUpdate,
+      method: ApiMethod.post,
+      data: formData,
+    );
+
+    return VerificationRequestModel.fromMap(_asJsonMap(response));
+  }
+
+  static const String _requestIdField = 'id';
   static const String _nationalIdField = 'national_id';
   static const String _imagesField = 'images[]';
 

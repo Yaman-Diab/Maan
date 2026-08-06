@@ -31,8 +31,10 @@ class ProfilePage extends StatelessWidget {
 
   final VoidCallback onSignInTap;
 
-  /// شاشة الإعدادات لسه ما انبنت (`SettingsCubit` جاهز بلا واجهة)، فبتوصل
-  /// `null` والأيقونة ما بتنعرض. لما تجهز الشاشة، سطر واحد بالراوتر.
+  /// اختياري بالتوقيع بس `AppRouter` بيمرّره دائماً — الثيم واللغة
+  /// وحجم الخط مفيدة للزائر كمان، فأيقونة الإعدادات بتظهر بشريط الأدوات
+  /// المشترك بغضّ النظر عن حالة الدخول. `SettingsPage` نفسها بتخفي قسم
+  /// «الحساب» (خروج/حذف) للزائر — راجع تعليقها.
   final VoidCallback? onSettingsTap;
 
   @override

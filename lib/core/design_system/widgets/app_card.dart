@@ -1,19 +1,22 @@
 // -------------------------
-// Profile Card
+// App Card
 // -------------------------
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../../core/design_system/app_spacing.dart';
+import '../app_spacing.dart';
 
-/// السطح الأبيض المرفوع اللي بتتكرر عليه كل أقسام الشاشة.
+/// السطح الأبيض المرفوع اللي بتتكرر عليه كل أقسام أي شاشة.
+///
+/// كانت `ProfileCard` بميزة profile — انتقلت هون لما احتاجتها شاشة
+/// الإعدادات كمان بنفس الشكل حرفياً؛ نفس سبب انتقال `BirthDate`.
 ///
 /// اللون من `scheme.surface` لا من توكن جديد: هو أصلاً أبيض بالفاتح
 /// و`darkSurface` بالداكن، بينما خلفية الصفحة `pageBackground` أغمق —
 /// فالفرق اللي بيبيّن البطاقة موجود بالثيمين.
-class ProfileCard extends StatelessWidget {
-  const ProfileCard({super.key, required this.child, required this.padding});
+class AppCard extends StatelessWidget {
+  const AppCard({super.key, required this.child, required this.padding});
 
   final Widget child;
   final EdgeInsetsGeometry padding;

@@ -12,7 +12,7 @@ import '../../../domain/entities/citizen_profile.dart';
 import 'activity_card.dart';
 import 'identity_info_card.dart';
 import 'profile_header.dart';
-import 'profile_section_header.dart';
+import '../../../../../core/design_system/widgets/app_section_header.dart';
 import 'stat_index_card.dart';
 
 /// جسم الشاشة لما تكون البيانات جاهزة.
@@ -58,7 +58,7 @@ class ProfileContent extends StatelessWidget {
           onAddPhotoTap: onAddPhotoTap,
         ),
 
-        ProfileSectionHeader(
+        AppSectionHeader(
           title: 'profile_identity_section'.tr(),
           trailing: _identityAction(context),
         ),
@@ -69,7 +69,7 @@ class ProfileContent extends StatelessWidget {
 
         SizedBox(height: 22.h),
 
-        ProfileSectionHeader(title: 'profile_statistics_section'.tr()),
+        AppSectionHeader(title: 'profile_statistics_section'.tr()),
 
         SizedBox(height: 12.h),
 
@@ -102,7 +102,7 @@ class ProfileContent extends StatelessWidget {
 
         SizedBox(height: 22.h),
 
-        ProfileSectionHeader(title: 'profile_activity_section'.tr()),
+        AppSectionHeader(title: 'profile_activity_section'.tr()),
 
         SizedBox(height: 12.h),
 

@@ -8,7 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../core/design_system/app_theme_context.dart';
 import '../../../domain/entities/profile_stats.dart';
-import 'profile_card.dart';
+import '../../../../../core/design_system/widgets/app_card.dart';
 import 'profile_icon_chip.dart';
 
 /// بطاقة مؤشّر بنسبة مئوية وشريط تقدّم.
@@ -37,7 +37,7 @@ class StatIndexCard extends StatelessWidget {
     final texts = context.texts;
     final scheme = context.scheme;
 
-    return ProfileCard(
+    return AppCard(
       padding: EdgeInsets.all(14.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../core/design_system/app_theme_context.dart';
-import 'profile_card.dart';
+import '../../../../../core/design_system/widgets/app_card.dart';
 import 'profile_icon_chip.dart';
 
 /// بطاقة نشاط: أيقونة + عنوان + عدّاد.
@@ -34,7 +34,7 @@ class ActivityCard extends StatelessWidget {
     final colors = context.colors;
     final texts = context.texts;
 
-    return ProfileCard(
+    return AppCard(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 14.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

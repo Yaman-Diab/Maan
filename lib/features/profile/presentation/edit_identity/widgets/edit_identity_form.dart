@@ -13,7 +13,7 @@ import 'package:maan/core/design_system/widgets/app_submit_button.dart';
 import 'package:maan/core/design_system/widgets/custom_text_form_field.dart';
 import 'package:maan/core/design_system/widgets/labeled_field.dart';
 
-import '../../profile/widgets/profile_card.dart';
+import 'package:maan/core/design_system/widgets/app_card.dart';
 import '../cubit/edit_identity_cubit.dart';
 import '../cubit/edit_identity_state.dart';
 
@@ -72,7 +72,7 @@ class EditIdentityForm extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ProfileCard(
+                      AppCard(
                         padding: EdgeInsets.symmetric(
                           horizontal: 20.w,
                           vertical: 22.h,

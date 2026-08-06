@@ -1,15 +1,17 @@
 // -------------------------
-// Profile Section Header
+// App Section Header
 // -------------------------
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../../core/design_system/app_theme_context.dart';
+import '../app_theme_context.dart';
 
 /// عنوان قسم، مع إجراء اختياري بالطرف الثاني.
-class ProfileSectionHeader extends StatelessWidget {
-  const ProfileSectionHeader({super.key, required this.title, this.trailing});
+///
+/// كانت `ProfileSectionHeader`، انتقلت لنفس سبب `AppCard`.
+class AppSectionHeader extends StatelessWidget {
+  const AppSectionHeader({super.key, required this.title, this.trailing});
 
   final String title;
   final Widget? trailing;

@@ -56,4 +56,12 @@ class ApiEndpoints {
   /// يعني قاعدة `size:2` لا `min:2`، فالعدد ثابت لا حد أدنى.
   /// مؤكّد من الباك اند مع مثال استجابة حقيقي.
   static const String verificationStore = '$api/verification/store';
+
+  /// تعديل طلب توثيق **قائم** (لسه `pending`) — تصحيح رقم وطني غلط بلا
+  /// ما يعيد رفع الصور. مؤكّد من الباك اند مع مثال استجابة حقيقي.
+  ///
+  /// ⚠️ **الجسم مؤكّد جزئياً** — `id` (معرّف طلب التوثيق) و`national_id`
+  /// بس. تحديث الصور عبر هالمسار **غير مجرَّب**؛ راجع
+  /// `VerificationRemoteDataSource.update`.
+  static const String verificationUpdate = '$api/verification/update';
 }
