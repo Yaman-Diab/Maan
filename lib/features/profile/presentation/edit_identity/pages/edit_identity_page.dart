@@ -39,7 +39,6 @@ class _EditIdentityPageState extends State<EditIdentityPage> {
     _controllers = EditIdentityFieldControllers(
       firstName: widget.user.firstName,
       lastName: widget.user.lastName,
-      nationalId: widget.user.nationalId ?? '',
       day: widget.user.birthDate?.day,
       month: widget.user.birthDate?.month,
       year: widget.user.birthDate?.year,

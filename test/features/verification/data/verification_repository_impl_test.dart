@@ -220,9 +220,26 @@ void main() {
       );
     });
 
-    test('حالة غير معروفة برجعها الباك اند بترجع unknown بدل ما ترمي', () async {
+    test('حالة معتمدة برجعها الباك اند بتنقرأ صح', () async {
       final body = _successBody();
       (body['data'] as Map)['status'] = 'approved';
+
+      final built = _buildWith(() => _json(body, 200));
+
+      final result = await built.repository.submit(
+        nationalId: '12345678901',
+        images: _twoImages(),
+      );
+
+      expect(
+        (result as Ok).value.status,
+        VerificationRequestStatus.approved,
+      );
+    });
+
+    test('حالة غير معروفة برجعها الباك اند بترجع unknown بدل ما ترمي', () async {
+      final body = _successBody();
+      (body['data'] as Map)['status'] = 'escalated';
 
       final built = _buildWith(() => _json(body, 200));
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:maan/core/design_system/app_theme.dart';
-import 'package:maan/features/profile/presentation/profile/widgets/avatar_source_sheet.dart';
+import 'package:maan/core/design_system/widgets/image_source_sheet.dart';
 
 const _designSize = Size(375, 812);
 
@@ -11,7 +11,7 @@ const _designSize = Size(375, 812);
 /// حجم شاشة حقيقي إلزامي هون: سطح الاختبار الافتراضي (800×600 مقسوم على
 /// الـ modal) أضيق من محتوى الورقة فبيطلع RenderFlex overflow زائف —
 /// نفس الحل المستخدم بـ`profile_content_test.dart`.
-Future<AvatarSourceAction? Function()> _openSheet(
+Future<ImageSourceAction? Function()> _openSheet(
   WidgetTester tester, {
   bool showRemoveOption = false,
 }) async {
@@ -23,7 +23,7 @@ Future<AvatarSourceAction? Function()> _openSheet(
     tester.view.resetDevicePixelRatio();
   });
 
-  AvatarSourceAction? result;
+  ImageSourceAction? result;
   var completed = false;
 
   await tester.pumpWidget(
@@ -37,9 +37,16 @@ Future<AvatarSourceAction? Function()> _openSheet(
           body: Builder(
             builder: (context) => ElevatedButton(
               onPressed: () async {
-                result = await showAvatarSourceSheet(
+                result = await showImageSourceSheet(
                   context,
+                  // نصوص خام لا `.tr()`: الاختبار بيدوّر على المفتاح
+                  // نفسه — راجع «الاختبارات بتفحص المفتاح لا النص»
+                  // بـ`CLAUDE.md`.
+                  title: 'avatar_sheet_title',
+                  cameraLabel: 'avatar_source_camera',
+                  galleryLabel: 'avatar_source_gallery',
                   showRemoveOption: showRemoveOption,
+                  removeLabel: 'avatar_source_remove',
                 );
                 completed = true;
               },
@@ -81,7 +88,7 @@ void main() {
     await tester.tap(find.text('avatar_source_camera'));
     await tester.pumpAndSettle();
 
-    expect(result(), AvatarSourceAction.camera);
+    expect(result(), ImageSourceAction.camera);
   });
 
   testWidgets('اختيار المعرض بيرجّع gallery', (tester) async {
@@ -90,7 +97,7 @@ void main() {
     await tester.tap(find.text('avatar_source_gallery'));
     await tester.pumpAndSettle();
 
-    expect(result(), AvatarSourceAction.gallery);
+    expect(result(), ImageSourceAction.gallery);
   });
 
   testWidgets('اختيار الإزالة بيرجّع remove', (tester) async {
@@ -99,7 +106,7 @@ void main() {
     await tester.tap(find.text('avatar_source_remove'));
     await tester.pumpAndSettle();
 
-    expect(result(), AvatarSourceAction.remove);
+    expect(result(), ImageSourceAction.remove);
   });
 
   testWidgets('السكر بلا اختيار بيرجّع null', (tester) async {

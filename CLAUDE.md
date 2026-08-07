@@ -176,6 +176,53 @@ isolate مستقل بـ`flutter test`). أي شاشة جديدة محتاجة `c
 أي سياسة حالية؛ حدّها بيقفل صاحبها برّا حسابه نهائياً لو كانت أطول من
 64. نفس منطق فصل `loginPasswordValidator` عن `passwordValidator`.
 
+## التحميل الهيكلي (`skeletonizer`)
+
+بس للتحميل **الأول** لمحتوى حقيقي من الشبكة (بطاقات/نصوص غنية) — لا
+للفورمات (المستخدم عم يعبّي، مش بينتظر محتوى)، ولا لأزرار الإرسال
+(سبينر محلي صغير كافٍ)، ولا للشاشات اللي بتحمّل محلياً بلا شبكة
+(الإعدادات). الاستخدامان الحاليان: [profile_skeleton.dart](lib/features/profile/presentation/profile/widgets/profile_skeleton.dart)
+و[verification_skeleton.dart](lib/features/verification/presentation/verification/widgets/verification_skeleton.dart)
+— كلاهما بيستبدلوا `state.isFirstLoad` / `VerificationView.loading` مباشرة،
+لا سحب-للتحديث (`RefreshIndicator` بيضل يعرض المحتوى القديم لحد ما يوصل
+الجديد، نفس ما كان قبل).
+
+**أسلوبان حسب تعقيد الودجت الحقيقي**:
+* **`ProfileSkeleton`** — بتغلّف `ProfileContent` الحقيقي ببيانات
+  `CitizenProfile` وهمية عبر `Skeletonizer(child: ProfileContent(...))`.
+  هيك أي تعديل مستقبلي على شكل الشاشة بينعكس تلقائياً بلا صيانة إضافية.
+  القيم الوهمية إنجليزية قصيرة (`'Name'`/`'Surname'`) — الطول هو المهم
+  للعظمة لا المحتوى، والنص أصلاً مغطّى بالكامل. الحقول اللي بترجع
+  `null` بالتصميم الحقيقي (رقم وطني، تاريخ ميلاد) بتاخد قيمة وهمية غير
+  فاضية عمداً — لو تركناها `null` كانت هتعرض «—» (حرف وحيد) فيطلع عظم
+  بعرض غريب بدل شريط واقعي.
+* **`VerificationSkeleton`** — تخطيط عام يدوي بـ`Bone`/`AppCard`، **مش**
+  تغليف `VerificationFormView` الحقيقي. السبب: هاد محتاج
+  `TextEditingController` حي وcallbacks لاختيار صور، وخانة الرفع الفاضية
+  عندها إطار منقّط مرسوم بـ`CustomPaint` ما بينحوّل لعظمة مفهومة —
+  تلفيق حالة/متحكّمات وهمية لودجت تفاعلي بهالتعقيد أعقد من الفايدة.
+  تنازل واعٍ عن الدقّة البصرية (تعديل شكل النموذج الحقيقي ما بينعكس
+  هون تلقائياً) مقابل بساطة الصيانة.
+
+⚠️ **لون الوميض من التوكنات لا افتراضي الحزمة**: `ShimmerEffect(baseColor:
+colors.fieldDisabledBackground, highlightColor: colors.fieldBackground)`
+بكل استخدام — نفس قاعدة «ممنوع لون يدوي»، والافتراضي الرمادي الفاتح
+تبع الحزمة ما بينلائم الوضع الداكن تلقائياً.
+
+⚠️ **الأداء**: الودجت بينبنى **بس** جوّا شرط التحميل الأول (`if
+(state.isFirstLoad) return ...`)، مش دائم بالشجرة مع تبديل `enabled` —
+صفر تكلفة بعد وصول البيانات الحقيقية لأنه بينهدم تماماً. `ignorePointers`
+افتراضي الحزمة `true`، فما في حاجة لتعطيل الأزرار الوهمية يدوياً.
+
+⚠️ **اختبار الحزمة بـ`find.byType` ما بيشتغل**: `Skeletonizer` و`Bone`
+عوامّ (`factory`) بيرجّعوا أصنافاً خاصة فعلياً (`_Skeletonizer`/`_Bone`)،
+فـ`find.byType(Skeletonizer)` أو `find.byType(Bone)` بيرجّعوا صفر
+نتائج دايماً (`runtimeType` مختلف عن النوع المطلوب) — تأكّدنا تجريبياً.
+الاختبارات بتفحص عبر ودجتات عامة حقيقية (`ProfileContent`, `AppCard`)
+وغياب استثناء بدل نوع الحزمة الداخلي. وكمان: **لا `pumpAndSettle`** مع
+أي ودجت فيه `Skeletonizer` مفعّل — تأثير الوميض حركة لانهائية، نفس مشكلة
+مؤشّر التقدّم الدوّار.
+
 ## الترجمة
 
 `easy_localization` مع `assets/translations/{en,ar}.json` — 189 مفتاح بالملفين.
@@ -208,7 +255,7 @@ isolate مستقل بـ`flutter test`). أي شاشة جديدة محتاجة `c
 ## الاختبار
 
 ```
-flutter test        # 366 اختبار
+flutter test        # 391 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -237,7 +284,7 @@ flutter analyze     # صفر ملاحظات
 | `create_new_password` | `POST /api/auth/resetPassword` |
 | `profile` | `GET /api/profile` + `POST /api/profile/update` |
 | `edit_identity` | `POST /api/profile/update` (نفس مسار الصورة) |
-| `verification` ⏳ | `POST /api/verification/store` + `POST /api/verification/update` (تصحيح) |
+| `verification` | `GET /api/verification` + `POST /api/verification/store` + `POST /api/verification/update` (تصحيح) |
 
 **مظروف الاستجابة** ⚠️: الـ backend بيرجّع **الفشل بـ HTTP 200** والحالة
 الحقيقية بالجسم (`status: 0` أو `success: false`). `ApiEnvelope` بيكشفها
@@ -273,6 +320,13 @@ data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` ب
 ما تبني الـ Cubit. بلا هالحارس، فتح التاب كزائر بيرجّع 401 فـ
 `AuthInterceptor` بيفهمها «انتهت الجلسة» وبيسجّل خروج.
 
+**`ImageSourceSheet` بـ`core/design_system/widgets/`** — كانت
+`AvatarSourceSheet` بميزة profile، انتقلت لـ`core` لما احتاجتها شاشة
+التوثيق بنفس البنية حرفياً. الفرق الوحيد بين الاستخدامين نص العنوان
+فصار وسيطاً. ⚠️ **كل النصوص بتوصلها مترجَمة من مكان الاستدعاء لا
+كمفاتيح**: ودجت بـ`core` ما بيعرف مفاتيح ميزة، وماسح الترجمة بيتطلّب
+المفتاح يكون نصاً حرفياً قبل `.tr()` مباشرة.
+
 **`AppCard`/`AppSectionHeader` بـ`core/design_system/widgets/`** — كانوا
 `ProfileCard`/`ProfileSectionHeader` بهالميزة، انتقلوا لـ`core` لما
 احتاجتهم شاشة الإعدادات كمان (نفس سبب `BirthDate`/`AppValidators`: ودجت
@@ -305,8 +359,8 @@ data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` ب
 endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعرفه (401 بمكان
 تاني بالتطبيق لسه لازم يعني جلسة منتهية).
 
-**توثيق الهوية** (`features/verification/`) ⏳: `domain` و`data` بس —
-الشاشة لسه ما انبنت، فما في `Cubit` ولا واجهة. المسار
+**توثيق الهوية** (`features/verification/`): مكتملة — `domain` و`data`
+و`presentation/verification/`. المسار
 `POST /api/verification/store` مؤكّد من الباك اند مع مثال استجابة حقيقي
 (`national_id` + `images[]`). العدد **صورتين بالضبط لا حد أدنى** —
 رسالة الباك اند الحقيقية "must contain 2 items" يعني قاعدة `size:2`،
@@ -321,17 +375,70 @@ endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعر
 بطلب قائم؛ نقطة التصحيح الوحيدة لو تأكّد لاحقاً:
 `VerificationRemoteDataSource.update`.
 
-⚠️ **صور التوثيق مش صورة بروفايل** — لما تُبنى شاشة الاختيار، **ما
-تستخدم** `ImagePickerService.pickAvatar` مباشرة: هاي بتقصّ مربّع دائري
-512px مصمّم لأفاتار، وصور الهوية/السيلفي بتحتاج مسار اختيار بلا قصّ
-دائري (وممكن نسب عرض مختلفة). الخدمة عامة عن قصد فهي المكان الصح
-لإضافة ميثود ثانية لا لإعادة استخدام `pickAvatar` كما هو.
+⚠️ **صور التوثيق مش صورة بروفايل** — الشاشة بتستخدم
+`ImagePickerService.pickDocument` لا `pickAvatar`: التانية بتقصّ **دائرة
+مقفولة 1:1 بـ512px** مصمّمة لأفاتار، والقصّ الدائري بياكل زوايا بطاقة
+الهوية — يعني بالضبط المعلومات اللي الطلب قائم عليها. `pickDocument`
+بتقصّ مستطيل حر بـ1600px وجودة 92 (النص المطبوع لازم ينقرأ من قِبَل
+موظّف البلدية) ومع أدوات التدوير ظاهرة (صور البطاقات بتطلع مقلوبة كتير).
+
+**الرقم الوطني — مالك واحد**: شاشة التوثيق **وحدها** بتحرّره. انشال
+حقله من `edit_identity` (اللي بيضل مسؤول عن الاسم وتاريخ الميلاد بس)،
+لأن رقماً بينعدّل من شاشتين بيخلق تناقضاً: الموظّف بيراجع صوراً مربوطة
+برقم ممكن يكون اتغيّر بعد إرسالها.
+
+⚠️ **القيمة بتضل تُرسَل مع `POST /api/profile/update`** رغم غياب الحقل —
+الجسم واحد، وإسقاط الحقل خطر (ممكن الباك اند يقرأ غيابه كـ«امسحه» متل
+حقل الصورة الفاضي). `EditIdentityState.nationalId` بيحملها بلا
+`nationalIdChanged`.
+
+⚠️ **وبالتالي `nationalId` انشال من `EditIdentityState.canSubmit`** —
+المستخدم غير الموثّق ما عنده رقم أصلاً (`null`)، فلو ضل شرطاً بيصير هو
+بالضبط اللي **ما بيقدر** يعدّل اسمه أو تاريخ ميلاده.
+
+**بطاقة «البيانات الشخصية»** بأعلى نموذج التوثيق: **عرض فقط** (اسم +
+تاريخ ميلاد) مع زر «تعديل» بينقل لـ`editIdentity`. سببها الشرط الثالث
+بالتنبيه — «يجب أن تطابق المعلومات هويتك الرسمية» — فالمستخدم لازم يشوف
+شو رح ينبعت قبل ما يرسل. `VerificationCubit` بيقرأ `GetProfileUseCase`
+**بالتوازي** مع حالة الطلب؛ فشلها بيخفي البطاقة بس وما بيوقّع الشاشة.
+
+**شاشة التوثيق** (`presentation/verification/`): **شاشة واحدة بأربعة
+عروض** لا أربع شاشات — النموذج · قيد المراجعة · مرفوض · معتمد. العرض
+بيتحدّد من حالة الطلب اللي بترجع من `GET /api/verification` وقت الفتح،
+مش من ملاحة المستخدم: هو دايماً بيوصل من نفس المدخل (بانر «وثّق حسابك»
+بالملف الشخصي) وبيشوف وين صار طلبه.
+
+⚠️ **`AppRoutes.verification` مش بـ`verifiedOnlyRoutes`** — بالعكس
+تماماً: هي الشاشة اللي بتخلّي المستخدم يصير موثّقاً، فحجبها عن غير
+الموثّق بيقفل الباب اللي هي نفسها مفتاحه.
+
+⚠️ **`VerificationView.loadFailure` مش تفصيل تجميلي**: لو فشل
+`GET /api/verification` وعرضنا النموذج بدل شاشة إعادة محاولة، مستخدم
+عنده طلب `pending` أصلاً رح يرسل طلباً مكرّراً بلا ما يدري.
+
+⚠️ **حالة غير معروفة → النموذج**: `VerificationRequestStatus.unknown`
+بتوقّع على عرض النموذج عن قصد. قيمة ما بنعرفها ما لازم تقفل المستخدم
+برّا شاشة بيقدر يستخدمها.
 
 **شريط الملاحة**: تاباته لازم تطابق فروع `StatefulShellRoute` عدداً وترتيباً —
 `goBranch` بترمي لو الفهرس خارج المدى. حالياً تابان (`home` و`profile`)
 مقابل فرعين. عند إضافة تاب، أضف فرعه بالراوتر بنفس اللحظة.
 
 **فجوات معروفة**:
+- ⚠️ **شكل استجابة `GET /api/verification` غير مؤكّد** — `collection.md`
+  بيسرد المسار بس مثال الاستجابة فيه `{}` فاضي. لهيك
+  `VerificationRequestModel.listFromResponse` بتقرأ الأشكال المحتملة كلها
+  (قائمة · قائمة تحت `data` · كائن مفرد · `data.data` تبع ترقيم Laravel)
+  بدل ما تراهن على واحد، وبتتجاهل أي عنصر ما بينقرأ بدل ما توقّع
+  الاستجابة كلها. نقطة التصحيح الوحيدة لما يتأكّد الشكل.
+- ⚠️ **قيم `approved`/`rejected` على السلك مخمَّنة** — وجود الحالتين
+  **مؤكّد** (`GET /api/verification/approve/{id}` و
+  `POST /api/verification/reject/{id}` بقسم verification/admin)، بس
+  الاسم النصّي اللي بيرجع بالقراءة لا. `VerificationRequestStatus`
+  بتقبل مرادفات شائعة لكل حالة؛ نقطة التصحيح الوحيدة `_synonyms`.
+- ⚠️ **حقلا سبب الرفض مخمَّنان** — مصدرهما الوحيد **جسم طلب الأدمن**
+  (`reason` + `description`). إنهما يرجعا بنفس الاسمين بقراءة المواطن
+  مفترَض لا مؤكّد؛ عرض الرفض بيعرض نصاً عاماً لو ما وصلا.
 - ⚠️ **`national_id` مطلوب بالتسجيل وما إله حقل بالواجهة** — بيوصل فاضي
   فبيرجع خطأ تحقق من السيرفر. الحقل موجود بـ`SignUpState` والـ request
   model، فالناقص بس `TextFormField` بـ`sign_up_form.dart` وربطه بـ
@@ -378,6 +485,8 @@ endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعر
   موروثة من عقد `/api/auth/register` المؤكّد (`first_name`، `last_name`،
   `national_id`، `birth_date` بصيغة `YYYY/M/D`) — مش مؤكّدة بشكل مستقل
   لهالمسار. نقطة التصحيح الوحيدة `ProfileRemoteDataSource.updateIdentity`.
+  (`national_id` لسه بينبعت من هون رغم غياب حقله بالواجهة — راجع «الرقم
+  الوطني — مالك واحد» فوق.)
 - ⚠️ **القفل بيعتمد على `verified` بس، مش على طلب توثيق قيد المراجعة** —
   `EditIdentityCubit.isLocked` بيتحدّد من `AccountStatus.verified` فقط.
   لو المستخدم بعت طلب توثيق (`features/verification/`) وصار قيد

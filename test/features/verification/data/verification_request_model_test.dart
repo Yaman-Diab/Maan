@@ -87,9 +87,41 @@ void main() {
       );
     });
 
+    test('حالات النتيجة بتنقرأ مع مرادفاتها الشائعة', () {
+      // ⚠️ القيم النصّية **مخمَّنة**: وجود الحالتين مؤكّد من endpoints
+      // الأدمن (approve/reject) بس أسماءها وقت القراءة لا — لهيك
+      // بنقبل أكتر من مرادف. راجع تعليق `VerificationRequestStatus`.
+      for (final value in ['approved', 'accepted', 'verified']) {
+        expect(
+          VerificationRequestStatus.fromApi(value),
+          VerificationRequestStatus.approved,
+          reason: value,
+        );
+      }
+
+      for (final value in ['rejected', 'refused', 'declined']) {
+        expect(
+          VerificationRequestStatus.fromApi(value),
+          VerificationRequestStatus.rejected,
+          reason: value,
+        );
+      }
+    });
+
+    test('بتتجاهل حالة الأحرف والمسافات الزائدة', () {
+      expect(
+        VerificationRequestStatus.fromApi('  PENDING '),
+        VerificationRequestStatus.pending,
+      );
+    });
+
     test('أي قيمة تانية بترجع unknown بدل ما ترمي', () {
       expect(
-        VerificationRequestStatus.fromApi('approved'),
+        VerificationRequestStatus.fromApi('escalated'),
+        VerificationRequestStatus.unknown,
+      );
+      expect(
+        VerificationRequestStatus.fromApi(''),
         VerificationRequestStatus.unknown,
       );
       expect(

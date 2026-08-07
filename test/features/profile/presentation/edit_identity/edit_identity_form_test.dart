@@ -32,7 +32,6 @@ Future<void> _pump(WidgetTester tester, EditIdentityCubit cubit) async {
   final controllers = EditIdentityFieldControllers(
     firstName: cubit.state.firstName,
     lastName: cubit.state.lastName,
-    nationalId: cubit.state.nationalId,
     day: cubit.state.day,
     month: cubit.state.month,
     year: cubit.state.year,
@@ -135,21 +134,24 @@ void main() {
     });
   });
 
-  testWidgets('الرقم الوطني — رقمي بس ومحدود بالطول', (tester) async {
+  testWidgets('ما في حقل رقم وطني بهالشاشة — شاشة التوثيق مالكته', (
+    tester,
+  ) async {
     final cubit = EditIdentityCubit(useCase, user: _user());
     addTearDown(cubit.close);
 
     await _pump(tester, cubit);
 
-    final nationalIdField = tester.widget<CustomTextFormField>(
+    // فحص الترجمة بيقارن المفتاح لا النص — راجع `CLAUDE.md`.
+    expect(find.text('national_id'), findsNothing);
+    expect(
       find.byWidgetPredicate(
         (widget) =>
             widget is CustomTextFormField &&
             widget.keyBoardType == TextInputType.number,
       ),
+      findsNothing,
+      reason: 'انتقل لـ VerificationFormView',
     );
-
-    expect(nationalIdField.digitsOnly, isTrue);
-    expect(nationalIdField.maxLength, 12);
   });
 }

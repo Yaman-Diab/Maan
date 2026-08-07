@@ -1,49 +1,75 @@
 // -------------------------
-// Avatar Source Sheet
+// Image Source Sheet
 // -------------------------
 
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../../core/design_system/app_spacing.dart';
-import '../../../../../core/design_system/app_theme_context.dart';
+import '../app_spacing.dart';
+import '../app_theme_context.dart';
 
 /// خيار المستخدم بورقة اختيار الصورة.
-enum AvatarSourceAction {
+enum ImageSourceAction {
   camera,
   gallery,
 
-  /// راجع تحذير العقد بـ`ProfileRepository.removeAvatar` — الإزالة نفسها
-  /// عبر نفس مسار الرفع بحقل فاضي، مش endpoint مخصّص.
+  /// إزالة صورة موجودة — بتظهر بس لما [showImageSourceSheet] تتنادى مع
+  /// `showRemoveOption: true`. صور التوثيق ما بتستخدمها: بعد الإرسال
+  /// الصور ما بتتغيّر (راجع `VerificationRepository.update`).
   remove,
 }
 
-/// «من وين بدك الصورة؟» — كاميرا أو معرض، وإزالة لو في صورة أصلاً.
+/// «من وين بدك الصورة؟» — كاميرا أو معرض، وإزالة اختيارية.
 ///
-/// [showRemoveOption] بيتحكّم بظهور «إزالة الصورة» — ما إلها معنى لو ما
-/// في صورة حالياً (محلية ولا من السيرفر).
+/// كانت `AvatarSourceSheet` بميزة profile — انتقلت لـ`core` لما احتاجتها
+/// شاشة التوثيق كمان بنفس البنية حرفياً (نفس سبب انتقال `AppCard`
+/// و`BirthDate`). الفرق الوحيد بين الاستخدامين نص العنوان، فصار وسيطاً
+/// بدل ما ينتسخ الودجت.
+///
+/// كل النصوص بتوصل **مترجَمة** من مكان الاستدعاء لا كمفاتيح: الودجت
+/// بـ`core` ما بيعرف مفاتيح ميزة، وماسح الترجمة بـ
+/// `test/localization/localization_test.dart` بيتطلّب المفتاح يكون نصاً
+/// حرفياً قبل `.tr()` مباشرة.
 ///
 /// بترجّع `null` لو سكّرها المستخدم بلا اختيار.
-Future<AvatarSourceAction?> showAvatarSourceSheet(
+Future<ImageSourceAction?> showImageSourceSheet(
   BuildContext context, {
+  required String title,
+  required String cameraLabel,
+  required String galleryLabel,
   bool showRemoveOption = false,
+  String? removeLabel,
 }) {
-  return showModalBottomSheet<AvatarSourceAction>(
+  return showModalBottomSheet<ImageSourceAction>(
     context: context,
     backgroundColor: context.scheme.surface,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg.r)),
     ),
-    builder: (sheetContext) =>
-        _AvatarSourceSheet(showRemoveOption: showRemoveOption),
+    builder: (sheetContext) => _ImageSourceSheet(
+      title: title,
+      showRemoveOption: showRemoveOption,
+      cameraLabel: cameraLabel,
+      galleryLabel: galleryLabel,
+      removeLabel: removeLabel,
+    ),
   );
 }
 
-class _AvatarSourceSheet extends StatelessWidget {
-  const _AvatarSourceSheet({required this.showRemoveOption});
+class _ImageSourceSheet extends StatelessWidget {
+  const _ImageSourceSheet({
+    required this.title,
+    required this.showRemoveOption,
+    required this.cameraLabel,
+    required this.galleryLabel,
+    required this.removeLabel,
+  });
 
+  final String title;
   final bool showRemoveOption;
+  final String cameraLabel;
+  final String galleryLabel;
+  final String? removeLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +84,7 @@ class _AvatarSourceSheet extends StatelessWidget {
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(
-                  'avatar_sheet_title'.tr(),
+                  title,
                   style: context.texts.f16W500Black.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -68,20 +94,20 @@ class _AvatarSourceSheet extends StatelessWidget {
 
             _SourceTile(
               icon: Icons.photo_camera_rounded,
-              label: 'avatar_source_camera'.tr(),
-              action: AvatarSourceAction.camera,
+              label: cameraLabel,
+              action: ImageSourceAction.camera,
             ),
             _SourceTile(
               icon: Icons.photo_library_rounded,
-              label: 'avatar_source_gallery'.tr(),
-              action: AvatarSourceAction.gallery,
+              label: galleryLabel,
+              action: ImageSourceAction.gallery,
             ),
 
-            if (showRemoveOption)
+            if (showRemoveOption && removeLabel != null)
               _SourceTile(
                 icon: Icons.delete_outline_rounded,
-                label: 'avatar_source_remove'.tr(),
-                action: AvatarSourceAction.remove,
+                label: removeLabel!,
+                action: ImageSourceAction.remove,
                 // الإزالة إجراء هدّام (بيمسح صورة موجودة)، فبتاخد لون
                 // التحذير متل زر تسجيل الخروج — نفس الاصطلاح بكل مكان
                 // بالتطبيق.
@@ -104,7 +130,7 @@ class _SourceTile extends StatelessWidget {
 
   final IconData icon;
   final String label;
-  final AvatarSourceAction action;
+  final ImageSourceAction action;
   final bool isDestructive;
 
   @override

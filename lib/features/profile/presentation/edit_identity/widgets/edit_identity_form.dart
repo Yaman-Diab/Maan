@@ -113,29 +113,10 @@ class EditIdentityForm extends StatelessWidget {
                                     ),
                               ),
                             ),
-                            SizedBox(height: 18.h),
-                            LabeledField(
-                              label: 'national_id'.tr(),
-                              labelStyle: labelStyle,
-                              child: CustomTextFormField(
-                                controller: controllers.nationalId,
-                                keyBoardType: TextInputType.number,
-                                digitsOnly: true,
-                                enabled: !state.isLocked,
-                                maxLength:
-                                    AppValidators.nationalIdMaxLength,
-                                onChanged: cubit.nationalIdChanged,
-                                validationMessage:
-                                    AppValidators.requiredNationalId,
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 6.h, left: 4.w),
-                              child: Text(
-                                'edit_identity_national_id_helper'.tr(),
-                                style: context.texts.f12W400SecColor,
-                              ),
-                            ),
+                            // ملاحظة: حقل الرقم الوطني **انشال من هون
+                            // عن قصد** — شاشة التوثيق
+                            // (`features/verification/`) صارت المالك
+                            // الوحيد له. راجع `CLAUDE.md` › توثيق الهوية.
                             SizedBox(height: 18.h),
                             BirthDateFields(
                               label: 'date_of_birth'.tr(),
@@ -213,22 +194,21 @@ class EditIdentityForm extends StatelessWidget {
 class EditIdentityFieldControllers {
   final firstName = TextEditingController();
   final lastName = TextEditingController();
-  final nationalId = TextEditingController();
   final day = TextEditingController();
   final month = TextEditingController();
   final year = TextEditingController();
 
+  // ما في controller للرقم الوطني: ما عاد إله حقل بهالشاشة — شاشة
+  // التوثيق هي مالكته الوحيدة.
   EditIdentityFieldControllers({
     required String firstName,
     required String lastName,
-    required String nationalId,
     int? day,
     int? month,
     int? year,
   }) {
     this.firstName.text = firstName;
     this.lastName.text = lastName;
-    this.nationalId.text = nationalId;
 
     if (day != null) setDay(day);
     if (month != null) setMonth(month);
@@ -250,7 +230,6 @@ class EditIdentityFieldControllers {
   void dispose() {
     firstName.dispose();
     lastName.dispose();
-    nationalId.dispose();
     day.dispose();
     month.dispose();
     year.dispose();

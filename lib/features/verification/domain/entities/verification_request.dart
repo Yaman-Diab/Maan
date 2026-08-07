@@ -31,6 +31,19 @@ final class VerificationRequest extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  /// سبب الرفض المُصنَّف (مثلاً `blurry_images`) — `null` لأي حالة غير
+  /// [VerificationRequestStatus.rejected].
+  ///
+  /// ⚠️ **مخمَّن**: مصدره الوحيد جسم **طلب الأدمن**
+  /// `POST /api/verification/reject/{id}` بـ`collection.md` (`reason` +
+  /// `description`). إنه يرجع بنفس الاسمين **بقراءة المواطن** مفترَض لا
+  /// مؤكّد. الواجهة بتتعامل مع الغياب بلطف: بتعرض نص رفض عام بدل ما
+  /// تفترض وجوده.
+  final String? rejectionReason;
+
+  /// شرح الرفض الحر اللي بيكتبه الموظّف — اختياري حتى بعقد الأدمن نفسه.
+  final String? rejectionDescription;
+
   const VerificationRequest({
     required this.id,
     required this.userId,
@@ -39,7 +52,13 @@ final class VerificationRequest extends Equatable {
     required this.images,
     required this.createdAt,
     required this.updatedAt,
+    this.rejectionReason,
+    this.rejectionDescription,
   });
+
+  /// الطلب «فعّال» لما يكون لسه قيد المراجعة — الحالة الوحيدة اللي
+  /// بتسمح بتصحيح الرقم الوطني عبر `POST /api/verification/update`.
+  bool get isEditable => status.isPending;
 
   @override
   List<Object?> get props => [
@@ -50,5 +69,7 @@ final class VerificationRequest extends Equatable {
     images,
     createdAt,
     updatedAt,
+    rejectionReason,
+    rejectionDescription,
   ];
 }

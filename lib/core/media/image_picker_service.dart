@@ -96,6 +96,97 @@ class ImagePickerService {
     );
   }
 
+  /// ضلع صورة الوثيقة. أكبر من [_targetSize] عن قصد: موظّف البلدية لازم
+  /// يقرأ رقم الهوية من الصورة، و512px بتخلّي النص المطبوع غير مقروء.
+  static const int _documentMaxSide = 1600;
+
+  /// أعلى من [_quality] لأن ضغط JPEG بيلطّخ حواف الأحرف الصغيرة أولاً —
+  /// وهي بالضبط اللي بدها تنقرأ هون.
+  static const int _documentQuality = 92;
+
+  /// خط أنابيب **صور الوثائق** (هوية / سيلفي التوثيق) — اختيار ← قص حر
+  /// ← ضغط.
+  ///
+  /// مش [pickAvatar]: هديك بتقصّ **دائرة مقفولة 1:1** بـ512px، وهي
+  /// مصمّمة لأفاتار. بطاقة الهوية مستطيلة والسيلفي عمودية، فالقص
+  /// الدائري بياكل زوايا البطاقة — يعني بالضبط المعلومات اللي طلب
+  /// التوثيق قائم عليها. لهيك: بلا نسبة مقفولة، بلا `CropStyle.circle`،
+  /// وبدقّة أعلى.
+  ///
+  /// بترجّع `null` لو المستخدم لغى بأي خطوة — الإلغاء مش خطأ.
+  Future<PickedImage?> pickDocument({
+    required ImageSource source,
+    required CropperAppearance appearance,
+  }) async {
+    final picked = await _picker.pickImage(
+      source: source,
+      maxWidth: 2400,
+      maxHeight: 2400,
+      imageQuality: 95,
+    );
+
+    if (picked == null) return null;
+
+    final cropped = await _cropDocument(picked.path, appearance);
+
+    if (cropped == null) return null;
+
+    final bytes = await FlutterImageCompress.compressWithFile(
+      cropped.path,
+      minWidth: _documentMaxSide,
+      minHeight: _documentMaxSide,
+      quality: _documentQuality,
+      format: CompressFormat.jpeg,
+      // نفس سبب الأفاتار: موقع التصوير ما بيرتفع مع الصورة.
+      keepExif: false,
+    );
+
+    if (bytes == null) return null;
+
+    final file = await _writeTempJpeg(bytes, prefix: 'maan_document');
+
+    return PickedImage(
+      path: file.path,
+      bytes: bytes,
+      fileName: _fileNameOf(file.path),
+    );
+  }
+
+  Future<CroppedFile?> _cropDocument(
+    String sourcePath,
+    CropperAppearance appearance,
+  ) {
+    return _cropper.cropImage(
+      sourcePath: sourcePath,
+      // بلا `aspectRatio`: البطاقة أفقية والسيلفي عمودية، فأي نسبة
+      // مفروضة بتقصّ وحدة منهم غلط.
+      maxWidth: _documentMaxSide,
+      maxHeight: _documentMaxSide,
+      compressFormat: ImageCompressFormat.jpg,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: appearance.toolbarTitle,
+          toolbarColor: appearance.toolbarColor,
+          toolbarWidgetColor: appearance.toolbarWidgetColor,
+          backgroundColor: appearance.backgroundColor,
+          activeControlsWidgetColor: appearance.activeControlsWidgetColor,
+          statusBarLight: !appearance.isDark,
+          cropStyle: CropStyle.rectangle,
+          lockAspectRatio: false,
+          // على عكس الأفاتار: المستخدم بيحتاج أدوات التدوير لأن صور
+          // البطاقات بتطلع مقلوبة كتير.
+          hideBottomControls: false,
+        ),
+        IOSUiSettings(
+          title: appearance.toolbarTitle,
+          cropStyle: CropStyle.rectangle,
+          aspectRatioLockEnabled: false,
+          resetAspectRatioEnabled: true,
+        ),
+      ],
+    );
+  }
+
   Future<CroppedFile?> _cropAvatar(
     String sourcePath,
     CropperAppearance appearance,
@@ -134,8 +225,11 @@ class ImagePickerService {
 
   /// ملف مؤقّت للعرض الفوري. مؤقّت عن قصد: النسخة الدائمة عند السيرفر،
   /// والنظام بينضّف مجلده لحاله.
-  static Future<File> _writeTempJpeg(List<int> bytes) async {
-    final name = 'maan_avatar_${DateTime.now().millisecondsSinceEpoch}.jpg';
+  static Future<File> _writeTempJpeg(
+    List<int> bytes, {
+    String prefix = 'maan_avatar',
+  }) async {
+    final name = '${prefix}_${DateTime.now().millisecondsSinceEpoch}.jpg';
     final file = File('${Directory.systemTemp.path}${Platform.pathSeparator}$name');
 
     return file.writeAsBytes(bytes, flush: true);

@@ -15,6 +15,7 @@ import 'package:maan/features/auth/domain/entities/auth_user.dart';
 import 'package:maan/features/profile/presentation/edit_identity/pages/edit_identity_page.dart';
 import 'package:maan/features/profile/presentation/profile/pages/profile_page.dart';
 import 'package:maan/features/settings/presentation/pages/settings_page.dart';
+import 'package:maan/features/verification/presentation/verification/pages/verification_page.dart';
 import 'package:maan/features/splash/presentation/pages/splash_page.dart';
 import '../../features/app_shell/app_shell_page.dart';
 import '../../features/app_shell/home_verification_page.dart';
@@ -151,6 +152,13 @@ class AppRouter {
         path: AppRoutes.settings,
         builder: (context, state) {
           return const SettingsPage();
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.verification,
+        builder: (context, state) {
+          return const VerificationPage();
         },
       ),
 

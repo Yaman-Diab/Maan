@@ -36,9 +36,8 @@ class EditIdentityCubit extends Cubit<EditIdentityState> {
     emit(state.copyWith(lastName: value));
   }
 
-  void nationalIdChanged(String value) {
-    emit(state.copyWith(nationalId: value));
-  }
+  // ما في `nationalIdChanged`: الرقم الوطني بينحمل بالحالة وبينبعت كما
+  // وصل، بس ما بينعدّل من هون — شاشة التوثيق هي مالكته الوحيدة.
 
   // -------------------------
   // Birth Date — نفس منطق SignUpCubit بالضبط.

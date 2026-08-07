@@ -40,6 +40,8 @@ class VerificationRequestModel {
   final List<VerificationImageModel> images;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? rejectionReason;
+  final String? rejectionDescription;
 
   const VerificationRequestModel({
     required this.id,
@@ -49,6 +51,8 @@ class VerificationRequestModel {
     required this.images,
     required this.createdAt,
     required this.updatedAt,
+    this.rejectionReason,
+    this.rejectionDescription,
   });
 
   factory VerificationRequestModel.fromMap(Map<String, dynamic> json) {
@@ -90,6 +94,8 @@ class VerificationRequestModel {
       images: images,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      rejectionReason: _asNonEmptyString(data['reason']),
+      rejectionDescription: _asNonEmptyString(data['description']),
     );
   }
 
@@ -102,7 +108,59 @@ class VerificationRequestModel {
       images: images.map((image) => image.toEntity()).toList(),
       createdAt: createdAt,
       updatedAt: updatedAt,
+      rejectionReason: rejectionReason,
+      rejectionDescription: rejectionDescription,
     );
+  }
+
+  /// قراءة استجابة `GET /api/verification` بلا رهان على شكل واحد.
+  ///
+  /// ⚠️ الشكل **غير مؤكّد** (مثال `collection.md` فاضي)، فبنقبل الأربعة
+  /// الممكنة: قائمة مباشرة · قائمة تحت `data` · كائن مفرد · كائن مفرد
+  /// تحت `data` — وكمان `data.data` لأن ترقيم Laravel بيعشّش هيك.
+  /// العنصر اللي ما بينقرأ بينترمى بصمت بدل ما يوقّع الاستجابة كلها:
+  /// طلب قديم بشكل مختلف ما لازم يمنع عرض الطلب الحالي.
+  static List<VerificationRequestModel> listFromResponse(dynamic response) {
+    final items = _extractList(response);
+
+    final models = <VerificationRequestModel>[];
+    for (final item in items) {
+      if (item is! Map) continue;
+
+      try {
+        models.add(
+          VerificationRequestModel.fromMap(Map<String, dynamic>.from(item)),
+        );
+      } on FormatException {
+        continue;
+      }
+    }
+
+    return models;
+  }
+
+  static List<dynamic> _extractList(dynamic response) {
+    if (response is List) return response;
+
+    if (response is Map) {
+      final map = Map<String, dynamic>.from(response);
+
+      // كائن مفرد وصل مباشرة بلا تغليف.
+      if (map.containsKey('national_id')) return [map];
+
+      final data = map[ApiResponseKeys.data];
+      if (data != null) return _extractList(data);
+    }
+
+    return const [];
+  }
+
+  static String? _asNonEmptyString(dynamic value) {
+    if (value is! String) return null;
+
+    final trimmed = value.trim();
+
+    return trimmed.isEmpty ? null : trimmed;
   }
 
   /// الاستجابة الحقيقية بتغلّف البيانات تحت `data`. نفس نمط

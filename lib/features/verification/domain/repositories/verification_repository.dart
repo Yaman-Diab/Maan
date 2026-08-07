@@ -7,6 +7,15 @@ import '../../../../core/result/result.dart';
 import '../entities/verification_request.dart';
 
 abstract class VerificationRepository {
+  /// آخر طلب توثيق للمستخدم الحالي، أو `null` لو ما قدّم ولا طلب.
+  ///
+  /// هي اللي بتحدّد شو تعرض شاشة التوثيق أول ما تُفتح: بلا طلب →
+  /// النموذج، `pending` → قيد المراجعة، `rejected` → الرفض،
+  /// `approved` → الاعتماد. «آخر» = الأحدث بـ`createdAt` لأن المستخدم
+  /// ممكن يكون قدّم أكتر من طلب عبر الوقت (رفض ثم إعادة إرسال)، والشاشة
+  /// بتهمّها الحالة الحالية لا التاريخ.
+  Future<Result<VerificationRequest?>> latestRequest();
+
   /// تقديم طلب توثيق الهوية.
   ///
   /// [images] لازم يكون **بالضبط عنصرين** — قاعدة `size:2` مؤكّدة من

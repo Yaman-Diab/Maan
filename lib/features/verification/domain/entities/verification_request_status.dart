@@ -7,24 +7,48 @@
 /// `AccountStatus` تبع المستخدم (verified/blocked) بعد المراجعة.
 ///
 /// ⚠️ **`pending` هي القيمة الوحيدة المؤكّدة** — من استجابة
-/// `POST /api/verification/store` الحقيقية. قيم الموافقة/الرفض متوقّعة
-/// منطقياً (أي طلب مراجعة لازم يخلص لحالة نهائية) بس أسماءها بالسلك لسه
-/// ما تأكّدت، فـ[fromApi] بترجّع [unknown] بدل ما ترمي أو تخمّن.
+/// `POST /api/verification/store` الحقيقية. [approved] و[rejected]
+/// **قيمهما على السلك مخمَّنة**: التصميم بيتطلّب الحالتين، والباك اند
+/// عنده فعلاً `GET /api/verification/approve/{id}` و
+/// `POST /api/verification/reject/{id}` (قسم verification/admin
+/// بـ`collection.md`)، فوجود الحالتين مؤكّد — بس **الاسم النصّي** اللي
+/// بيرجع فيهما بالقراءة لا.
+///
+/// لهيك [fromApi] بتقبل أكتر من مرادف شائع لكل حالة بدل ما تراهن على
+/// واحد، وأي قيمة مجهولة بترجع [unknown] — والواجهة بتعامل [unknown]
+/// كـ«ما في طلب فعّال» فتعرض النموذج، وهو أأمن سلوك ممكن: المستخدم
+/// بيقدر يقدّم طلب، بدل ما تعلق الشاشة على حالة ما بتنعرف.
+///
+/// نقطة التصحيح الوحيدة لما تتأكّد الأسماء: [_synonyms] تحت.
 enum VerificationRequestStatus {
-  pending('pending'),
-  unknown('');
+  pending,
+  approved,
+  rejected,
+  unknown;
 
-  const VerificationRequestStatus(this.wireValue);
+  /// مرادفات كل حالة كما ممكن ترجع من الباك اند. `pending` وحدها
+  /// مؤكّدة؛ الباقي تخمين موثّق — راجع تعليق الـ enum فوق.
+  static const Map<VerificationRequestStatus, List<String>> _synonyms = {
+    VerificationRequestStatus.pending: ['pending'],
+    VerificationRequestStatus.approved: ['approved', 'accepted', 'verified'],
+    VerificationRequestStatus.rejected: ['rejected', 'refused', 'declined'],
+  };
 
-  final String wireValue;
+  bool get isPending => this == VerificationRequestStatus.pending;
+
+  bool get isApproved => this == VerificationRequestStatus.approved;
+
+  bool get isRejected => this == VerificationRequestStatus.rejected;
 
   static VerificationRequestStatus fromApi(String? value) {
     if (value == null || value.isEmpty) {
       return VerificationRequestStatus.unknown;
     }
 
-    for (final status in VerificationRequestStatus.values) {
-      if (status.wireValue == value) return status;
+    final normalized = value.trim().toLowerCase();
+
+    for (final entry in _synonyms.entries) {
+      if (entry.value.contains(normalized)) return entry.key;
     }
 
     return VerificationRequestStatus.unknown;

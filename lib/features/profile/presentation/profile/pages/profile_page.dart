@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../../core/design_system/app_theme_context.dart';
+import '../../../../../core/design_system/widgets/image_source_sheet.dart';
 import '../../../../../core/di/service_locator.dart';
 import '../../../../../core/media/image_picker_service.dart';
 import '../../../../../core/router/app_routes.dart';
@@ -17,10 +18,10 @@ import '../../../../../core/session/app_session_controller.dart';
 import '../../../domain/entities/citizen_profile.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
-import '../widgets/avatar_source_sheet.dart';
 import '../widgets/profile_content.dart';
 import '../widgets/profile_error_view.dart';
 import '../widgets/profile_guest_view.dart';
+import '../widgets/profile_skeleton.dart';
 
 /// شاشة الملف الشخصي.
 ///
@@ -100,19 +101,23 @@ class _ProfileBody extends StatelessWidget {
     // انفصل عن الشجرة.
     final appearance = _cropperAppearance(context);
 
-    final action = await showAvatarSourceSheet(
+    final action = await showImageSourceSheet(
       context,
+      title: 'avatar_sheet_title'.tr(),
+      cameraLabel: 'avatar_source_camera'.tr(),
+      galleryLabel: 'avatar_source_gallery'.tr(),
       showRemoveOption: hasAvatar,
+      removeLabel: 'avatar_source_remove'.tr(),
     );
 
     if (action == null) return;
 
-    if (action == AvatarSourceAction.remove) {
+    if (action == ImageSourceAction.remove) {
       await cubit.removeAvatar();
       return;
     }
 
-    final source = action == AvatarSourceAction.camera
+    final source = action == ImageSourceAction.camera
         ? ImageSource.camera
         : ImageSource.gallery;
 
@@ -147,6 +152,21 @@ class _ProfileBody extends StatelessWidget {
       ..showSnackBar(SnackBar(content: Text('identity_updated_message'.tr())));
   }
 
+  /// بيفتح شاشة التوثيق وبيحدّث الملف عند الرجوع.
+  ///
+  /// إعادة التحميل بلا شرط — على عكس `_editIdentity` الشاشة ما بترجّع
+  /// نتيجة: المستخدم ممكن يكون بعت طلباً (فحالة الحساب تغيّرت) أو بس
+  /// تفرّج ورجع، وسؤال `GET /api/profile` أرخص من تتبّع النية.
+  Future<void> _openVerification(BuildContext context) async {
+    final cubit = context.read<ProfileCubit>();
+
+    await context.push(AppRoutes.verification);
+
+    if (!context.mounted) return;
+
+    await cubit.load();
+  }
+
   static CropperAppearance _cropperAppearance(BuildContext context) {
     final scheme = context.scheme;
 
@@ -176,7 +196,7 @@ class _ProfileBody extends StatelessWidget {
       listener: _onStateChanged,
       builder: (context, state) {
         if (state.isFirstLoad) {
-          return const Center(child: CircularProgressIndicator());
+          return const ProfileSkeleton();
         }
 
         final profile = state.profile;
@@ -208,6 +228,7 @@ class _ProfileBody extends StatelessWidget {
               onAddPhotoTap: () =>
                   _changeAvatar(context, hasAvatar: hasAvatar),
               onEditTap: () => _editIdentity(context, profile),
+              onVerifyTap: () => _openVerification(context),
             ),
           ),
         );

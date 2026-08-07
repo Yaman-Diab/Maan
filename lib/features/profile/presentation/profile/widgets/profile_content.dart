@@ -26,6 +26,7 @@ class ProfileContent extends StatelessWidget {
     this.isRemovingAvatar = false,
     this.onAddPhotoTap,
     this.onEditTap,
+    this.onVerifyTap,
   });
 
   final CitizenProfile profile;
@@ -39,6 +40,10 @@ class ProfileContent extends StatelessWidget {
   /// شاشة تعديل الهوية لسه ما انبنت، فبتوصل `null` واليوم ما بينعرض
   /// زر «تعديل» أصلاً. زر بيضغط ولا بيصير شي أسوأ من زر غير موجود.
   final VoidCallback? onEditTap;
+
+  /// مدخل شاشة توثيق الهوية. بيظهر للحسابات **غير الموثّقة** بس —
+  /// الموثّق خلّص العملية، وعرض دعوة للتوثيق عليه بيربك.
+  final VoidCallback? onVerifyTap;
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +71,12 @@ class ProfileContent extends StatelessWidget {
         SizedBox(height: 12.h),
 
         IdentityInfoCard(user: user),
+
+        if (user.accountStatus != AccountStatus.verified &&
+            onVerifyTap != null) ...[
+          SizedBox(height: 12.h),
+          _VerifyAccountBanner(onTap: onVerifyTap!),
+        ],
 
         SizedBox(height: 22.h),
 
@@ -163,6 +174,8 @@ class ProfileContent extends StatelessWidget {
 
   /// الموثّق ما بيقدر يعدّل هويته — انعتمدت رسمياً، فالتعديل بيمرّ
   /// بالبلدية لا بالتطبيق. الزائر لسه يقدر يصحّح بياناته.
+  //
+  // ملاحظة: البانر تحت هو المدخل الوحيد لشاشة التوثيق حالياً.
   Widget? _identityAction(BuildContext context) {
     final texts = context.texts;
 
@@ -197,5 +210,61 @@ class ProfileContent extends StatelessWidget {
     if (value == null) return null;
 
     return translate('$value');
+  }
+}
+
+/// دعوة لتوثيق الحساب — بتظهر للحسابات غير الموثّقة بس.
+///
+/// بطاقة قابلة للنقر لا زر: التوثيق خطوة اختيارية بالوقت الحالي (الحساب
+/// شغّال بلاها، بس بصلاحيات أقل)، فبتاخد وزن «دعوة» لا «إجراء مطلوب».
+class _VerifyAccountBanner extends StatelessWidget {
+  const _VerifyAccountBanner({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final scheme = context.scheme;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12.r),
+      child: Container(
+        padding: EdgeInsets.all(14.w),
+        decoration: BoxDecoration(
+          color: colors.brandSurface,
+          border: Border.all(color: scheme.primary),
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.verified_user_outlined, size: 22.sp, color: scheme.primary),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'profile_verify_cta_title'.tr(),
+                    style: context.texts.f14W600Black,
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    'profile_verify_cta_subtitle'.tr(),
+                    style: context.texts.f12W400SecColor,
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 22.sp,
+              color: scheme.primary,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

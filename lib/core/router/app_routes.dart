@@ -33,4 +33,15 @@ abstract final class AppRoutes {
   /// تفضيلات التطبيق — فرعي عن `profile`، مدخلها الوحيد أيقونة الترس
   /// بشريط الملف الشخصي.
   static const String settings = '/profile/settings';
+
+  /// توثيق الهوية — فرعي عن `profile` متل `editIdentity`.
+  ///
+  /// بلا وسائط: الشاشة بتسأل `GET /api/verification` بنفسها عن حالة
+  /// الطلب الحالي بدل ما تستقبلها، فأي مدخل (البروفايل، إشعار، رابط
+  /// عميق) بيوصل لنفس النتيجة الصحيحة.
+  ///
+  /// ⚠️ **مش بـ`verifiedOnlyRoutes`** — بالعكس تماماً: هي الشاشة اللي
+  /// بتخلّي المستخدم يصير موثّقاً، فحجبها عن غير الموثّق بيقفل الباب
+  /// اللي هي نفسها مفتاحه.
+  static const String verification = '/profile/verification';
 }

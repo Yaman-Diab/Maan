@@ -11,6 +11,8 @@ import '../models/verification_request_model.dart';
 
 /// المكان الوحيد اللي بيعرف Dio والـ endpoint داخل ميزة verification.
 abstract class VerificationRemoteDataSource {
+  Future<List<VerificationRequestModel>> index();
+
   Future<VerificationRequestModel> submit({
     required String nationalId,
     required List<PickedImage> images,
@@ -26,6 +28,18 @@ class VerificationRemoteDataSourceImpl implements VerificationRemoteDataSource {
   final ApiClient _apiClient;
 
   const VerificationRemoteDataSourceImpl(this._apiClient);
+
+  /// ⚠️ شكل الاستجابة غير مؤكّد — التطبيع كامل بـ
+  /// [VerificationRequestModel.listFromResponse]، راجع تحذيرها.
+  @override
+  Future<List<VerificationRequestModel>> index() async {
+    final response = await _apiClient.request(
+      endpoint: ApiEndpoints.verificationIndex,
+      method: ApiMethod.get,
+    );
+
+    return VerificationRequestModel.listFromResponse(response);
+  }
 
   @override
   Future<VerificationRequestModel> submit({

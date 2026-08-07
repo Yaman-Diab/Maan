@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../core/design_system/app_theme_context.dart';
+import '../../../../../core/design_system/display_date_format.dart';
 import '../../../../auth/domain/entities/auth_user.dart';
 import '../../../../../core/design_system/widgets/app_card.dart';
 
@@ -56,7 +57,7 @@ class IdentityInfoCard extends StatelessWidget {
               Expanded(
                 child: _Field(
                   label: 'date_of_birth'.tr(),
-                  value: _formatDate(user.birthDate),
+                  value: user.birthDate.displayDate,
                 ),
               ),
             ],
@@ -64,19 +65,6 @@ class IdentityInfoCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  /// `12 / 10 / 1998` — يوم/شهر/سنة متل التصميم.
-  ///
-  /// بأرقام لاتينية بالعربي كمان: باقي التطبيق (طول الرمز، العمر) بيعرضها
-  /// هيك، والخلط بين ١٢ و12 بنفس الشاشة أسوأ من الاثنين.
-  static String _formatDate(DateTime? date) {
-    if (date == null) return _missingValue;
-
-    final day = date.day.toString().padLeft(2, '0');
-    final month = date.month.toString().padLeft(2, '0');
-
-    return '$day / $month / ${date.year}';
   }
 }
 

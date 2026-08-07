@@ -49,11 +49,19 @@ final class EditIdentityState extends Equatable {
 
   bool get hasBirthDateError => birthDateError != null;
 
+  /// ⚠️ **`nationalId` مش شرط هون عن قصد** — من يوم ما صارت شاشة
+  /// التوثيق مالكته الوحيدة، المستخدم غير الموثّق ما عنده رقم وطني
+  /// أصلاً (`null`). لو ضل شرطاً، هو بالضبط اللي **ما بيقدر** يعدّل
+  /// اسمه أو تاريخ ميلاده — الزر بيضل مقفولاً للأبد.
+  ///
+  /// القيمة بتضل محمولة بالحالة وبتنبعت كما هي مع الطلب، لأن
+  /// `POST /api/profile/update` بياخد الحقل ضمن جسم واحد؛ إسقاطه من
+  /// الإرسال خطر (ممكن الباك اند يقرأ غيابه كـ«امسحه» متل حقل الصورة
+  /// الفاضي — راجع `ProfileRemoteDataSource.removeAvatar`).
   bool get canSubmit {
     final areFieldsFilled =
         firstName.trim().isNotEmpty &&
         lastName.trim().isNotEmpty &&
-        nationalId.trim().isNotEmpty &&
         day != null &&
         month != null &&
         year != null;
