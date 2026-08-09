@@ -68,6 +68,7 @@ Future<void> _pump(
                 avatarRemoved: avatarRemoved,
                 isUploadingAvatar: isUploadingAvatar,
                 onAddPhotoTap: onAddPhotoTap,
+                onCertificatesTap: () {},
               ),
             ),
           ),

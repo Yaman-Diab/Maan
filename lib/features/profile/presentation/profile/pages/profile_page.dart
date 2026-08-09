@@ -167,6 +167,12 @@ class _ProfileBody extends StatelessWidget {
     await cubit.load();
   }
 
+  /// ⏳ بتنقل لـ`_TempPage` حالياً — الشاشة الحقيقية لسه ما انبنت،
+  /// راجع `AppRoutes.certificatesAndSkills`.
+  void _openCertificates(BuildContext context) {
+    context.push(AppRoutes.certificatesAndSkills);
+  }
+
   static CropperAppearance _cropperAppearance(BuildContext context) {
     final scheme = context.scheme;
 
@@ -229,6 +235,7 @@ class _ProfileBody extends StatelessWidget {
                   _changeAvatar(context, hasAvatar: hasAvatar),
               onEditTap: () => _editIdentity(context, profile),
               onVerifyTap: () => _openVerification(context),
+              onCertificatesTap: () => _openCertificates(context),
             ),
           ),
         );

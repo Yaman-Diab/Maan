@@ -162,6 +162,17 @@ class AppRouter {
         },
       ),
 
+      // ⏳ الشاشة الحقيقية لسه ما انبنت — راجع `AppRoutes.certificatesAndSkills`.
+      GoRoute(
+        path: AppRoutes.certificatesAndSkills,
+        builder: (context, state) {
+          return _TempPage(
+            title: 'certificates_skills_title'.tr(),
+            description: 'coming_soon'.tr(),
+          );
+        },
+      ),
+
       // -------------------------
       // Main App Shell
       // -------------------------

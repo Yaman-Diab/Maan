@@ -30,6 +30,10 @@ import 'profile_content.dart';
 class ProfileSkeleton extends StatelessWidget {
   const ProfileSkeleton({super.key});
 
+  /// `onCertificatesTap` إلزامي بـ`ProfileContent` (بانر ثابت لا شرطي)،
+  /// فبتحتاج شي هون حتى لو `ignorePointers` مانع اللمس أصلاً.
+  static void _noop() {}
+
   static final _dummyProfile = CitizenProfile(
     user: AuthUser(
       id: 0,
@@ -62,7 +66,7 @@ class ProfileSkeleton extends StatelessWidget {
           baseColor: colors.fieldDisabledBackground,
           highlightColor: colors.fieldBackground,
         ),
-        child: ProfileContent(profile: _dummyProfile),
+        child: ProfileContent(profile: _dummyProfile, onCertificatesTap: _noop),
       ),
     );
   }

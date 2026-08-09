@@ -27,6 +27,7 @@ class ProfileContent extends StatelessWidget {
     this.onAddPhotoTap,
     this.onEditTap,
     this.onVerifyTap,
+    required this.onCertificatesTap,
   });
 
   final CitizenProfile profile;
@@ -44,6 +45,12 @@ class ProfileContent extends StatelessWidget {
   /// مدخل شاشة توثيق الهوية. بيظهر للحسابات **غير الموثّقة** بس —
   /// الموثّق خلّص العملية، وعرض دعوة للتوثيق عليه بيربك.
   final VoidCallback? onVerifyTap;
+
+  /// مدخل شاشة «الشهادات والمهارات». **إلزامي لا اختياري** بعكس
+  /// `onEditTap`/`onVerifyTap`: هدول شرطيين بحالة الحساب، وهاد بانر
+  /// ثابت بالتصميم بيظهر دائماً — فمصدره (`ProfilePage`) لازم يمرّره
+  /// دايماً، مش يترك حالة «موجود بس بلا فعل».
+  final VoidCallback onCertificatesTap;
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +84,10 @@ class ProfileContent extends StatelessWidget {
           SizedBox(height: 12.h),
           _VerifyAccountBanner(onTap: onVerifyTap!),
         ],
+
+        SizedBox(height: 12.h),
+
+        _CertificatesBanner(onTap: onCertificatesTap),
 
         SizedBox(height: 22.h),
 
@@ -261,6 +272,78 @@ class _VerifyAccountBanner extends StatelessWidget {
               Icons.chevron_right_rounded,
               size: 22.sp,
               color: scheme.primary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// مدخل «الشهادات والمهارات» — بانر مصمَت بلون الهوية، بعكس بانر
+/// التوثيق (خلفية فاتحة وحدود). دايماً ظاهر، مش شرطي بحالة الحساب.
+///
+/// ⏳ الشاشة الحقيقية لسه ما انبنت — بيوصل مؤقّتاً لـ`_TempPage` عبر
+/// `AppRoutes.certificatesAndSkills`.
+class _CertificatesBanner extends StatelessWidget {
+  const _CertificatesBanner({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.scheme;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16.r),
+      child: Container(
+        padding: EdgeInsets.all(14.w),
+        decoration: BoxDecoration(
+          color: scheme.primary,
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44.w,
+              height: 44.w,
+              decoration: BoxDecoration(
+                color: scheme.onPrimary.withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: Icon(
+                Icons.card_membership_rounded,
+                size: 22.sp,
+                color: scheme.onPrimary,
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'certificates_skills_title'.tr(),
+                    style: context.texts.f14W600Black.copyWith(
+                      color: scheme.onPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    'certificates_skills_subtitle'.tr(),
+                    style: context.texts.f12W400SecColor.copyWith(
+                      color: scheme.onPrimary.withValues(alpha: 0.85),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 22.sp,
+              color: scheme.onPrimary,
             ),
           ],
         ),

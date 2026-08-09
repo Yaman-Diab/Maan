@@ -44,4 +44,10 @@ abstract final class AppRoutes {
   /// بتخلّي المستخدم يصير موثّقاً، فحجبها عن غير الموثّق بيقفل الباب
   /// اللي هي نفسها مفتاحه.
   static const String verification = '/profile/verification';
+
+  /// الشهادات والمهارات — فرعي عن `profile` متل الباقي.
+  ///
+  /// ⏳ **صفحة تجريبية مؤقّتة (`_TempPage`) لحد الآن** — البانر بالملف
+  /// الشخصي جاهز وبينقل للمسار، بس الشاشة الحقيقية لسه ما انبنت.
+  static const String certificatesAndSkills = '/profile/certificates-skills';
 }
