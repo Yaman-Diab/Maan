@@ -5,11 +5,9 @@
 class ApiResponseKeys {
   ApiResponseKeys._();
 
-  static const String access = 'access';
-  static const String refresh = 'refresh';
-
-  /// توكن دخول واحد — هيك `POST /api/auth/login` بيرجّعه فعلياً، لا
-  /// `access`/`refresh` زوج. راجع `AuthSession`.
+  /// توكن دخول واحد — هيك `POST /api/auth/login` و`POST /api/auth/refresh`
+  /// بيرجّعوه فعلياً، لا `access`/`refresh` زوج. راجع `AuthSession`
+  /// و`TokenRefreshService`.
   static const String token = 'token';
 
   static const String message = 'message';

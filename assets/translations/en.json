@@ -139,7 +139,6 @@
   "activity_licenses_count": "{count} licenses",
   "account_status_verified": "Verified",
   "account_status_not_verified": "Not verified",
-  "account_status_pending": "Pending verification",
   "account_status_blocked": "Blocked",
   "avatar_sheet_title": "Profile photo",
   "avatar_source_camera": "Take a photo",

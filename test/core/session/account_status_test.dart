@@ -3,18 +3,12 @@ import 'package:maan/core/session/account_status.dart';
 
 void main() {
   group('fromApi', () {
-    test('القيمة المؤكّدة من collection.md', () {
-      // `"account_status":"verified"` باستجابة /api/profile الحقيقية.
+    // ✅ الثلاث قيم مؤكّدة بالكامل من enum الباك اند الحقيقي
+    // (`App\Enums\AccountStatus`).
+    test('القيم الثلاث المؤكّدة من enum الباك اند', () {
       expect(AccountStatus.fromApi('verified'), AccountStatus.verified);
-    });
-
-    test('باقي القيم المتوقّعة', () {
       expect(AccountStatus.fromApi('visitor'), AccountStatus.visitor);
-      expect(AccountStatus.fromApi('blocked'), AccountStatus.blocked);
-      expect(
-        AccountStatus.fromApi('pending_verification'),
-        AccountStatus.pendingVerification,
-      );
+      expect(AccountStatus.fromApi('closed'), AccountStatus.closed);
     });
 
     test('قيمة غير معروفة بترجع unknown بدل ما ترمي', () {
@@ -31,8 +25,7 @@ void main() {
 
       for (final status in [
         AccountStatus.visitor,
-        AccountStatus.pendingVerification,
-        AccountStatus.blocked,
+        AccountStatus.closed,
         AccountStatus.unknown,
       ]) {
         expect(
@@ -48,10 +41,10 @@ void main() {
       expect(AccountStatus.unknown.canUseMunicipalityServices, isFalse);
     });
 
-    test('isBlocked بتميّز المحظور وحده', () {
-      expect(AccountStatus.blocked.isBlocked, isTrue);
-      expect(AccountStatus.verified.isBlocked, isFalse);
-      expect(AccountStatus.unknown.isBlocked, isFalse);
+    test('isClosed بتميّز المقفول وحده', () {
+      expect(AccountStatus.closed.isClosed, isTrue);
+      expect(AccountStatus.verified.isClosed, isFalse);
+      expect(AccountStatus.unknown.isClosed, isFalse);
     });
   });
 

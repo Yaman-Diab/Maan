@@ -13,7 +13,6 @@ class ApiAuthPolicy {
     ApiEndpoints.checkCode,
     ApiEndpoints.forgetPassword,
     ApiEndpoints.resetPassword,
-    ApiEndpoints.refresh,
   ];
 
   static bool isPublicEndpoint(String path) {

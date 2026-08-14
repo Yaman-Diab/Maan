@@ -80,38 +80,20 @@ void main() {
   });
 
   group('VerificationRequestStatus.fromApi', () {
-    test('pending هي القيمة المؤكّدة الوحيدة', () {
+    // ✅ الثلاث قيم مؤكّدة بالكامل من enum الباك اند الحقيقي
+    // (`App\Enums\VerificationStatus`) — مطابقة حرفية بلا مرادفات.
+    test('القيم الثلاث المؤكّدة من enum الباك اند', () {
       expect(
         VerificationRequestStatus.fromApi('pending'),
         VerificationRequestStatus.pending,
       );
-    });
-
-    test('حالات النتيجة بتنقرأ مع مرادفاتها الشائعة', () {
-      // ⚠️ القيم النصّية **مخمَّنة**: وجود الحالتين مؤكّد من endpoints
-      // الأدمن (approve/reject) بس أسماءها وقت القراءة لا — لهيك
-      // بنقبل أكتر من مرادف. راجع تعليق `VerificationRequestStatus`.
-      for (final value in ['approved', 'accepted', 'verified']) {
-        expect(
-          VerificationRequestStatus.fromApi(value),
-          VerificationRequestStatus.approved,
-          reason: value,
-        );
-      }
-
-      for (final value in ['rejected', 'refused', 'declined']) {
-        expect(
-          VerificationRequestStatus.fromApi(value),
-          VerificationRequestStatus.rejected,
-          reason: value,
-        );
-      }
-    });
-
-    test('بتتجاهل حالة الأحرف والمسافات الزائدة', () {
       expect(
-        VerificationRequestStatus.fromApi('  PENDING '),
-        VerificationRequestStatus.pending,
+        VerificationRequestStatus.fromApi('approved'),
+        VerificationRequestStatus.approved,
+      );
+      expect(
+        VerificationRequestStatus.fromApi('rejected'),
+        VerificationRequestStatus.rejected,
       );
     });
 

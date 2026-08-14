@@ -4,29 +4,27 @@
 
 /// حالة حساب المواطن — تحكم ما يُسمح له بعمله.
 ///
-/// حسب `PROJECT_CONTEXT.md` المواطن بيمرّ برحلة:
-/// تسجيل → تحقق بريد → **Visitor** → توثيق هوية → **Verified Citizen**،
-/// وبينحظر لو انتهت مهلة التوثيق أو استنفد المحاولات الثلاث.
-///
-/// ⚠️ **`verified` هي القيمة الوحيدة المؤكّدة** من استجابة حقيقية
-/// بـ`collection.md` (`"account_status":"verified"` بـ`/api/profile`).
-/// باقي القيم مشتقّة من تسمية `PROJECT_CONTEXT` ولسه بدها تأكيد من
-/// الباك اند — ولهيك [fromApi] بترجّع [unknown] بدل ما ترمي.
+/// ✅ **مؤكّدة بالكامل** — مصدرها enum الباك اند الحقيقي
+/// (`App\Enums\AccountStatus`، ثلاث قيم بالضبط: `visitor` · `verified` ·
+/// `closed`). لا يوجد حالة "بانتظار التحقق" منفصلة على مستوى الحساب:
+/// مستخدم بريده غير مؤكّد بعد بيوصل بـ`account_status: "visitor"` هو
+/// هو (تأكّدنا من استجابة حقيقية لـ`GET /api/verification` فيها
+/// `"email_verified_at": null` مع `"account_status": "visitor"`) —
+/// تأكيد البريد متتبَّع بحقل منفصل (`AuthUser.isEmailVerified`)، مش
+/// بحالة حساب مستقلة. لهيك ما في `pendingVerification` هون عمداً.
 enum AccountStatus {
-  /// انتهى التسجيل وما تأكّد البريد بعد.
-  pendingVerification('pending_verification'),
-
   /// بريده مؤكّد بس هويته لسه ما توثّقت — تصفّح فقط.
   visitor('visitor'),
 
   /// موثّق بالكامل — كل خدمات البلدية متاحة.
   verified('verified'),
 
-  /// محظور: انتهت مهلة التوثيق أو استُنفدت المحاولات.
-  blocked('blocked'),
+  /// حساب مقفول من البلدية — الاسم الحقيقي `closed` عالسلك (لا
+  /// `blocked` كما خمّنّا قبل التأكيد).
+  closed('closed'),
 
   /// قيمة ما بنعرفها. بتنعامل كأقل صلاحية عمداً — أأمن من افتراض
-  /// إن المستخدم موثّق.
+  /// إن المستخدم موثّق. حماية من إضافة الباك اند حالة رابعة مستقبلاً.
   unknown('');
 
   const AccountStatus(this.wireValue);
@@ -50,6 +48,6 @@ enum AccountStatus {
   /// ممنوعة قبل التوثيق العام.
   bool get canUseMunicipalityServices => this == AccountStatus.verified;
 
-  /// محظور فيحتاج تدخّل البلدية.
-  bool get isBlocked => this == AccountStatus.blocked;
+  /// مقفول فيحتاج تدخّل البلدية.
+  bool get isClosed => this == AccountStatus.closed;
 }

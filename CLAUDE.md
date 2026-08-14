@@ -255,7 +255,7 @@ colors.fieldDisabledBackground, highlightColor: colors.fieldBackground)`
 ## الاختبار
 
 ```
-flutter test        # 391 اختبار
+flutter test        # 398 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -368,14 +368,42 @@ data. ما بتقرّر متى تنتهي: `AppSessionController.bootstrap()` ب
 endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعرفه (401 بمكان
 تاني بالتطبيق لسه لازم يعني جلسة منتهية).
 
+**`POST /api/auth/refresh` — عقد مؤكّد أخيراً (`TokenRefreshService`)**:
+طراز `tymon/jwt-auth` كما توقّعنا — توكن JWT واحد بيتجدّد بإعادة إرسال
+**نفس التوكن الحالي** عبر هيدر `Authorization`، بلا `refresh_token`
+منفصل بالجسم ولا جسم إرسال أصلاً. أربع استجابات حقيقية موثّقة (لوغ
+فعلي) أكّدت هذا وكشفت باگ حقيقي: `ApiAuthPolicy.publicEndpoints` كانت
+تشمل `refresh`، فـ`AuthInterceptor.onRequest` ما كان يرفق الهيدر أبداً
+— **هيك بالضبط كان الباك اند يرجع "Token not provided"**. الإصلاح:
+شيل `refresh` من `publicEndpoints` (بيضل إله معاملة خاصة عبر
+`isRefreshEndpoint` لمنع حلقة إعادة المحاولة، مش عبر "عام").
+
+⚠️ **الرد الفاشل `{"status":1,"message":"Token not provided","data":null}`
+له `status:1` رغم إنه فشل** — `ApiEnvelope` القياسية (محافظة عمداً على
+الفحص الصريح) ما بتلتقطها. `TokenRefreshService` ما بيعتمد عليها بمفردها:
+أي رد بلا `data.token` صريح بيترفض بغض النظر عن `status`. راجع تعليق
+الملف للأشكال الثلاثة الموثّقة الباقية (`Wrong number of segments`،
+`Could not decode token`).
+
+**`TokenPair`/`access`/`refresh` بـ`ApiResponseKeys` كانت dead code** —
+نموذج access/refresh زوج ما إله وجود بهالباك اند من الأساس (log الدخول
+الحقيقي فيه `token` واحد بس). انشالت مع الإصلاح فوق، وكذا
+`SecureStorageService.saveRefreshToken`/`getRefreshToken`/`saveTokens`/
+`hasRefreshToken` ومفتاح `SecureStorageKeys.refreshToken` — كل التخزين
+الآن بتوكن وحيد (`accessToken`) يعبّر عن الجلسة كلها.
+
 **توثيق الهوية** (`features/verification/`): مكتملة — `domain` و`data`
 و`presentation/verification/`. المسار
 `POST /api/verification/store` مؤكّد من الباك اند مع مثال استجابة حقيقي
 (`national_id` + `images[]`). العدد **صورتين بالضبط لا حد أدنى** —
 رسالة الباك اند الحقيقية "must contain 2 items" يعني قاعدة `size:2`،
 مش `min:2`. كيان `VerificationRequest` منفصل عن `AccountStatus`: الأول
-حالة الطلب نفسه (`pending` هي القيمة الوحيدة المؤكّدة)، والثاني حالة
-الحساب العامة اللي بيغيّرها الباك اند بعد المراجعة.
+حالة الطلب نفسه (`pending`/`approved`/`rejected` — الثلاث مؤكّدة بالكامل
+من enum الباك اند الحقيقي `App\Enums\VerificationStatus`)، والثاني حالة
+الحساب العامة اللي بيغيّرها الباك اند بعد المراجعة (`visitor`/`verified`/
+`closed` — كمان مؤكّدة بالكامل من `App\Enums\AccountStatus`؛ لا يوجد
+حالة "بانتظار التحقق" منفصلة على مستوى الحساب — راجع تعليق `AccountStatus`
+بـ`core/session/`).
 
 **تعديل طلب قائم**: `POST /api/verification/update` — تصحيح رقم وطني
 غلط بطلب لسه `pending`، مؤكّد مع مثال استجابة حقيقي (نفس شكل `store`
@@ -417,6 +445,13 @@ endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعر
 مش من ملاحة المستخدم: هو دايماً بيوصل من نفس المدخل (بانر «وثّق حسابك»
 بالملف الشخصي) وبيشوف وين صار طلبه.
 
+✅ **شكل `GET /api/verification` مؤكّد أخيراً بمثال حقيقي**: `{"data":[{...}]}`
+— قائمة طلبات كاملة تحت `data`، كل طلب فيه `user` مضمّن كامل (نفس شكل
+`AuthUser`) ومصفوفة `rejections` (فاضية بمثالنا، الطلب لسه `pending`).
+`VerificationRequestModel.listFromResponse` بتضل تقبل الأشكال الدفاعية
+التانية (قائمة مباشرة، كائن مفرد، `data.data`) بلا كلفة إضافية، بس
+الشكل الحقيقي المؤكّد هو قائمة تحت `data`.
+
 ⚠️ **`AppRoutes.verification` مش بـ`verifiedOnlyRoutes`** — بالعكس
 تماماً: هي الشاشة اللي بتخلّي المستخدم يصير موثّقاً، فحجبها عن غير
 الموثّق بيقفل الباب اللي هي نفسها مفتاحه.
@@ -434,20 +469,13 @@ endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعر
 مقابل فرعين. عند إضافة تاب، أضف فرعه بالراوتر بنفس اللحظة.
 
 **فجوات معروفة**:
-- ⚠️ **شكل استجابة `GET /api/verification` غير مؤكّد** — `collection.md`
-  بيسرد المسار بس مثال الاستجابة فيه `{}` فاضي. لهيك
-  `VerificationRequestModel.listFromResponse` بتقرأ الأشكال المحتملة كلها
-  (قائمة · قائمة تحت `data` · كائن مفرد · `data.data` تبع ترقيم Laravel)
-  بدل ما تراهن على واحد، وبتتجاهل أي عنصر ما بينقرأ بدل ما توقّع
-  الاستجابة كلها. نقطة التصحيح الوحيدة لما يتأكّد الشكل.
-- ⚠️ **قيم `approved`/`rejected` على السلك مخمَّنة** — وجود الحالتين
-  **مؤكّد** (`GET /api/verification/approve/{id}` و
-  `POST /api/verification/reject/{id}` بقسم verification/admin)، بس
-  الاسم النصّي اللي بيرجع بالقراءة لا. `VerificationRequestStatus`
-  بتقبل مرادفات شائعة لكل حالة؛ نقطة التصحيح الوحيدة `_synonyms`.
-- ⚠️ **حقلا سبب الرفض مخمَّنان** — مصدرهما الوحيد **جسم طلب الأدمن**
-  (`reason` + `description`). إنهما يرجعا بنفس الاسمين بقراءة المواطن
-  مفترَض لا مؤكّد؛ عرض الرفض بيعرض نصاً عاماً لو ما وصلا.
+- ⚠️ **شكل عنصر الرفض جوّا `rejections` غير مؤكّد** — `GET /api/verification`
+  الحقيقي مؤكّد (راجع قسم التوثيق فوق) وفيه مصفوفة `rejections` منفصلة
+  على كل طلب، بس وصلنا مثال بمصفوفة فاضية بس (طلب `pending`) — ما عندنا
+  شكل عنصر رفض حقيقي بعد. `VerificationRequestModel.fromMap` بتضل
+  تجرّب `reason`/`description` مسطّحين على الطلب كخط دفاع أول (تخمين
+  موروث من شكل جسم طلب الأدمن)؛ عرض الرفض بيعرض نصاً عاماً لو ما وصلا.
+  نقطة التصحيح لما يوصل مثال حقيقي: `VerificationRequestModel.fromMap`.
 - ⚠️ **`national_id` مطلوب بالتسجيل وما إله حقل بالواجهة** — بيوصل فاضي
   فبيرجع خطأ تحقق من السيرفر. الحقل موجود بـ`SignUpState` والـ request
   model، فالناقص بس `TextFormField` بـ`sign_up_form.dart` وربطه بـ
@@ -459,13 +487,6 @@ endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعر
   بعده برسالة رمز غير صالح. لو طلع بيستهلكه، البديل إلغاء التحقق
   بالسيرفر والاكتفاء بفحص الشكل — تعديل بـ`VerificationCodeCubit.submit`
   وبس. يحتاج تأكيد من الباك اند.
-- ⚠️ **`TokenRefreshService` مبني على نموذج access/refresh غير موجود
-  فعلياً** — استجابة `login` الحقيقية فيها توكن JWT واحد (`token`) من
-  طراز `tymon/jwt-auth`، وهالمكتبة بترجّع توكن جديد بإعادة إرسال
-  التوكن الحالي (عبر `Authorization` header) لـ`/api/auth/refresh`،
-  مش `refresh_token` منفصل بالـ body. السلوك الحالي عند 401 بعد
-  انتهاء الصلاحية: تسجيل خروج بدل تجديد صامت — آمن بس مش الأفضل.
-  يحتاج تأكيد صريح من الباك اند قبل إعادة كتابة `AuthInterceptor`.
 - ⚠️ **مؤشرات الملف الشخصي وعدّاداته بلا عقد** — التصميم بيعرض «مؤشر
   المواطنة» و«مؤشر التوثيق» وعدّادات التطوع/المساهمات/التراخيص، وما في
   ولا endpoint بـ`collection.md` بيرجّعهم. `ProfileStats` كل حقولها

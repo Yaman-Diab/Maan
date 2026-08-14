@@ -164,10 +164,10 @@ void main() {
       expect(find.byIcon(Icons.verified_rounded), findsNothing);
     });
 
-    testWidgets('المحظور بيلاقي شارته الخاصة لا «غير موثّق»', (tester) async {
+    testWidgets('المقفول بيلاقي شارته الخاصة لا «غير موثّق»', (tester) async {
       await _pump(
         tester,
-        CitizenProfile(user: _user(status: AccountStatus.blocked)),
+        CitizenProfile(user: _user(status: AccountStatus.closed)),
       );
 
       expect(find.text('account_status_blocked'), findsOneWidget);

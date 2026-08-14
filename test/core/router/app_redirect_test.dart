@@ -95,8 +95,7 @@ void main() {
 
       expect(passes(AccountStatus.verified), isTrue);
       expect(passes(AccountStatus.visitor), isFalse);
-      expect(passes(AccountStatus.blocked), isFalse);
-      expect(passes(AccountStatus.pendingVerification), isFalse);
+      expect(passes(AccountStatus.closed), isFalse);
       expect(passes(AccountStatus.unknown), isFalse);
 
       // موثّق بس مش مسجّل دخول = ممنوع.

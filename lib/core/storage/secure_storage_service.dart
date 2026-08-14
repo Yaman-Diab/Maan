@@ -8,7 +8,6 @@ class SecureStorageKeys {
   SecureStorageKeys._();
 
   static const String accessToken = 'ACCESS_TOKEN';
-  static const String refreshToken = 'REFRESH_TOKEN';
   static const String isGuest = 'IS_GUEST';
   static const String visitorId = 'VISITOR_ID';
   static const String accountStatus = 'ACCOUNT_STATUS';
@@ -48,33 +47,12 @@ class SecureStorageService {
     await _write(key: SecureStorageKeys.accessToken, value: token);
   }
 
-  Future<void> saveRefreshToken(String token) async {
-    await _write(key: SecureStorageKeys.refreshToken, value: token);
-  }
-
-  Future<void> saveTokens({
-    required String accessToken,
-    required String refreshToken,
-  }) async {
-    await saveAccessToken(accessToken);
-    await saveRefreshToken(refreshToken);
-  }
-
   Future<String?> getAccessToken() async {
     return _read(SecureStorageKeys.accessToken);
   }
 
-  Future<String?> getRefreshToken() async {
-    return _read(SecureStorageKeys.refreshToken);
-  }
-
   Future<bool> hasAccessToken() async {
     final token = await getAccessToken();
-    return token != null && token.isNotEmpty;
-  }
-
-  Future<bool> hasRefreshToken() async {
-    final token = await getRefreshToken();
     return token != null && token.isNotEmpty;
   }
 
@@ -84,7 +62,6 @@ class SecureStorageService {
 
   Future<void> clearTokens() async {
     await _delete(SecureStorageKeys.accessToken);
-    await _delete(SecureStorageKeys.refreshToken);
   }
 
   // -------------------------

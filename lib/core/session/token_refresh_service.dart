@@ -5,18 +5,10 @@
 import 'package:dio/dio.dart';
 
 import '../network/api_endpoints.dart';
-import '../network/api_error_codes.dart';
+import '../network/api_envelope.dart';
 import '../network/api_request_flags.dart';
 import '../network/api_response_keys.dart';
-import '../network/api_status_codes.dart';
 import '../storage/secure_storage_service.dart';
-
-class TokenPair {
-  final String accessToken;
-  final String refreshToken;
-
-  const TokenPair({required this.accessToken, required this.refreshToken});
-}
 
 class TokenRefreshException implements Exception {
   final String message;
@@ -27,6 +19,22 @@ class TokenRefreshException implements Exception {
   String toString() => message;
 }
 
+/// تجديد توكن الدخول — طراز `tymon/jwt-auth` المؤكّد من رد حقيقي على
+/// `/api/auth/refresh`: توكن JWT واحد بيتجدّد بإعادة إرسال **نفس
+/// التوكن الحالي** عبر هيدر `Authorization` (`AuthInterceptor.onRequest`
+/// بيرفقه تلقائياً — هالسيرفيس بس بيتأكّد إنه موجود قبل المحاولة).
+/// **بلا `refresh_token` منفصل بالجسم** — لا جسم إرسال أصلاً.
+///
+/// الرد الناجح: `{"status":1,"data":{"token":"...","token_type":"Bearer"}}`.
+/// ثلاث حالات فشل حقيقية موثّقة (لوغ فعلي):
+/// * `{"status":1,"message":"Token not provided","data":null}` — لاحظ
+///   `status:1` رغم إنه فشل؛ `ApiEnvelope` ما بتلتقطها (محافظة عمداً
+///   عالفحص الصريح). الحماية الحقيقية هون: أي رد بلا `data.token` صريح
+///   بيترفض بغض النظر عن `status`.
+/// * `{"status":0,"message":"Wrong number of segments",...}` — توكن
+///   مشوَّه.
+/// * `{"status":0,"message":"Could not decode token: ...",...}` — نفس
+///   الفكرة.
 class TokenRefreshService {
   final Dio dio;
   final SecureStorageService storage;
@@ -50,81 +58,59 @@ class TokenRefreshService {
   }
 
   Future<void> _refreshToken() async {
-    final currentRefreshToken = await storage.getRefreshToken();
+    final currentToken = await storage.getAccessToken();
 
-    if (currentRefreshToken == null || currentRefreshToken.isEmpty) {
-      throw const TokenRefreshException('Refresh token not found');
+    if (currentToken == null || currentToken.isEmpty) {
+      throw const TokenRefreshException('No token to refresh');
     }
 
     try {
       final response = await dio.post(
         ApiEndpoints.refresh,
-        data: {ApiResponseKeys.refresh: currentRefreshToken},
-        options: Options(
-          extra: {
-            ApiRequestFlags.skipAuthHeader: true,
-            ApiRequestFlags.skipAuthRefresh: true,
-          },
-        ),
+        // `skipAuthRefresh` بس — بعكس النسخة القديمة، الهيدر لازم
+        // يترفق (هو أصلاً سبب فشل "Token not provided" لو انقطع).
+        options: Options(extra: {ApiRequestFlags.skipAuthRefresh: true}),
       );
 
-      if (!ApiStatusCodes.isSuccess(response.statusCode)) {
-        throw const TokenRefreshException('Refresh token failed');
-      }
+      final newToken = _parseToken(response.data);
 
-      final tokenPair = _parseTokenPair(response.data);
-
-      await storage.saveTokens(
-        accessToken: tokenPair.accessToken,
-        refreshToken: tokenPair.refreshToken,
-      );
+      await storage.saveAccessToken(newToken);
     } on DioException catch (exception) {
-      final code = _extractErrorCode(exception.response?.data);
+      final message = _extractMessage(exception.response?.data);
 
-      if (code == ApiErrorCodes.tokenNotValid) {
-        throw const TokenRefreshException(
-          'Refresh token is invalid or expired',
-        );
-      }
-
-      throw const TokenRefreshException('Unable to refresh token');
+      throw TokenRefreshException(message ?? 'Unable to refresh token');
     }
   }
 
-  TokenPair _parseTokenPair(dynamic data) {
-    final json = _asMap(data);
-
-    final accessToken = json[ApiResponseKeys.access] as String?;
-    final refreshToken = json[ApiResponseKeys.refresh] as String?;
-
-    if (accessToken == null ||
-        accessToken.isEmpty ||
-        refreshToken == null ||
-        refreshToken.isEmpty) {
-      throw const TokenRefreshException(
-        'Refresh response does not contain tokens',
+  String _parseToken(dynamic data) {
+    if (ApiEnvelope.indicatesFailure(data)) {
+      throw TokenRefreshException(
+        _extractMessage(data) ?? 'Refresh token failed',
       );
     }
 
-    return TokenPair(accessToken: accessToken, refreshToken: refreshToken);
+    final json = _asMap(data);
+    final payload = json[ApiResponseKeys.data];
+    final token = _asMap(payload)[ApiResponseKeys.token] as String?;
+
+    if (token == null || token.isEmpty) {
+      throw TokenRefreshException(
+        _extractMessage(data) ?? 'Refresh response does not contain a token',
+      );
+    }
+
+    return token;
   }
 
   Map<String, dynamic> _asMap(dynamic data) {
-    if (data is Map<String, dynamic>) {
-      return data;
-    }
-
-    if (data is Map) {
-      return Map<String, dynamic>.from(data);
-    }
+    if (data is Map<String, dynamic>) return data;
+    if (data is Map) return Map<String, dynamic>.from(data);
 
     throw const TokenRefreshException('Invalid refresh response format');
   }
 
-  String? _extractErrorCode(dynamic data) {
-    if (data is Map<String, dynamic>) {
-      return data[ApiResponseKeys.code] as String?;
-    }
+  String? _extractMessage(dynamic data) {
+    if (data is Map) return data[ApiResponseKeys.message] as String?;
 
     return null;
   }

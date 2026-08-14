@@ -11,9 +11,9 @@ import '../../../../../core/session/account_status.dart';
 
 /// شارة حالة الحساب.
 ///
-/// التصميم بيغطي حالتين (موثّق / غير موثّق)، بس [AccountStatus] فيها
-/// خمسة. الباقي ما بينعرض كـ«غير موثّق» تعميماً — «محظور» و«بانتظار
-/// التحقق» حالتان مختلفتان تماماً بالمعنى وبالإجراء المطلوب من المستخدم.
+/// التصميم بيغطي حالتين بصريتين (موثّق / غير موثّق)، بس [AccountStatus]
+/// فيها أربعة — «مقفول» بشارة مستقلة (لون خطر) لأنها إجراء مختلف تماماً
+/// مطلوب من المستخدم.
 ///
 /// [AccountStatus.unknown] بترجّع `null`: أفضل ما نعرض شي من إننا نأكّد
 /// حالة ما منعرفها.
@@ -75,13 +75,7 @@ class AccountStatusChip extends StatelessWidget {
         foreground: colors.noticeForeground,
         background: colors.noticeBackground,
       ),
-      AccountStatus.pendingVerification => _ChipStyle(
-        icon: Icons.schedule_rounded,
-        label: 'account_status_pending'.tr(),
-        foreground: colors.noticeForeground,
-        background: colors.noticeBackground,
-      ),
-      AccountStatus.blocked => _ChipStyle(
+      AccountStatus.closed => _ChipStyle(
         icon: Icons.block_rounded,
         label: 'account_status_blocked'.tr(),
         foreground: scheme.error,
