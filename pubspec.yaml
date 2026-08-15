@@ -66,6 +66,10 @@ dependencies:
   # راجع "التحميل الهيكلي" بـ CLAUDE.md لمكان الاستخدام والقواعد.
   skeletonizer: 2.1.3
 
+  # موقع الشكوى الجغرافي — إحداثيات حقيقية من الجهاز، لا خريطة (ما في
+  # حزمة خرائط بالمشروع).
+  geolocator: ^14.0.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

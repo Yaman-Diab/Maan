@@ -78,4 +78,28 @@ class ApiEndpoints {
   /// بس. تحديث الصور عبر هالمسار **غير مجرَّب**؛ راجع
   /// `VerificationRemoteDataSource.update`.
   static const String verificationUpdate = '$api/verification/update';
+
+  // -------------------------
+  // Complaints
+  // -------------------------
+  //
+  // كل المسارات مؤكّدة من Postman collection حقيقي (لا تخمين) — راجع
+  // CLAUDE.md › قسم الشكاوى للتفاصيل الكاملة.
+
+  /// تقديم شكوى جديدة — multipart (`type`, `category_id`, `title`,
+  /// `description`, `latitude`, `longitude`, `media[]`).
+  static const String complaintsStore = '$api/complains';
+
+  /// الشكاوى المنشورة — فلاتر `type`/`category_id`/`sort` + ترقيم
+  /// `page`/`page_size`.
+  static const String complaintsPublished = '$api/complains/complains';
+
+  /// شكاوى المستخدم الحالي — نفس ترقيم الصفحات.
+  static const String complaintsMine = '$api/complains/my-complains';
+
+  /// تصويت (`POST`) / إلغاء تصويت (`DELETE`) — جسم `{"id": <complaintId>}`.
+  static const String complaintsVote = '$api/complains/vote';
+
+  /// الإبلاغ عن شكوى — `{"complain_id", "type_id", "description"}`.
+  static const String reportsStore = '$api/reports';
 }

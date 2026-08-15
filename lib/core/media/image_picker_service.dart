@@ -9,6 +9,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'picked_complaint_media.dart';
 import 'picked_image.dart';
 
 /// ألوان شاشة القص. بتنبنى من الثيم بطبقة الواجهة وبتنمرّر لهون، فالخدمة
@@ -149,6 +150,74 @@ class ImagePickerService {
       path: file.path,
       bytes: bytes,
       fileName: _fileNameOf(file.path),
+    );
+  }
+
+  /// أطول ضلع لصورة دليل شكوى — أعلى من الأفاتار (الصورة نفسها الدليل،
+  /// لا حاجة تُقصّ)، وأقل من صورة الوثيقة لأن ما في نص مطبوع صغير
+  /// لازم يضل مقروءاً.
+  static const int _complaintMediaMaxSide = 1920;
+  static const int _complaintMediaQuality = 88;
+
+  /// صورة دليل شكوى — اختيار ← ضغط، **بلا قصّ**. الشكوى دليل ميداني
+  /// (حفرة، عمود مكسور...)، وأي قصّ مفروض بيقدر يشيل الجزء المهم من
+  /// الصورة.
+  ///
+  /// بترجّع `null` لو المستخدم لغى الاختيار.
+  Future<PickedComplaintMedia?> pickComplaintPhoto({
+    required ImageSource source,
+  }) async {
+    final picked = await _picker.pickImage(
+      source: source,
+      maxWidth: 2400,
+      maxHeight: 2400,
+      imageQuality: 92,
+    );
+
+    if (picked == null) return null;
+
+    final bytes = await FlutterImageCompress.compressWithFile(
+      picked.path,
+      minWidth: _complaintMediaMaxSide,
+      minHeight: _complaintMediaMaxSide,
+      quality: _complaintMediaQuality,
+      format: CompressFormat.jpeg,
+      keepExif: false,
+    );
+
+    if (bytes == null) return null;
+
+    final file = await _writeTempJpeg(bytes, prefix: 'maan_complaint');
+
+    return PickedComplaintMedia(
+      path: file.path,
+      fileName: _fileNameOf(file.path),
+      sizeInBytes: bytes.length,
+      isVideo: false,
+    );
+  }
+
+  /// فيديو دليل شكوى — بلا معالجة (الحزم الحالية بالمشروع ما فيها ضغط
+  /// فيديو)، بحد أقصى دقيقتين حتى ما يفشل الرفع على شبكة موبايل ضعيفة.
+  ///
+  /// بترجّع `null` لو المستخدم لغى الاختيار.
+  Future<PickedComplaintMedia?> pickComplaintVideo({
+    required ImageSource source,
+  }) async {
+    final picked = await _picker.pickVideo(
+      source: source,
+      maxDuration: const Duration(minutes: 2),
+    );
+
+    if (picked == null) return null;
+
+    final sizeInBytes = await File(picked.path).length();
+
+    return PickedComplaintMedia(
+      path: picked.path,
+      fileName: _fileNameOf(picked.path),
+      sizeInBytes: sizeInBytes,
+      isVideo: true,
     );
   }
 

@@ -255,7 +255,7 @@ colors.fieldDisabledBackground, highlightColor: colors.fieldBackground)`
 ## الاختبار
 
 ```
-flutter test        # 398 اختبار
+flutter test        # 426 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -536,6 +536,77 @@ endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعر
   بـ`forgetPassword` `email` هو الوحيد المعلّم كمطلوب، فبنبعته لحاله.
 - `GET /api/` المسمّى "resend verification" مسار ناقص؛ استخدمنا
   `POST /api/email/verification-notification` (اصطلاح Laravel).
+
+## الشكاوى (`features/complaints/`)
+
+مكتملة — `domain`/`data`/`presentation` بثلاث شاشات: القائمة
+(`presentation/complaints/`)، تقديم شكوى (`presentation/submit_complaint/`)،
+والتفاصيل (`presentation/complaint_detail/`). تاب ثالث بالشريط السفلي
+(بين الرئيسية والملف الشخصي — راجع `AppShellPage`، وعدد فروع
+`StatefulShellRoute` يلازم يطابقه).
+
+**المسارات كلها مؤكّدة من Postman collection حقيقي** (لا `collection.md`):
+
+| الإجراء | المسار |
+|---|---|
+| تقديم شكوى | `POST /api/complains` (multipart) |
+| المنشورة | `GET /api/complains/complains` (فلاتر `type`/`category_id`/`sort` + `page`/`page_size`) |
+| شكاواي | `GET /api/complains/my-complains` |
+| تصويت / إلغاء | `POST`/`DELETE /api/complains/vote` بجسم `{"id"}` |
+| إبلاغ | `POST /api/reports` بـ`{"complain_id","type_id","description"}` |
+
+**الحقول المؤكّدة من نفس الـcollection**: `type` (`individual`/`collective`/
+`emergency`) · `category_id` ستة ثابتة (١ طرقات · ٢ نفايات · ٣ إنارة ·
+٤ مياه · ٥ خدمات عامة · ٦ أخرى، بلا endpoint لجلبها — ثابتة بالكود
+عمداً) · `sort` (`priority`/`newest`/`oldest`) · حالات الشكوى
+`under_review`/`in_progress`/`closed` (من فلتر ومسار تحديث حالة
+الأدمن — خيارا `PUT .../status` المسموحين حرفياً `in_progress`/`closed`).
+
+⚠️ **الطارئة بلا `under_review`** — بتُنشر فوراً بحالة `in_progress`
+مباشرة (بلا مراجعة)، بعكس الفردية والجماعية اللي بتضلّوا `under_review`
+لحد ما يوافق الموظّف. هاد افتراض التصميم الأصلي (`Complaints
+Screens.dc.html`) لا نص صريح من الباك اند — يوزر ستوري #4 بتأكّد
+الطارئة بس ما بتنفي وضوحاً حاجة الفردية/الجماعية لمراجعة.
+
+⚠️ **شكل استجابة القراءة غير مؤكّد بمثال حقيقي** — الـcollection عندها
+أمثلة الإرسال بس. الحقول الأساسية (`id`, `type`, `category_id`, `title`,
+`status`) مفروض تتطابق بالقراءة لأنها نفس أسماء الإرسال، فـ
+`ComplaintModel.fromMap` بترميها لو ناقصة. الحقول الثانية (عدّاد
+الأصوات، تصويت المستخدم الحالي، وجود وسائط) مخمَّنة بأكتر من اسم محتمل
+مجرَّب بالترتيب (`votes_count`/`votes`/`vote_count`،
+`has_voted`/`voted`/`is_voted`، `media`/`media_count`/`has_media`) —
+نقطة التصحيح الوحيدة لما يوصل مثال حقيقي هالملف. **الوسائط نفسها**
+(روابط الصور) غير مقروءة أصلاً — التفاصيل بتعرض placeholder
+(`photo_placeholder`/`no_media_placeholder`) بدل صورة حقيقية، بدل ما
+تخمّن اسم حقل الرابط بلا أي دليل.
+
+⚠️ **ترقيم `type_id` بالإبلاغ مخمَّن** — مثال الـcollection الوحيد
+(`type_id: 2` لصورة غير لائقة) بيأكّد بس قيمة وحدة. رتّبناها 1-6 بنفس
+ترتيب يوزر ستوري #5 (عنيف/غير لائق/مضلّل/مسيء/غير ذي صلة/أخرى)، يطابق
+المثال الوحيد المؤكّد. نقطة التصحيح: `ComplaintReportReason`.
+
+**موقع الشكوى الجغرافي**: `core/location/LocationService` (حزمة
+`geolocator` جديدة) — عام بـ`core/` لا داخل الميزة، نفس منطق
+`ImagePickerService`. بيرمي `LocationServiceException` مصنَّف
+(`serviceDisabled`/`permissionDenied`) والشاشة بترجم السبب لرسالة، مش
+الخدمة نفسها.
+
+**وسائط الشكوى**: `core/media/PickedComplaintMedia` — نوع جديد منفصل عن
+`PickedImage` (يقبل فيديو، وبلا قصّ: دليل ميداني لازم يضل كما التُقط).
+`ImagePickerService.pickComplaintPhoto`/`pickComplaintVideo` ميثودان
+إضافيان على الخدمة العامة الموجودة — نفس سبب `pickDocument` سابقاً.
+الرفع بمسار الملف مباشرة (`MultipartFile.fromFile`) لا بايتات بالذاكرة،
+لأن الفيديو ممكن يكبر عن ما يصحّ يتحمّل كامل بالرام.
+
+**التصويت بالتفاصيل منفصل عن `ComplaintsCubit` عمداً** — الشكوى بتوصل
+لشاشة التفاصيل عبر `extra` (نفس منطق `editIdentity`, بلا استعلام جديد)،
+والتصويت هناك محلي بحالة الشاشة نفسها. لما ترجع القائمة، الـ`ComplaintsCubit`
+بيعيد التحميل بدل ما يزامن الحالتين — تعقيد مشاركة حالة بين شاشتين
+مقابل إعادة طلب رخيصة.
+
+`CustomTextFormField` كسبت `maxLines`/`minLines` (افتراضي `1`، بلا أثر
+على أي استخدام قائم) — أول استهلاك لها وصف الشكوى/سبب الإبلاغ، حقول
+نص متعدد الأسطر ما كانت الودجت تدعمها قبل.
 
 ## وسائط المسارات
 

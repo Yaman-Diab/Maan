@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- موقع الشكوى الجغرافي (geolocator) — أذونات وقت تشغيل حقيقية،
+         بعكس image_picker. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <application
         android:label="Ma'an"
         android:name="${applicationName}"

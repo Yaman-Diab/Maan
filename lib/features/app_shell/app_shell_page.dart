@@ -34,6 +34,11 @@ class AppShellPage extends StatelessWidget {
             label: 'nav_home'.tr(),
           ),
           NavigationDestination(
+            icon: const Icon(Icons.campaign_outlined),
+            selectedIcon: const Icon(Icons.campaign),
+            label: 'nav_complaints'.tr(),
+          ),
+          NavigationDestination(
             icon: const Icon(Icons.person_outline),
             selectedIcon: const Icon(Icons.person),
             label: 'nav_profile'.tr(),

@@ -10,6 +10,8 @@
 	<string>Ma'an needs the camera so you can take a profile photo.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Ma'an needs your photo library so you can choose a profile photo.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Ma'an needs your location to attach it to the complaint you're submitting.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

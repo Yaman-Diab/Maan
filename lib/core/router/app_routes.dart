@@ -26,6 +26,19 @@ abstract final class AppRoutes {
   static const String home = '/home';
   static const String profile = '/profile';
 
+  /// تاب ثالث بالشريط السفلي — راجع `AppRouter` لعدد فروع
+  /// `StatefulShellRoute` المطلوب مطابقته.
+  static const String complaints = '/complaints';
+
+  /// تقديم شكوى جديدة — فرعي عن `complaints` بس **مش** تحت `/complaints`
+  /// بالمسار (شاشة مكدّسة فوق التاب، مش تاب رابع).
+  static const String submitComplaint = '/complaint/submit';
+
+  /// تفاصيل شكوى — الكيان كامل بيوصل عبر `extra` (نفس منطق
+  /// `editIdentity`)، فما في مسار GET يعيد الجلب؛ القائمة أصلاً عندها
+  /// البيانات.
+  static const String complaintDetail = '/complaint/detail';
+
   /// تعديل بيانات الهوية — فرعي عن `profile`، بتوصلها `AuthUser` كامل
   /// عبر `extra` لتعبئة الحقول.
   static const String editIdentity = '/profile/edit-identity';

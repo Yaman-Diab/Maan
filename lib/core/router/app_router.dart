@@ -12,6 +12,10 @@ import 'package:maan/features/auth/presentation/sign_up/pages/sign_up_page.dart'
 import 'package:maan/features/auth/presentation/verify_email/pages/verify_email_page.dart';
 import 'package:maan/features/auth/presentation/verify_reset_code/pages/verify_reset_code_page.dart';
 import 'package:maan/features/auth/domain/entities/auth_user.dart';
+import 'package:maan/features/complaints/domain/entities/complaint.dart';
+import 'package:maan/features/complaints/presentation/complaint_detail/pages/complaint_detail_page.dart';
+import 'package:maan/features/complaints/presentation/complaints/pages/complaints_page.dart';
+import 'package:maan/features/complaints/presentation/submit_complaint/pages/submit_complaint_page.dart';
 import 'package:maan/features/profile/presentation/edit_identity/pages/edit_identity_page.dart';
 import 'package:maan/features/profile/presentation/profile/pages/profile_page.dart';
 import 'package:maan/features/settings/presentation/pages/settings_page.dart';
@@ -19,7 +23,9 @@ import 'package:maan/features/verification/presentation/verification/pages/verif
 import 'package:maan/features/splash/presentation/pages/splash_page.dart';
 import '../../features/app_shell/app_shell_page.dart';
 import '../../features/app_shell/home_verification_page.dart';
+import '../di/service_locator.dart';
 import '../session/account_status.dart';
+import '../session/app_session_controller.dart';
 import 'app_redirect.dart';
 import 'app_routes.dart';
 import 'route_args.dart';
@@ -173,6 +179,34 @@ class AppRouter {
         },
       ),
 
+      GoRoute(
+        path: AppRoutes.submitComplaint,
+        builder: (context, state) {
+          return const SubmitComplaintPage();
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.complaintDetail,
+        builder: (context, state) {
+          // نفس منطق `editIdentity`: الكيان بيوصل جاهزاً عبر `extra`
+          // لأن مصدره الوحيد بطاقة بالقائمة، فما في داعي لاستعلام جديد.
+          final complaint = state.extra as Complaint?;
+
+          if (complaint == null) {
+            return _TempPage(
+              title: 'page_not_found_title'.tr(),
+              description: 'route_not_found'.tr(),
+            );
+          }
+
+          return ComplaintDetailPage(
+            complaint: complaint,
+            canVote: sl<AppSessionController>().canUseMunicipalityServices,
+          );
+        },
+      ),
+
       // -------------------------
       // Main App Shell
       // -------------------------
@@ -189,6 +223,17 @@ class AppRouter {
                   // مؤقّتة للفحص اليدوي بعد الدخول — راجع التعليق
                   // بالملف. بتنستبدل بشاشة Home الحقيقية لاحقاً.
                   return const HomeVerificationPage();
+                },
+              ),
+            ],
+          ),
+
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.complaints,
+                builder: (context, state) {
+                  return const ComplaintsPage();
                 },
               ),
             ],

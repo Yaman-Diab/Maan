@@ -25,6 +25,8 @@ class CustomTextFormField extends StatelessWidget {
     this.autofillHints,
     this.maxLength,
     this.digitsOnly = false,
+    this.maxLines = 1,
+    this.minLines,
   });
 
   final String? hintText;
@@ -55,6 +57,11 @@ class CustomTextFormField extends StatelessWidget {
   /// بيرفض أي حرف مش رقم عند الكتابة/اللصق — للرقم الوطني.
   final bool digitsOnly;
 
+  /// `1` (الافتراضي) لحقل سطر واحد. أكبر منها لصناديق نص متعددة
+  /// الأسطر (وصف شكوى، ملاحظات) — الحشوة الرأسية والحدود نفسها.
+  final int maxLines;
+  final int? minLines;
+
   @override
   Widget build(BuildContext context) {
     final scheme = context.scheme;
@@ -73,6 +80,8 @@ class CustomTextFormField extends StatelessWidget {
         onChanged: onChanged,
         autofillHints: autofillHints,
         obscureText: obscureText,
+        maxLines: maxLines,
+        minLines: minLines,
         validator: validationMessage,
         inputFormatters: !digitsOnly && maxLength == null
             ? null
