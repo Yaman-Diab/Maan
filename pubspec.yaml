@@ -70,6 +70,16 @@ dependencies:
   # حزمة خرائط بالمشروع).
   geolocator: ^14.0.3
 
+  # ملف شهادة الإثبات (PDF/JPG/PNG) — أوسع من image_picker اللي بيقصر
+  # عالصور، والشهادات غالباً PDF.
+  file_picker: ^12.0.0
+
+  # تحويل الإحداثيات لاسم مكان مقروء (reverse geocoding) — بيغلّف واجهة
+  # النظام الأصلية بلا مفتاح API وبلا widget خريطة. مقصود إنه **مش**
+  # `flutter_map`/`latlong2`: هدولك بيرسموا خريطة تفاعلية، وإحنا بدنا نص
+  # بس. راجع `LocationService.describeCoordinates`.
+  geocoding: ^5.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

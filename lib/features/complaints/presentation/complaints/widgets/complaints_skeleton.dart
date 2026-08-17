@@ -56,7 +56,11 @@ class _CardSkeleton extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Bone(width: 64.w, height: 64.w, borderRadius: BorderRadius.circular(12.r)),
+              Bone(
+                width: 64.w,
+                height: 64.w,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
               SizedBox(width: 12.w),
               Expanded(
                 child: Column(
@@ -66,7 +70,11 @@ class _CardSkeleton extends StatelessWidget {
                     SizedBox(height: 8.h),
                     Bone.text(width: 130.w),
                     SizedBox(height: 8.h),
-                    Bone(height: 24.h, width: 150.w, borderRadius: BorderRadius.circular(24.r)),
+                    Bone(
+                      height: 24.h,
+                      width: 150.w,
+                      borderRadius: BorderRadius.circular(24.r),
+                    ),
                   ],
                 ),
               ),

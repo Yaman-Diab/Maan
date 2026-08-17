@@ -16,6 +16,7 @@ import '../../../../../core/design_system/widgets/app_card.dart';
 import '../../../../../core/design_system/widgets/app_submit_button.dart';
 import '../../../../../core/design_system/widgets/custom_text_form_field.dart';
 import '../../../../../core/design_system/widgets/labeled_field.dart';
+import '../../../../../core/design_system/widgets/place_name_text.dart';
 import '../../../../../core/di/service_locator.dart';
 import '../../../../../core/media/image_picker_service.dart';
 import '../../../domain/entities/complaint_category.dart';
@@ -66,12 +67,15 @@ class _SubmitComplaintViewState extends State<_SubmitComplaintView> {
     final cubit = context.read<SubmitComplaintCubit>();
 
     final item = switch (source) {
-      ComplaintMediaSource.camera =>
-        await picker.pickComplaintPhoto(source: ImageSource.camera),
-      ComplaintMediaSource.gallery =>
-        await picker.pickComplaintPhoto(source: ImageSource.gallery),
-      ComplaintMediaSource.video =>
-        await picker.pickComplaintVideo(source: ImageSource.camera),
+      ComplaintMediaSource.camera => await picker.pickComplaintPhoto(
+        source: ImageSource.camera,
+      ),
+      ComplaintMediaSource.gallery => await picker.pickComplaintPhoto(
+        source: ImageSource.gallery,
+      ),
+      ComplaintMediaSource.video => await picker.pickComplaintVideo(
+        source: ImageSource.camera,
+      ),
     };
 
     if (item != null) cubit.addMedia(item);
@@ -116,7 +120,9 @@ class _SubmitComplaintViewState extends State<_SubmitComplaintView> {
         elevation: 0,
         title: Text(
           'complaint_new_title'.tr(),
-          style: context.texts.f16W500Black.copyWith(fontWeight: FontWeight.w500),
+          style: context.texts.f16W500Black.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
       body: SafeArea(
@@ -126,7 +132,9 @@ class _SubmitComplaintViewState extends State<_SubmitComplaintView> {
             final cubit = context.read<SubmitComplaintCubit>();
 
             if (_titleController.text != state.title) {
-              _titleController.value = _titleController.value.copyWith(text: state.title);
+              _titleController.value = _titleController.value.copyWith(
+                text: state.title,
+              );
             }
 
             return Column(
@@ -139,7 +147,10 @@ class _SubmitComplaintViewState extends State<_SubmitComplaintView> {
                       children: [
                         _TypeCard(state: state, onChanged: cubit.typeChanged),
                         SizedBox(height: AppSpacing.sm.h),
-                        _CategoryCard(state: state, onChanged: cubit.categoryChanged),
+                        _CategoryCard(
+                          state: state,
+                          onChanged: cubit.categoryChanged,
+                        ),
                         SizedBox(height: AppSpacing.sm.h),
                         _TitleDescCard(
                           state: state,
@@ -230,7 +241,10 @@ class _TypeCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _CardHeader(icon: Icons.tune_rounded, title: 'complaint_type_label'.tr()),
+          _CardHeader(
+            icon: Icons.tune_rounded,
+            title: 'complaint_type_label'.tr(),
+          ),
           SizedBox(height: AppSpacing.sm.h),
           Container(
             padding: EdgeInsets.all(3.w),
@@ -250,7 +264,9 @@ class _TypeCard extends StatelessWidget {
                         padding: EdgeInsets.symmetric(vertical: 9.h),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: state.type == type ? scheme.primary : Colors.transparent,
+                          color: state.type == type
+                              ? scheme.primary
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: Row(
@@ -266,9 +282,12 @@ class _TypeCard extends StatelessWidget {
                             SizedBox(width: 5.w),
                             Text(
                               switch (type) {
-                                ComplaintType.individual => 'complaint_type_individual'.tr(),
-                                ComplaintType.collective => 'complaint_type_collective'.tr(),
-                                ComplaintType.emergency => 'complaint_type_emergency'.tr(),
+                                ComplaintType.individual =>
+                                  'complaint_type_individual'.tr(),
+                                ComplaintType.collective =>
+                                  'complaint_type_collective'.tr(),
+                                ComplaintType.emergency =>
+                                  'complaint_type_emergency'.tr(),
                               },
                               style: TextStyle(
                                 fontSize: 12.5.sp,
@@ -316,7 +335,11 @@ class _TypeCard extends StatelessWidget {
                         SizedBox(height: 3.h),
                         Text(
                           'complaint_emergency_notice_body'.tr(),
-                          style: TextStyle(fontSize: 12.sp, height: 1.6, color: scheme.error),
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            height: 1.6,
+                            color: scheme.error,
+                          ),
                         ),
                       ],
                     ),
@@ -358,7 +381,10 @@ class _CategoryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _CardHeader(icon: Icons.category_rounded, title: 'complaint_category_label'.tr()),
+          _CardHeader(
+            icon: Icons.category_rounded,
+            title: 'complaint_category_label'.tr(),
+          ),
           SizedBox(height: AppSpacing.sm.h),
           GridView.count(
             crossAxisCount: 3,
@@ -413,7 +439,10 @@ class _CategoryTile extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 12.h),
         decoration: BoxDecoration(
-          border: Border.all(color: selected ? selectedColor : border, width: selected ? 1.5 : 1),
+          border: Border.all(
+            color: selected ? selectedColor : border,
+            width: selected ? 1.5 : 1,
+          ),
           color: selected ? selectedSurface : Colors.transparent,
           borderRadius: BorderRadius.circular(AppRadius.md.r),
         ),
@@ -423,19 +452,32 @@ class _CategoryTile extends StatelessWidget {
             Container(
               width: 36.w,
               height: 36.w,
-              decoration: BoxDecoration(color: style.background, borderRadius: BorderRadius.circular(10.r)),
+              decoration: BoxDecoration(
+                color: style.background,
+                borderRadius: BorderRadius.circular(10.r),
+              ),
               child: Icon(style.icon, size: 21.sp, color: style.foreground),
             ),
             SizedBox(height: 8.h),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              style: TextStyle(
-                fontSize: 11.5.sp,
-                fontWeight: FontWeight.w600,
-                color: selected ? selectedColor : context.colors.textPrimary,
-                height: 1.3,
+            // `FittedBox` بدل `Text` مباشرة — تسمية طويلة (ترجمة أطول،
+            // أو مقياس خط النظام أكبر) بتصغّر لتصير بسطرين بدل ما تكسر
+            // ارتفاع الخلية الثابت (`GridView.count.childAspectRatio`).
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  style: TextStyle(
+                    fontSize: 11.5.sp,
+                    fontWeight: FontWeight.w600,
+                    color: selected
+                        ? selectedColor
+                        : context.colors.textPrimary,
+                    height: 1.3,
+                  ),
+                ),
               ),
             ),
           ],
@@ -486,14 +528,21 @@ class _TitleDescCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text('complaint_desc_label'.tr(), style: context.texts.f14W600Black),
+              Text(
+                'complaint_desc_label'.tr(),
+                style: context.texts.f14W600Black,
+              ),
               SizedBox(width: 5.w),
               Text(
-                state.isEmergency ? 'complaint_optional_mark'.tr() : 'required_mark'.tr(),
+                state.isEmergency
+                    ? 'complaint_optional_mark'.tr()
+                    : 'required_mark'.tr(),
                 style: TextStyle(
                   fontSize: 11.5.sp,
                   fontWeight: FontWeight.w500,
-                  color: state.isEmergency ? context.colors.textHint : scheme.error,
+                  color: state.isEmergency
+                      ? context.colors.textHint
+                      : scheme.error,
                 ),
               ),
             ],
@@ -548,7 +597,11 @@ class _LocationCard extends StatelessWidget {
               ),
               Text(
                 'required_mark'.tr(),
-                style: TextStyle(fontSize: 11.5.sp, fontWeight: FontWeight.w500, color: scheme.error),
+                style: TextStyle(
+                  fontSize: 11.5.sp,
+                  fontWeight: FontWeight.w500,
+                  color: scheme.error,
+                ),
               ),
             ],
           ),
@@ -563,28 +616,47 @@ class _LocationCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.my_location_rounded, size: 22.sp, color: scheme.primary),
+                  Icon(
+                    Icons.my_location_rounded,
+                    size: 22.sp,
+                    color: scheme.primary,
+                  ),
                   SizedBox(width: AppSpacing.sm.w),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // اسم المكان أولاً — أوضح للمستخدم من رقمين
+                        // عشريين وهو عم يتأكّد إنه اختار الموقع الصح.
+                        PlaceNameText(
+                          latitude: state.latitude!,
+                          longitude: state.longitude!,
+                          maxLines: 2,
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w500,
+                            color: colors.textPrimary,
+                          ),
+                        ),
+                        SizedBox(height: 3.h),
                         Directionality(
                           textDirection: ui.TextDirection.ltr,
                           child: Text(
                             '${state.latitude!.toStringAsFixed(5)}, ${state.longitude!.toStringAsFixed(5)}',
                             style: TextStyle(
                               fontFamily: 'monospace',
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w500,
-                              color: colors.textPrimary,
+                              fontSize: 11.5.sp,
+                              color: colors.textSecondary,
                             ),
                           ),
                         ),
                         SizedBox(height: 3.h),
                         Text(
                           'complaint_location_accuracy'.tr(),
-                          style: TextStyle(fontSize: 11.5.sp, color: colors.textSecondary),
+                          style: TextStyle(
+                            fontSize: 11.5.sp,
+                            color: colors.textSecondary,
+                          ),
                         ),
                       ],
                     ),
@@ -603,7 +675,10 @@ class _LocationCard extends StatelessWidget {
                   ? SizedBox(
                       width: 18.w,
                       height: 18.w,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: scheme.primary),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: scheme.primary,
+                      ),
                     )
                   : Icon(Icons.my_location_rounded, size: 20.sp),
               label: Text('complaint_location_cta'.tr()),
@@ -617,7 +692,10 @@ class _LocationCard extends StatelessWidget {
               ),
             ),
           SizedBox(height: 8.h),
-          Text('complaint_location_helper'.tr(), style: context.texts.f12W400SecColor),
+          Text(
+            'complaint_location_helper'.tr(),
+            style: context.texts.f12W400SecColor,
+          ),
         ],
       ),
     );
@@ -625,7 +703,11 @@ class _LocationCard extends StatelessWidget {
 }
 
 class _MediaCard extends StatelessWidget {
-  const _MediaCard({required this.state, required this.onAdd, required this.onRemove});
+  const _MediaCard({
+    required this.state,
+    required this.onAdd,
+    required this.onRemove,
+  });
 
   final SubmitComplaintState state;
   final VoidCallback onAdd;
@@ -641,11 +723,17 @@ class _MediaCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _CardHeader(icon: Icons.perm_media_rounded, title: 'complaint_media_label'.tr()),
+                child: _CardHeader(
+                  icon: Icons.perm_media_rounded,
+                  title: 'complaint_media_label'.tr(),
+                ),
               ),
               Text(
                 '${state.media.length} / ${SubmitComplaintState.maxMediaCount}',
-                style: TextStyle(fontSize: 11.5.sp, color: context.colors.textHint),
+                style: TextStyle(
+                  fontSize: 11.5.sp,
+                  color: context.colors.textHint,
+                ),
               ),
             ],
           ),
@@ -662,16 +750,26 @@ class _MediaCard extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    Icon(Icons.cloud_upload_outlined, size: 28.sp, color: context.scheme.primary),
+                    Icon(
+                      Icons.cloud_upload_outlined,
+                      size: 28.sp,
+                      color: context.scheme.primary,
+                    ),
                     SizedBox(height: 4.h),
                     Text(
                       'complaint_media_cta'.tr(),
-                      style: TextStyle(fontSize: 12.sp, color: context.scheme.tertiary),
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: context.scheme.tertiary,
+                      ),
                     ),
                     SizedBox(height: 2.h),
                     Text(
                       'complaint_media_hint'.tr(),
-                      style: TextStyle(fontSize: 10.sp, color: context.colors.textHint),
+                      style: TextStyle(
+                        fontSize: 10.sp,
+                        color: context.colors.textHint,
+                      ),
                     ),
                   ],
                 ),
@@ -680,7 +778,8 @@ class _MediaCard extends StatelessWidget {
           else
             ComplaintMediaGrid(
               media: state.media,
-              canAddMore: state.media.length < SubmitComplaintState.maxMediaCount,
+              canAddMore:
+                  state.media.length < SubmitComplaintState.maxMediaCount,
               onAdd: onAdd,
               onRemove: onRemove,
             ),

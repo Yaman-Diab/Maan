@@ -255,7 +255,7 @@ colors.fieldDisabledBackground, highlightColor: colors.fieldBackground)`
 ## الاختبار
 
 ```
-flutter test        # 426 اختبار
+flutter test        # 466 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -487,20 +487,23 @@ endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعر
   بعده برسالة رمز غير صالح. لو طلع بيستهلكه، البديل إلغاء التحقق
   بالسيرفر والاكتفاء بفحص الشكل — تعديل بـ`VerificationCodeCubit.submit`
   وبس. يحتاج تأكيد من الباك اند.
-- ⚠️ **مؤشرات الملف الشخصي وعدّاداته بلا عقد** — التصميم بيعرض «مؤشر
-  المواطنة» و«مؤشر التوثيق» وعدّادات التطوع/المساهمات/التراخيص، وما في
-  ولا endpoint بـ`collection.md` بيرجّعهم. `ProfileStats` كل حقولها
-  `null` والواجهة بتعرض «—» بدل رقم مخترع. أسماء المفاتيح المتوقّعة
-  مكتوبة بـ`CitizenProfileModel._Keys` كتخمين موثّق — لما يثبّتها الباك
-  اند، التعديل بملف واحد.
-- ⚠️ **أسماء حقول تحديث الملف الشخصي مخمَّنة جزئياً** — المسار
-  `POST /api/profile/update` مؤكّد من الباك اند، وكمان اسم حقل الصورة
-  بالإرسال (`image`) مؤكّد. بس استجابة `/api/profile` ما فيها حقل صورة،
-  فـ`AuthUserModel` بيجرّب `image`/`image_url`/`avatar_url`/`avatar`/
-  `photo` بالترتيب — `image` أولاً لأنه الاسم المؤكّد بالإرسال والأرجح
-  إنه نفسه بالقراءة، بس هاد لسه تخمين. لو ما لقي شي بتنعرض أحرف الاسم.
-  نقطة التصحيح الوحيدة: `ProfileRemoteDataSource._avatarField`.
-  («Drop photo» بملف التصميم أداة محرّر لا عنصر واجهة.)
+- ✅ **`citizenshipIndex`/`credibilityIndex` مؤكّدان أخيراً** بمثال
+  استجابة حقيقي لـ`GET /api/profile` من `collection.md`
+  (`citizenship_score`/`credibility_score`، الثاني براجع كنص عشري
+  `"50.00"` لا رقم). الاسم القديم `authenticationIndex` كان تخميناً
+  غلط بالمفهوم — القصة الحقيقية بـClickUp سمّتها «مؤشرات المواطنة
+  والمصداقية» لا «التوثيق»، فانسمّى الحقل والترجمة `credibility_index`.
+  عدّادات التطوع/المساهمات/التراخيص التلاتة **لسه بلا عقد** — أسماء
+  المفاتيح مكتوبة بـ`CitizenProfileModel._Keys` كتخمين موثّق.
+- ✅ **اسم حقل الصورة بالقراءة مؤكّد `image` أخيراً**، بس ⚠️ **بمستوى
+  مختلف عمّا كان مفترَضاً**: المثال الحقيقي بيرجّعه بجانب `user` (`data.image`)
+  لا جواه (`data.user.image`). كان هاد باگ حقيقي: `CitizenProfileModel`
+  كانت تمرّر بس `data.user` لـ`AuthUserModel.fromMap`، فالصورة ما كانت
+  تنقرأ أبداً حتى لو موجودة عند السيرفر. الإصلاح بدمج `container['image']`
+  جوّا خريطة المستخدم قبل الإرسال لـ`AuthUserModel.fromMap` — راجع
+  `CitizenProfileModel.fromMap`. الأسماء البديلة (`image_url`/`avatar_url`/
+  `avatar`/`photo`) بـ`AuthUserModel._avatarKeys` ضلّت كخط دفاع احتياطي
+  بس `image` هو المؤكّد فعلياً.
 - ⚠️ **إزالة الصورة مبنية على عقد مخمَّن بالكامل** — ما في endpoint
   مخصّص، فـ`ProfileRepository.removeAvatar` بيبعت نفس
   `POST /api/profile/update` بحقل `image` **نصّي فاضي** (لا `null` —
@@ -568,17 +571,38 @@ endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعر
 Screens.dc.html`) لا نص صريح من الباك اند — يوزر ستوري #4 بتأكّد
 الطارئة بس ما بتنفي وضوحاً حاجة الفردية/الجماعية لمراجعة.
 
-⚠️ **شكل استجابة القراءة غير مؤكّد بمثال حقيقي** — الـcollection عندها
-أمثلة الإرسال بس. الحقول الأساسية (`id`, `type`, `category_id`, `title`,
-`status`) مفروض تتطابق بالقراءة لأنها نفس أسماء الإرسال، فـ
-`ComplaintModel.fromMap` بترميها لو ناقصة. الحقول الثانية (عدّاد
-الأصوات، تصويت المستخدم الحالي، وجود وسائط) مخمَّنة بأكتر من اسم محتمل
-مجرَّب بالترتيب (`votes_count`/`votes`/`vote_count`،
-`has_voted`/`voted`/`is_voted`، `media`/`media_count`/`has_media`) —
-نقطة التصحيح الوحيدة لما يوصل مثال حقيقي هالملف. **الوسائط نفسها**
-(روابط الصور) غير مقروءة أصلاً — التفاصيل بتعرض placeholder
-(`photo_placeholder`/`no_media_placeholder`) بدل صورة حقيقية، بدل ما
-تخمّن اسم حقل الرابط بلا أي دليل.
+✅ **باگ حقيقي انصلح: اسم حقل رفع الوسائط** — الجسم كان بيرسل
+`media[]` (فاضي، نفس اصطلاح `images[]` بالتوثيق)، بينما المثال الحقيقي
+بـ`collection.md` بيوضح ترقيم صريح: `media[0]`, `media[1]`... النتيجة
+كانت الشكوى تتنشأ بنجاح بس بـ`media: []` — الصور تختفي بصمت بلا أي
+خطأ ظاهر بالتطبيق. الإصلاح بـ`ComplaintsRemoteDataSourceImpl.submit`
+(حلقة برقم فهرس صريح لكل ملف).
+
+✅ **شكل استجابة القراءة مؤكّد أخيراً بأمثلة حقيقية** (`POST /api/complains`،
+`GET /api/complains/complains`، `GET /api/complains/my-complains`).
+اكتشافان مهمّان غيّروا `ComplaintModel.fromMap`:
+- **التصنيف والموقع كائنان متداخلان لا حقول مسطّحة** — `category:
+  {id,name}` (لا `category_id` بـ`my-complains`؛ موجود جنب الكائن
+  المتداخل بس باستجابة الإنشاء)، والموقع تحت `location` **أو** `pin`
+  (اسمان مختلفان لنفس المفهوم بين استجابتَي القائمة والإنشاء).
+  `fromMap` بيجرّب الاثنين دفاعياً.
+- **الوسائط أصبحت روابط حقيقية** — `media: [{file_url,...}]`، فـ
+  `Complaint.mediaUrls` بتعرض صورة حقيقية بالبطاقة والتفاصيل
+  (`Image.network`) بدل الـplaceholder القديم. `photo_placeholder`
+  انسمّى استخدامه: صار رسالة فشل تحميل الصورة (`errorBuilder`) لا
+  «مافيش صورة قابلة للعرض».
+
+⚠️ **عدّاد التصويت (`votes`/`hasVoted`) لسه بلا عقد** — كل الأمثلة
+الحقيقية الواصلة لشكاوى المستخدم نفسه (صفر أصوات منطقياً)، فما ثبت اسم
+الحقل الحقيقي بعد لو كان مختلفاً عن التخمين
+(`votes_count`/`votes`/`vote_count`، `has_voted`/`voted`/`is_voted`).
+نقطة التصحيح الوحيدة لما يوصل مثال فيه صوت فعلي: `ComplaintModel.fromMap`.
+
+⚠️ **حقل `priority_score` وصل بمثال `my-complains` الحقيقي بلا استهلاك
+بعد** — على الأغلب النتيجة المركّبة يلي `sort=priority` بيرتّب عليها
+(أصوات + قيمة مواطنة). ما انضاف للـdomain entity لعدم وجود استهلاك
+حالي بالواجهة — لو احتجناه لعرض «الأولوية» بشكل صريح مستقبلاً، القيمة
+جاهزة بالاستجابة.
 
 ⚠️ **ترقيم `type_id` بالإبلاغ مخمَّن** — مثال الـcollection الوحيد
 (`type_id: 2` لصورة غير لائقة) بيأكّد بس قيمة وحدة. رتّبناها 1-6 بنفس
@@ -590,6 +614,36 @@ Screens.dc.html`) لا نص صريح من الباك اند — يوزر ستو�
 `ImagePickerService`. بيرمي `LocationServiceException` مصنَّف
 (`serviceDisabled`/`permissionDenied`) والشاشة بترجم السبب لرسالة، مش
 الخدمة نفسها.
+
+**اسم المكان بدل الإحداثيات** (`describeCoordinates` + حزمة `geocoding`):
+تحويل عكسي من إحداثيات لاسم مقروء («المزة، دمشق»)، معروض بتلات أماكن —
+بطاقة الشكوى، تفاصيلها، وبطاقة الموقع بشاشة الإرسال — عبر ودجت مشترك
+`core/design_system/widgets/PlaceNameText`.
+
+⚠️ **مقصود إنها `geocoding` لا `flutter_map`/`latlong2`**: التانيين
+بيرسموا خريطة تفاعلية (تبعيّة أثقل + تايلز + مفتاح خدمة أحياناً)،
+وإحنا بدنا **نص بس**. `geocoding` بتغلّف واجهة النظام الأصلية بلا مفتاح
+API وبلا widget.
+
+⚠️ **الاسم تحسين عرض لا بيانات أساسية** — `describeCoordinates` بترجّع
+`null` بدل ما ترمي لو فشل التحويل (شبكة، منطقة غير مفهرسة، منصّة ما
+بتدعم)، و`PlaceNameText` بتعرض الإحداثيات الخام كنص احتياطي. لهيك
+التحويل بيصير **بالودجت لا بالـCubit**: ما بيدخل بأي قرار ولا إرسال،
+و`Complaint` كيان domain ما لازم يحمل حقلاً مصدره خدمة نظام لا الباك
+اند — وكمان القائمة ممكن تعرض عشرات الشكاوى، فتحويلها كلها قبل أول
+إطار بيأخّر الشاشة كلها.
+
+⚠️ **`geocoding: ^5.0.0` كسر التوافق مع الأمثلة المتداولة**: الدالة
+العامة `placemarkFromCoordinates(...)` صارت ميثود على صنف `Geocoding`،
+و`localeIdentifier` النصّي صار `Locale`. وكمان **باراميتر `locale`
+بالـconstructor مكسور بهالنسخة** (بينحفظ بلا ما ينمرّر للمنصّة) —
+فبنمرّره بالميثود مباشرة. راجع `LocationService.describeCoordinates`.
+
+⚠️ **إذن `INTERNET` كان ناقص من مانيفست `main`** — Flutter بيحطّه
+تلقائياً بمانيفست `debug`/`profile` بس (لـhot reload)، فالتطبيق كان
+يشتغل تمام وقت التطوير بينما **بناء الـrelease بلا إنترنت إطلاقاً**:
+كل الـAPI والصور وتحويل الإحداثيات بتفشل. انضاف لـ
+`android/app/src/main/AndroidManifest.xml` — لا تشيله.
 
 **وسائط الشكوى**: `core/media/PickedComplaintMedia` — نوع جديد منفصل عن
 `PickedImage` (يقبل فيديو، وبلا قصّ: دليل ميداني لازم يضل كما التُقط).
@@ -607,6 +661,114 @@ Screens.dc.html`) لا نص صريح من الباك اند — يوزر ستو�
 `CustomTextFormField` كسبت `maxLines`/`minLines` (افتراضي `1`، بلا أثر
 على أي استخدام قائم) — أول استهلاك لها وصف الشكوى/سبب الإبلاغ، حقول
 نص متعدد الأسطر ما كانت الودجت تدعمها قبل.
+
+## الشهادات والمهارات (`features/skills/`)
+
+مكتملة — `domain`/`data`/`presentation` بشاشتين: القائمة
+(`presentation/skills/pages/skills_page.dart`) والتفاصيل
+(`skill_detail_page.dart`). مدخلها الوحيد بانر «الشهادات والمهارات»
+الثابت بأعلى `ProfilePage` (راجع قسم الملف الشخصي) — المسار
+`AppRoutes.certificatesAndSkills` (`/profile/certificates-skills`)
+كان بيوصل لـ`_TempPage` مؤقّتة، صار يوصل للشاشة الحقيقية.
+
+**المهارة والشهادة موردان منفصلان بالباك اند تماماً** — `App\Enums\SkillType`
+(عشرة قيم) و`App\Enums\CertificateRejectionReason` (ثمانية قيم) وصلونا
+من كود الباك اند الحقيقي مباشرة، لا تخمين. `SkillsRepositoryImpl.getSkills()`
+بتضرب `GET /api/skill/` و`GET /api/certificate` بالتوازي وبتدمجهم
+بطبقة data عبر مطابقة `certificate.skillId == skill.id` — حقل
+`Skill.certificate` بالتالي **مش حقل حقيقي براجع من `/api/skill/`**،
+مضاف بعد الدمج فقط (نفس فكرة `AccountStatus` كاهتمام عابر، بس هون
+داخل الميزة نفسها لأنه خاص فيها فقط).
+
+| الإجراء | المسار |
+|---|---|
+| المهارات | `GET /api/skill/` |
+| إضافة مهارة | `POST /api/skill/store` |
+| تعديل مهارة | `POST /api/skill/update/{id}` |
+| حذف مهارة | `DELETE /api/skill/{id}` |
+| الشهادات | `GET /api/certificate` |
+| إرفاق شهادة | `POST /api/certificate/store` (`user_skill_id`+`file_path`) |
+| استبدال شهادة | `POST /api/certificate/update/{id}` (`file_path` بس) |
+
+⚠️ **شكل استجابة `GET` غير مؤكّد بمثال حقيقي** — نفس فجوة الشكاوى:
+عندنا مثال الإرسال بس. `SkillModel`/`CertificateModel.fromMap` بترمي
+لو الحقول الأساسية (`id`/`name`/`type` أو `id`/`user_skill_id`) ناقصة،
+واسم ملف الشهادة بالقراءة مخمَّن بأكتر من اسم محتمل مجرَّب بالترتيب
+(`file_name`/`file_path`/`file`/`file_url`). نقطة التصحيح: نفس
+الملفين.
+
+**`CertificateFilePickerService` بـ`core/media/`** — عام نفس سبب
+`ImagePickerService`/`LocationService`: أول مستهلك بس، وبيقبل PDF
+كمان لا صور بس (`file_picker` حزمة جديدة، `image_picker` بيقصر عالصور).
+حد 5 ميغابايت مفروض بواجهة الاختيار (`CertificateFilePickerService.maxSizeInBytes`)
+لا بالسيرفر — رفض مبكر بدل ما ينتظر المستخدم رد شبكة على ملف كبير.
+
+⚠️ **`file_picker: ^12.0.0` كسر التوافق مع كل أمثلة الحزمة المتداولة** —
+`FilePicker.platform.pickFiles()` (نمط `platform` singleton) صار
+`FilePicker.pickFile()`/`pickFiles()` ميثودات static مباشرة، و`PlatformFile.size`
+(حقل sync) صار `PlatformFile.length()` (async). لو ظهر خطأ
+`undefined_getter` على `platform` أو `size` بعد ترقية الحزمة مستقبلاً،
+راجع `CertificateFilePickerService.pickFile`.
+
+**عجلة الحذف بلا Cubit خاص** — `confirmAndDeleteSkill` (بـ
+`skill_delete_sheet.dart`) بتستخدم `showConfirmSheet` من `core/design_system/widgets/`
+مباشرة وبتنادي `DeleteSkillUseCase` عبر `sl<>()`، نفس نمط
+`ComplaintReportSheet`. `showConfirmSheet` نفسها انتقلت لـ`core` من
+`features/settings/` (كانت `showSettingsConfirmSheet`) لما احتاجتها
+هالميزة — نفس سبب `AppCard`/`ImageSourceSheet`.
+
+**تفاصيل مهارة عبر `extra` بلا Cubit مشترك** — نفس نمط `complaintDetail`:
+الكيان بيوصل جاهزاً عبر `GoRouterState.extra`، والتعديل/الشهادة/الحذف
+كلها محلية بحالة `SkillDetailPage`. أي نجاح بيرجع `Navigator.pop(true)`
+فـ`SkillsPage` تعيد التحميل كامل بدل مزامنة حالة بين شاشتين — القائمة
+أرخص من التعقيد.
+
+**`SkillsCubit` عمداً بس `GetSkillsUseCase`** — نفس قرار `ComplaintsCubit`/`ComplaintDetailPage`:
+الإضافة/التعديل/الحذف/إرفاق الشهادة بتصير مباشرة من الورقة/الشاشة
+المسؤولة عبر `sl<...>()`، وبتعيد تحميل القائمة بعد النجاح بدل ما
+الـCubit يحمل كل الحالات الوسيطة لكل عملية.
+
+## خدمات البلدية (`features/municipal_services/`)
+
+مكتملة — شاشة وحدة بلا Cubit معقّد (`GetMunicipalServicesUseCase` بس،
+نفس نمط `SkillsCubit`). **بلا أي علاقة بنظام الطابور الفعلي** — توضيح
+صريح من صاحب المشروع: تطبيق المواطن ما بيتفاعل مع `Queue/Citizen`
+إطلاقاً (لا انضمام، لا مسح QR من داخل التطبيق، لا "دوري الحالي"). أول
+قصة من التحديثات الأخيرة بـClickUp عندها Backend حقيقي كامل — الباقي
+(المشاريع، الأخبار، نظام النقاط) لسه قصص بلا عقد باك اند.
+
+| الإجراء | المسار |
+|---|---|
+| قائمة الخدمات | `GET /api/admin/services` |
+
+⚠️ **المسار فيه `/admin/` بس مستخدَم من المواطن فعلياً** — مؤكّد من
+صاحب المشروع مباشرة مع مثال استجابة حقيقي كامل (أربع خدمات، كل
+الحقول). راجع `ApiEndpoints.municipalServicesIndex`.
+
+**الوقت المقدّر مش حقلاً براجع من الباك اند** — `MunicipalService.estimatedWaitMinutes`
+بيتحسب محلياً: `estimated_time_minutes × people_waiting`. `peopleWaiting: 0`
+بيعرض «فوري» لا «0 دقيقة» — رقم صفر بمكانه بيوحي بخطأ حسابي لا "تعال هلأ".
+
+**الشدّة اللونية (٣ درجات) مبنية فوق توكنات موجودة أصلاً بلا أي إضافة**:
+قصير (≤15 دقيقة) بلون الهوية + `brandSurface`، متوسط (≤35) بـ`secondary`
+(كهرماني) + `noticeBackground`، طويل بـ`tertiary` (برتقالي) + تينت 14%
+منه محسوب مباشرة (`scheme.tertiary.withValues(alpha: 0.14)`) — بلا توكن
+جديد لأجل استخدام واحد.
+
+**الأيقونة حسب `id` الخدمة لا اسمها** — الاسم نص حرّ من الباك اند (يجي
+بالإنجليزية بمثال الاستجابة، رغم إن التطبيق عربي أولاً)، فمطابقة أيقونة
+عليه هش. الربط بـ`id` الأربعة المؤكّدة (١ وثائق، ٢ تراخيص بناء، ٣ خدمات
+مالية، ٤ شكاوى) + أيقونة عامة احتياطية لأي `id` جديد — نفس منطق
+`SkillStyle`/`ComplaintStyle` بس بلا حاجة لملف `shared/` مستقل لأن
+الشاشة الوحيدة يلي محتاجة الربط هي هاي.
+
+**الترتيب**: النشطة تصاعدياً حسب الوقت المقدّر (الأسرع أولاً)، وغير
+النشطة (`status != "active"`) دايماً بآخر القائمة بغض النظر عن أي حساب
+وقت — بطاقة معطّلة بصرياً بدل ما تنحذف من القائمة.
+
+⏳ **مدخل مؤقّت**: زر بـ`HomeVerificationPage` (الشاشة المؤقّتة الحالية
+لتاب الرئيسية) — راجع `AppRoutes.municipalServices`. لما تُبنى شاشة
+Home الحقيقية، هاد المدخل بينتقل لمكانه الطبيعي هناك.
 
 ## وسائط المسارات
 

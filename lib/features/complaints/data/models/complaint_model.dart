@@ -11,20 +11,27 @@ import '../../domain/entities/complaint_type.dart';
 /// قراءة عنصر شكوى من `GET /api/complains/complains` أو
 /// `GET /api/complains/my-complains`.
 ///
-/// ⚠️ **الشكل غير مؤكّد بمثال استجابة حقيقي** — Postman collection
-/// عندها أمثلة الإرسال بس. الحقول الأساسية (`id`, `type`, `category_id`,
-/// `title`, `status`) نفس أسماء الإرسال المؤكّدة فمتوقّع تتطابق بالقراءة
-/// كمان. الحقول التانية (عدّاد الأصوات، تصويت المستخدم الحالي، وجود
-/// وسائط) بأسماء مخمَّنة حسب اصطلاح Laravel الشائع — كل وحدة عندها أكتر
-/// من اسم محتمل مجرَّب بالترتيب، وأي واحد ما انلقى بيرجع قيمة افتراضية
-/// آمنة (`0`/`false`) بدل ما يفشل تحليل العنصر كامل. نقطة التصحيح
-/// الوحيدة لما توصل استجابة حقيقية: هالملف.
+/// ✅ **الشكل مؤكّد بأمثلة استجابة حقيقية** — `id`/`type`/`title`/
+/// `status` كانت مؤكّدة أصلاً. التصنيف والموقع بيوصلوا الآن ككائنين
+/// متداخلين: `category: {id,name}` (لا `category_id` مسطّح — موجود
+/// بس باستجابة الإنشاء `POST /api/complains` جنب الكائن المتداخل،
+/// غايب تماماً بـ`my-complains`)، والموقع تحت `location` أو `pin`
+/// (اسمان مختلفان بين استجابتَي القائمة والإنشاء لنفس المفهوم!).
+/// الوسائط `media: [{file_url,...}]` — روابط حقيقية أخيراً.
+///
+/// ⚠️ عدّاد التصويت (`votes_count`/`has_voted`...) **لسه تخمين** — كل
+/// الأمثلة الحقيقية الواصلة لشكاوى المستخدم نفسه بلا أصوات، فما ثبت
+/// اسم الحقل الحقيقي بعد. نقطة التصحيح الوحيدة لما يوصل مثال فيه صوت
+/// فعلي: هالملف.
 class ComplaintModel {
   final Complaint entity;
 
   const ComplaintModel(this.entity);
 
-  factory ComplaintModel.fromMap(Map<String, dynamic> json, {bool isMine = false}) {
+  factory ComplaintModel.fromMap(
+    Map<String, dynamic> json, {
+    bool isMine = false,
+  }) {
     final id = json['id'];
     final type = ComplaintType.fromApi(json['type'] as String?);
     final title = json['title'] as String?;
@@ -33,19 +40,23 @@ class ComplaintModel {
       throw const FormatException('Complaint data is missing required fields.');
     }
 
+    final categoryId =
+        _asInt(json['category_id']) ?? _asInt(_asMap(json['category'])?['id']);
+    final position = _asMap(json['location']) ?? _asMap(json['pin']);
+
     return ComplaintModel(
       Complaint(
         id: id,
         type: type,
-        category: ComplaintCategory.fromApi(_asInt(json['category_id'])),
+        category: ComplaintCategory.fromApi(categoryId),
         status: ComplaintStatus.fromApi(json['status'] as String?),
         title: title,
         description: json['description'] as String?,
-        latitude: _asDouble(json['latitude']),
-        longitude: _asDouble(json['longitude']),
+        latitude: _asDouble(position?['latitude'] ?? json['latitude']),
+        longitude: _asDouble(position?['longitude'] ?? json['longitude']),
         votes: _firstInt(json, ['votes_count', 'votes', 'vote_count']) ?? 0,
         hasVoted: _firstBool(json, ['has_voted', 'voted', 'is_voted']) ?? false,
-        hasMedia: _hasMedia(json),
+        mediaUrls: _mediaUrls(json),
         createdAt: _tryParseDate(json['created_at']),
         isMine: isMine,
       ),
@@ -54,7 +65,10 @@ class ComplaintModel {
 
   /// قراءة قائمة — عنصر ما بينقرأ بينترمى بصمت بدل ما يوقّع الاستجابة
   /// كلها، نفس نمط `VerificationRequestModel.listFromResponse`.
-  static List<Complaint> listFromMaps(List<dynamic> items, {bool isMine = false}) {
+  static List<Complaint> listFromMaps(
+    List<dynamic> items, {
+    bool isMine = false,
+  }) {
     final result = <Complaint>[];
 
     for (final item in items) {
@@ -78,7 +92,10 @@ class ComplaintModel {
   /// قراءة استجابة الـ endpoint كاملة بلا رهان على شكل تغليف واحد —
   /// نفس نمط `VerificationRequestModel.listFromResponse`: قائمة مباشرة،
   /// أو تحت `data`، أو `data.data` (ترقيم صفحات Laravel المتداخل).
-  static List<Complaint> listFromResponse(dynamic response, {bool isMine = false}) {
+  static List<Complaint> listFromResponse(
+    dynamic response, {
+    bool isMine = false,
+  }) {
     return listFromMaps(_extractList(response), isMine: isMine);
   }
 
@@ -95,14 +112,43 @@ class ComplaintModel {
     return const [];
   }
 
-  static bool _hasMedia(Map<String, dynamic> json) {
+  /// `file_url` هو الاسم المؤكّد بمثال حقيقي — `url`/`image_url` خط
+  /// دفاع احتياطي لو اختلف الشكل بمسار تاني.
+  static List<String> _mediaUrls(Map<String, dynamic> json) {
     final media = json['media'];
-    if (media is List) return media.isNotEmpty;
+    if (media is! List) return const [];
 
-    final count = _firstInt(json, ['media_count']);
-    if (count != null) return count > 0;
+    final urls = <String>[];
 
-    return _firstBool(json, ['has_media']) ?? false;
+    for (final item in media) {
+      if (item is! Map) continue;
+
+      final url = _firstString(Map<String, dynamic>.from(item), [
+        'file_url',
+        'url',
+        'image_url',
+      ]);
+
+      if (url != null) urls.add(url);
+    }
+
+    return urls;
+  }
+
+  static Map<String, dynamic>? _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+
+    return null;
+  }
+
+  static String? _firstString(Map<String, dynamic> json, List<String> keys) {
+    for (final key in keys) {
+      final value = json[key];
+      if (value is String && value.isNotEmpty) return value;
+    }
+
+    return null;
   }
 
   static int? _asInt(dynamic value) {

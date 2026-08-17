@@ -87,9 +87,9 @@ void main() {
   blocTest<ProfileCubit, ProfileState>(
     'الفشل: loading ثم failure مع رسالة جاهزة للعرض',
     build: () {
-      when(() => getProfile(any())).thenAnswer(
-        (_) async => const Err(NetworkFailure('error_connection')),
-      );
+      when(
+        () => getProfile(any()),
+      ).thenAnswer((_) async => const Err(NetworkFailure('error_connection')));
 
       return buildCubit();
     },
@@ -169,9 +169,9 @@ void main() {
         when(
           () => getProfile(any()),
         ).thenAnswer((_) async => const Ok(_profile));
-        when(() => uploadAvatar(any())).thenAnswer(
-          (_) async => const Err(ServerFailure('error_server')),
-        );
+        when(
+          () => uploadAvatar(any()),
+        ).thenAnswer((_) async => const Err(ServerFailure('error_server')));
 
         return buildCubit();
       },
@@ -231,9 +231,9 @@ void main() {
     blocTest<ProfileCubit, ProfileState>(
       'فشل الإزالة بيرجّع الصورة القديمة',
       build: () {
-        when(() => removeAvatar(any())).thenAnswer(
-          (_) async => const Err(ServerFailure('error_server')),
-        );
+        when(
+          () => removeAvatar(any()),
+        ).thenAnswer((_) async => const Err(ServerFailure('error_server')));
 
         return buildCubit();
       },
@@ -260,18 +260,23 @@ void main() {
       expect(cubit.state.avatarRemoved, isTrue);
     });
 
-    test('إعادة تحميل ناجحة بتلغي علم الإزالة — بيانات السيرفر هي المرجع', () async {
-      when(() => getProfile(any())).thenAnswer((_) async => const Ok(_profile));
-      when(() => removeAvatar(any())).thenAnswer((_) async => const Ok(null));
+    test(
+      'إعادة تحميل ناجحة بتلغي علم الإزالة — بيانات السيرفر هي المرجع',
+      () async {
+        when(
+          () => getProfile(any()),
+        ).thenAnswer((_) async => const Ok(_profile));
+        when(() => removeAvatar(any())).thenAnswer((_) async => const Ok(null));
 
-      final cubit = buildCubit();
-      await cubit.removeAvatar();
-      expect(cubit.state.avatarRemoved, isTrue);
+        final cubit = buildCubit();
+        await cubit.removeAvatar();
+        expect(cubit.state.avatarRemoved, isTrue);
 
-      await cubit.load();
+        await cubit.load();
 
-      expect(cubit.state.avatarRemoved, isFalse);
-    });
+        expect(cubit.state.avatarRemoved, isFalse);
+      },
+    );
   });
 
   group('مزامنة حالة الحساب مع الجلسة', () {
@@ -289,9 +294,9 @@ void main() {
     });
 
     test('الفشل ما بيلمس حالة الحساب', () async {
-      when(() => getProfile(any())).thenAnswer(
-        (_) async => const Err(ServerFailure('error_server')),
-      );
+      when(
+        () => getProfile(any()),
+      ).thenAnswer((_) async => const Err(ServerFailure('error_server')));
 
       await buildCubit().load();
 

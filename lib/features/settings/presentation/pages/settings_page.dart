@@ -13,12 +13,12 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/design_system/app_theme_context.dart';
 import '../../../../core/design_system/widgets/app_card.dart';
 import '../../../../core/design_system/widgets/app_section_header.dart';
+import '../../../../core/design_system/widgets/confirm_sheet.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/permissions/app_permission_service.dart';
 import '../../../../core/session/app_session_controller.dart';
 import '../../../../core/settings/cubit/settings_cubit.dart';
 import '../../../../core/settings/cubit/settings_state.dart';
-import '../widgets/settings_confirm_sheet.dart';
 import '../widgets/settings_row.dart';
 import '../widgets/settings_segmented_control.dart';
 import '../widgets/settings_text_scale_row.dart';
@@ -27,7 +27,7 @@ class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   Future<void> _logout(BuildContext context) async {
-    final confirmed = await showSettingsConfirmSheet(
+    final confirmed = await showConfirmSheet(
       context: context,
       title: 'logout_confirm_title'.tr(),
       body: 'logout_confirm_body'.tr(),
@@ -46,7 +46,7 @@ class SettingsPage extends StatelessWidget {
   }
 
   Future<void> _deleteAccount(BuildContext context) async {
-    final confirmed = await showSettingsConfirmSheet(
+    final confirmed = await showConfirmSheet(
       context: context,
       title: 'delete_account_confirm_title'.tr(),
       body: 'delete_account_confirm_body'.tr(),
@@ -60,7 +60,9 @@ class SettingsPage extends StatelessWidget {
     // مبنية كاملة حتى تكون جاهزة، بس ما بتنفّذ حذفاً حقيقياً.
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('delete_account_not_available'.tr())));
+      ..showSnackBar(
+        SnackBar(content: Text('delete_account_not_available'.tr())),
+      );
   }
 
   void _showComingSoon(BuildContext context) {
@@ -365,7 +367,9 @@ class _AppVersionValue extends StatelessWidget {
       future: PackageInfo.fromPlatform(),
       builder: (context, snapshot) {
         final info = snapshot.data;
-        final text = info == null ? '—' : '${info.version} (${info.buildNumber})';
+        final text = info == null
+            ? '—'
+            : '${info.version} (${info.buildNumber})';
 
         // `TextDirection` وحدها غامضة هون: `easy_localization` بيصدّر
         // `intl.dart` يلي فيه صنف بنفس الاسم — بادئة `ui.` بتفرض نوع

@@ -13,7 +13,10 @@ import '../../../../../core/di/service_locator.dart';
 import '../../../domain/entities/complaint_report_reason.dart';
 import '../../../domain/usecases/report_complaint_usecase.dart';
 
-Future<bool> showComplaintReportSheet(BuildContext context, {required int complaintId}) async {
+Future<bool> showComplaintReportSheet(
+  BuildContext context, {
+  required int complaintId,
+}) async {
   final result = await showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
@@ -90,7 +93,9 @@ class _ReportSheetState extends State<_ReportSheet> {
     final colors = context.colors;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: SafeArea(
         child: Container(
           decoration: BoxDecoration(
@@ -118,10 +123,15 @@ class _ReportSheetState extends State<_ReportSheet> {
               SizedBox(height: 14.h),
               Text(
                 'report_sheet_title'.tr(),
-                style: context.texts.f16W500Black.copyWith(fontWeight: FontWeight.w600),
+                style: context.texts.f16W500Black.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               SizedBox(height: 6.h),
-              Text('report_sheet_subtitle'.tr(), style: context.texts.f12W400SecColor),
+              Text(
+                'report_sheet_subtitle'.tr(),
+                style: context.texts.f12W400SecColor,
+              ),
               SizedBox(height: 4.h),
               for (final reason in ComplaintReportReason.values)
                 InkWell(
@@ -135,15 +145,21 @@ class _ReportSheetState extends State<_ReportSheet> {
                               ? Icons.radio_button_checked_rounded
                               : Icons.radio_button_unchecked_rounded,
                           size: 22.sp,
-                          color: reason == _reason ? scheme.primary : colors.border,
+                          color: reason == _reason
+                              ? scheme.primary
+                              : colors.border,
                         ),
                         SizedBox(width: 12.w),
                         Text(
                           _label(reason),
                           style: TextStyle(
                             fontSize: 14.5.sp,
-                            fontWeight: reason == _reason ? FontWeight.w600 : FontWeight.w400,
-                            color: reason == _reason ? scheme.primary : colors.textPrimary,
+                            fontWeight: reason == _reason
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                            color: reason == _reason
+                                ? scheme.primary
+                                : colors.textPrimary,
                           ),
                         ),
                       ],
@@ -153,11 +169,18 @@ class _ReportSheetState extends State<_ReportSheet> {
               SizedBox(height: AppSpacing.sm.h),
               Row(
                 children: [
-                  Text('report_desc_label'.tr(), style: context.texts.f14W600Black),
+                  Text(
+                    'report_desc_label'.tr(),
+                    style: context.texts.f14W600Black,
+                  ),
                   SizedBox(width: 5.w),
                   Text(
                     'required_mark'.tr(),
-                    style: TextStyle(fontSize: 11.5.sp, fontWeight: FontWeight.w500, color: scheme.error),
+                    style: TextStyle(
+                      fontSize: 11.5.sp,
+                      fontWeight: FontWeight.w500,
+                      color: scheme.error,
+                    ),
                   ),
                 ],
               ),
@@ -179,7 +202,9 @@ class _ReportSheetState extends State<_ReportSheet> {
                   onPressed: _canSubmit ? _submit : null,
                   style: FilledButton.styleFrom(
                     backgroundColor: scheme.error,
-                    disabledBackgroundColor: scheme.error.withValues(alpha: 0.45),
+                    disabledBackgroundColor: scheme.error.withValues(
+                      alpha: 0.45,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppRadius.md.r),
                     ),
@@ -188,7 +213,10 @@ class _ReportSheetState extends State<_ReportSheet> {
                       ? SizedBox(
                           width: 20.w,
                           height: 20.w,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: scheme.onError),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: scheme.onError,
+                          ),
                         )
                       : Text(
                           'report_submit'.tr(),

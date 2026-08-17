@@ -5,9 +5,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
 import 'package:maan/core/design_system/widgets/app_button.dart';
 import 'package:maan/core/di/service_locator.dart';
+import 'package:maan/core/router/app_routes.dart';
 import 'package:maan/core/session/app_session_controller.dart';
 
 /// شاشة رئيسية مؤقّتة **للفحص اليدوي فقط** — لحد ما تُبنى شاشة Home
@@ -77,6 +79,16 @@ class HomeVerificationPage extends StatelessWidget {
                     'guest_session_notice'.tr(),
                     style: context.texts.f14W400HintColor,
                   ),
+                SizedBox(height: 12.h),
+                // مؤقّت — مدخل «خدمات البلدية» لحد ما تُبنى شاشة Home
+                // الحقيقية وتصير هي نقطة الدخول الطبيعية.
+                AppButton(
+                  buttonText: 'municipal_services_title'.tr(),
+                  buttonColor: context.scheme.primary,
+                  buttonColorSide: context.scheme.primary,
+                  buttonOnPressed: () =>
+                      context.push(AppRoutes.municipalServices),
+                ),
               ],
             ),
           );

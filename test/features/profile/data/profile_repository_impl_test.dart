@@ -131,7 +131,10 @@ void main() {
   group('رفع الصورة الشخصية', () {
     test('POST بـ multipart على /api/profile/update بحقل اسمه image', () async {
       final built = _buildWith(
-        () => _json({'status': 1, 'data': {'avatar_url': 'https://cdn/a.jpg'}}, 200),
+        () => _json({
+          'status': 1,
+          'data': {'avatar_url': 'https://cdn/a.jpg'},
+        }, 200),
       );
 
       await built.repository.uploadAvatar(
@@ -160,7 +163,9 @@ void main() {
 
     test('بتقرأ الرابط الجديد لو رجّعه السيرفر', () async {
       final built = _buildWith(
-        () => _json({'data': {'avatar_url': 'https://cdn/a.jpg'}}, 200),
+        () => _json({
+          'data': {'avatar_url': 'https://cdn/a.jpg'},
+        }, 200),
       );
 
       final result = await built.repository.uploadAvatar(
@@ -228,9 +233,7 @@ void main() {
     });
 
     test('فشل السيرفر بيتحوّل لـ Failure', () async {
-      final built = _buildWith(
-        () => _json({'message': 'Server error'}, 500),
-      );
+      final built = _buildWith(() => _json({'message': 'Server error'}, 500));
 
       final result = await built.repository.removeAvatar();
 

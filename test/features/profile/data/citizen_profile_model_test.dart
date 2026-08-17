@@ -52,40 +52,53 @@ void main() {
     });
   });
 
-  group('المؤشرات — لسه ما إلها عقد', () {
+  group('المؤشرات', () {
     test('غيابها ما بيرمي، بترجع null', () {
       final model = CitizenProfileModel.fromMap(_userFields());
 
       expect(model.stats.citizenshipIndex, isNull);
-      expect(model.stats.authenticationIndex, isNull);
+      expect(model.stats.credibilityIndex, isNull);
       expect(model.stats.volunteeringCount, isNull);
       expect(model.stats.contributionsCount, isNull);
       expect(model.stats.licensesCount, isNull);
       expect(model.stats.isEmpty, isTrue);
     });
 
-    test('بتنقرأ لو وصلت جنب المستخدم', () {
+    test('citizenship_score/credibility_score — الشكل المؤكّد بمثال حقيقي', () {
       final model = CitizenProfileModel.fromMap({
         'data': {
           'user': _userFields(),
-          'citizenship_index': 75,
-          'authentication_index': 40,
-          'volunteering_count': 15,
-          'contributions_count': 7,
-          'licenses_count': 5,
+          'citizenship_score': 75,
+          // credibility_score براجع كنص عشري حقيقةً، لا رقم.
+          'credibility_score': '50.00',
         },
       });
 
       expect(model.stats.citizenshipIndex, 75);
-      expect(model.stats.authenticationIndex, 40);
-      expect(model.stats.volunteeringCount, 15);
-      expect(model.stats.contributionsCount, 7);
-      expect(model.stats.licensesCount, 5);
+      expect(model.stats.credibilityIndex, 50);
     });
+
+    test(
+      'العدّادات التلاتة الباقية — تخمين موثّق، بتنقرأ لو وصلت جنب المستخدم',
+      () {
+        final model = CitizenProfileModel.fromMap({
+          'data': {
+            'user': _userFields(),
+            'volunteering_count': 15,
+            'contributions_count': 7,
+            'licenses_count': 5,
+          },
+        });
+
+        expect(model.stats.volunteeringCount, 15);
+        expect(model.stats.contributionsCount, 7);
+        expect(model.stats.licensesCount, 5);
+      },
+    );
 
     test('بتنقرأ لو وصلت جوّا المستخدم', () {
       final model = CitizenProfileModel.fromMap(
-        _userFields()..['citizenship_index'] = 60,
+        _userFields()..['citizenship_score'] = 60,
       );
 
       expect(model.stats.citizenshipIndex, 60);
@@ -102,12 +115,12 @@ void main() {
     test('نسبة خارج المدى بتتقصّ بدل ما تكسر شريط التقدّم', () {
       final model = CitizenProfileModel.fromMap(
         _userFields()
-          ..['citizenship_index'] = 140
-          ..['authentication_index'] = -20,
+          ..['citizenship_score'] = 140
+          ..['credibility_score'] = '-20',
       );
 
       expect(model.stats.citizenshipIndex, 100);
-      expect(model.stats.authenticationIndex, 0);
+      expect(model.stats.credibilityIndex, 0);
     });
 
     test('العدّادات ما بتتقصّ — مالها سقف', () {
@@ -116,6 +129,32 @@ void main() {
       );
 
       expect(model.stats.volunteeringCount, 250);
+    });
+  });
+
+  group('الصورة — راجعة بمستوى الملف الشخصي لا جوّا user', () {
+    test('image بجانب user (الشكل الحقيقي) بتنوصل لـ AuthUser.avatarUrl', () {
+      final model = CitizenProfileModel.fromMap({
+        'data': {'user': _userFields(), 'image': 'avatars/citizen-7.jpg'},
+      });
+
+      expect(model.user.avatarUrl, 'avatars/citizen-7.jpg');
+    });
+
+    test('image جوّا user كمان بتنقرأ — دفاعي لو الباك اند غيّر الموقع', () {
+      final model = CitizenProfileModel.fromMap(
+        _userFields()..['image'] = 'avatars/citizen-7.jpg',
+      );
+
+      expect(model.user.avatarUrl, 'avatars/citizen-7.jpg');
+    });
+
+    test('غيابها بلا استثناء — null نتيجة صحيحة', () {
+      final model = CitizenProfileModel.fromMap({
+        'data': {'user': _userFields()},
+      });
+
+      expect(model.user.avatarUrl, isNull);
     });
   });
 

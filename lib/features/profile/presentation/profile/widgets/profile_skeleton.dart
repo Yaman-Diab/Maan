@@ -46,7 +46,7 @@ class ProfileSkeleton extends StatelessWidget {
     ),
     stats: const ProfileStats(
       citizenshipIndex: 60,
-      authenticationIndex: 80,
+      credibilityIndex: 80,
       volunteeringCount: 3,
       contributionsCount: 5,
       licensesCount: 2,

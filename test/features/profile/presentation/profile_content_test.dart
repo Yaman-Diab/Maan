@@ -95,7 +95,7 @@ void main() {
     expect(find.text('profile_statistics_section'), findsOneWidget);
     expect(find.text('profile_activity_section'), findsOneWidget);
     expect(find.text('citizenship_index'), findsOneWidget);
-    expect(find.text('authentication_index'), findsOneWidget);
+    expect(find.text('credibility_index'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -130,10 +130,7 @@ void main() {
         tester,
         CitizenProfile(
           user: _user(),
-          stats: const ProfileStats(
-            citizenshipIndex: 75,
-            authenticationIndex: 45,
-          ),
+          stats: const ProfileStats(citizenshipIndex: 75, credibilityIndex: 45),
         ),
       );
 
@@ -259,9 +256,7 @@ void main() {
     testWidgets('رابط السيرفر بينعرض لما ما يكون في ملف محلي', (tester) async {
       await _pump(
         tester,
-        CitizenProfile(
-          user: _user(avatarUrl: 'https://cdn.test/photo.jpg'),
-        ),
+        CitizenProfile(user: _user(avatarUrl: 'https://cdn.test/photo.jpg')),
       );
 
       final image = tester.widget<Image>(find.byType(Image));
@@ -273,9 +268,7 @@ void main() {
     ) async {
       await _pump(
         tester,
-        CitizenProfile(
-          user: _user(avatarUrl: 'https://cdn.test/photo.jpg'),
-        ),
+        CitizenProfile(user: _user(avatarUrl: 'https://cdn.test/photo.jpg')),
         avatarRemoved: true,
       );
 
@@ -298,11 +291,7 @@ void main() {
   });
 
   testWidgets('بتشتغل بالوضع الداكن', (tester) async {
-    await _pump(
-      tester,
-      CitizenProfile(user: _user()),
-      theme: AppTheme.dark(),
-    );
+    await _pump(tester, CitizenProfile(user: _user()), theme: AppTheme.dark());
 
     expect(tester.takeException(), isNull);
   });

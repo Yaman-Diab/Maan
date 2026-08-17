@@ -8,9 +8,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../../core/design_system/app_semantic_colors.dart';
 import '../../../../../core/design_system/app_spacing.dart';
 import '../../../../../core/design_system/app_theme_context.dart';
 import '../../../../../core/design_system/widgets/app_card.dart';
+import '../../../../../core/design_system/widgets/place_name_text.dart';
 import '../../../../../core/di/service_locator.dart';
 import '../../../domain/entities/complaint.dart';
 import '../../../domain/entities/complaint_status.dart';
@@ -25,7 +27,11 @@ import '../widgets/complaint_report_sheet.dart';
 /// التحميل لما ترجع، فبتاخد الرقم الصحيح من السيرفر بدل تعقيد مشاركة
 /// حالة بين شاشتين.
 class ComplaintDetailPage extends StatefulWidget {
-  const ComplaintDetailPage({super.key, required this.complaint, required this.canVote});
+  const ComplaintDetailPage({
+    super.key,
+    required this.complaint,
+    required this.canVote,
+  });
 
   final Complaint complaint;
   final bool canVote;
@@ -69,12 +75,17 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
   }
 
   Future<void> _openReport() async {
-    final sent = await showComplaintReportSheet(context, complaintId: _complaint.id);
+    final sent = await showComplaintReportSheet(
+      context,
+      complaintId: _complaint.id,
+    );
 
     if (sent && mounted) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text('report_submitted_message'.tr())));
+        ..showSnackBar(
+          SnackBar(content: Text('report_submitted_message'.tr())),
+        );
     }
   }
 
@@ -89,8 +100,10 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
 
   static String _typeLabel(Complaint complaint) {
     return switch (complaint.type) {
-      final t when t.wireValue == 'individual' => 'complaint_type_individual'.tr(),
-      final t when t.wireValue == 'collective' => 'complaint_type_collective'.tr(),
+      final t when t.wireValue == 'individual' =>
+        'complaint_type_individual'.tr(),
+      final t when t.wireValue == 'collective' =>
+        'complaint_type_collective'.tr(),
       _ => 'complaint_type_emergency'.tr(),
     };
   }
@@ -127,7 +140,9 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
         elevation: 0,
         title: Text(
           'complaint_details_title'.tr(),
-          style: context.texts.f16W500Black.copyWith(fontWeight: FontWeight.w500),
+          style: context.texts.f16W500Black.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
       body: SafeArea(
@@ -139,38 +154,42 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                 width: double.infinity,
                 height: 200.h,
                 alignment: Alignment.center,
+                clipBehavior: Clip.hardEdge,
                 decoration: BoxDecoration(
                   color: _complaint.hasMedia
                       ? colors.fieldDisabledBackground
-                      : (categoryStyle?.background ?? colors.fieldDisabledBackground),
+                      : (categoryStyle?.background ??
+                            colors.fieldDisabledBackground),
                   border: Border(bottom: BorderSide(color: colors.divider)),
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      _complaint.hasMedia
-                          ? Icons.image_rounded
-                          : (categoryStyle?.icon ?? Icons.campaign_rounded),
-                      size: _complaint.hasMedia ? 34.sp : 56.sp,
-                      color: _complaint.hasMedia
-                          ? colors.textHint
-                          : (categoryStyle?.foreground ?? colors.textSecondary),
-                    ),
-                    SizedBox(height: 10.h),
-                    Text(
-                      _complaint.hasMedia
-                          ? 'photo_placeholder'.tr()
-                          : 'no_media_placeholder'.tr(),
-                      style: TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 11.sp,
-                        color: colors.textHint,
-                        letterSpacing: 0.3,
+                child: _complaint.hasMedia
+                    ? Image.network(
+                        _complaint.mediaUrls.first,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: colors.textHint,
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stack) => _MediaFallback(
+                          icon: Icons.broken_image_rounded,
+                          label: 'photo_placeholder'.tr(),
+                          colors: colors,
+                          iconSize: 34.sp,
+                        ),
+                      )
+                    : _MediaFallback(
+                        icon: categoryStyle?.icon ?? Icons.campaign_rounded,
+                        label: 'no_media_placeholder'.tr(),
+                        colors: colors,
+                        color: categoryStyle?.foreground,
                       ),
-                    ),
-                  ],
-                ),
               ),
               Padding(
                 padding: EdgeInsets.all(16.w),
@@ -210,36 +229,60 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('complaint_info_section'.tr(), style: context.texts.f14W600Black),
+                          Text(
+                            'complaint_info_section'.tr(),
+                            style: context.texts.f14W600Black,
+                          ),
                           SizedBox(height: AppSpacing.sm.h),
                           Container(height: 1, color: colors.divider),
                           SizedBox(height: AppSpacing.sm.h),
-                          _InfoRow(label: 'complaint_row_category'.tr(), value: _categoryLabel(_complaint)),
-                          if (_complaint.latitude != null && _complaint.longitude != null)
+                          _InfoRow(
+                            label: 'complaint_row_category'.tr(),
+                            value: _categoryLabel(_complaint),
+                          ),
+                          if (_complaint.latitude != null &&
+                              _complaint.longitude != null)
                             _InfoRow(
                               label: 'complaint_row_location'.tr(),
-                              value:
-                                  '${_complaint.latitude!.toStringAsFixed(4)}, ${_complaint.longitude!.toStringAsFixed(4)}',
-                              mono: true,
+                              // اسم المكان بدل الإحداثيات الخام — بيرجع
+                              // للإحداثيات لحاله لو فشل التحويل.
+                              valueWidget: PlaceNameText(
+                                latitude: _complaint.latitude!,
+                                longitude: _complaint.longitude!,
+                                maxLines: 2,
+                                style: context.texts.f14W600Black,
+                              ),
                             ),
                           if (_complaint.createdAt != null)
                             _InfoRow(
                               label: 'complaint_row_submitted_at'.tr(),
-                              value: _complaint.createdAt!.toLocal().toString().split(' ').first,
+                              value: _complaint.createdAt!
+                                  .toLocal()
+                                  .toString()
+                                  .split(' ')
+                                  .first,
                               mono: true,
                             ),
-                          _InfoRow(label: 'complaint_row_id'.tr(), value: '#${_complaint.id}', mono: true),
+                          _InfoRow(
+                            label: 'complaint_row_id'.tr(),
+                            value: '#${_complaint.id}',
+                            mono: true,
+                          ),
                         ],
                       ),
                     ),
-                    if (_complaint.description != null && _complaint.description!.isNotEmpty) ...[
+                    if (_complaint.description != null &&
+                        _complaint.description!.isNotEmpty) ...[
                       SizedBox(height: AppSpacing.sm.h),
                       AppCard(
                         padding: EdgeInsets.all(AppSpacing.md.w),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('complaint_desc_section'.tr(), style: context.texts.f14W600Black),
+                            Text(
+                              'complaint_desc_section'.tr(),
+                              style: context.texts.f14W600Black,
+                            ),
                             SizedBox(height: 8.h),
                             Text(
                               _complaint.description!,
@@ -260,14 +303,23 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                             opacity: widget.canVote ? 1 : 0.45,
                             child: InkWell(
                               onTap: _toggleVote,
-                              borderRadius: BorderRadius.circular(AppRadius.md.r),
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.md.r,
+                              ),
                               child: Container(
                                 height: 48.h,
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
-                                  color: _complaint.hasVoted ? scheme.primary : Colors.transparent,
-                                  border: Border.all(color: scheme.primary, width: 1.5),
-                                  borderRadius: BorderRadius.circular(AppRadius.md.r),
+                                  color: _complaint.hasVoted
+                                      ? scheme.primary
+                                      : Colors.transparent,
+                                  border: Border.all(
+                                    color: scheme.primary,
+                                    width: 1.5,
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                    AppRadius.md.r,
+                                  ),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -275,7 +327,9 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                                     Icon(
                                       Icons.arrow_upward_rounded,
                                       size: 20.sp,
-                                      color: _complaint.hasVoted ? scheme.onPrimary : scheme.primary,
+                                      color: _complaint.hasVoted
+                                          ? scheme.onPrimary
+                                          : scheme.primary,
                                     ),
                                     SizedBox(width: 8.w),
                                     Text(
@@ -283,7 +337,9 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                                       style: TextStyle(
                                         fontSize: 15.sp,
                                         fontWeight: FontWeight.w600,
-                                        color: _complaint.hasVoted ? scheme.onPrimary : scheme.primary,
+                                        color: _complaint.hasVoted
+                                            ? scheme.onPrimary
+                                            : scheme.primary,
                                       ),
                                     ),
                                     SizedBox(width: 4.w),
@@ -291,8 +347,11 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                                       'complaint_vote_label'.tr(),
                                       style: TextStyle(
                                         fontSize: 13.sp,
-                                        color: (_complaint.hasVoted ? scheme.onPrimary : scheme.primary)
-                                            .withValues(alpha: 0.85),
+                                        color:
+                                            (_complaint.hasVoted
+                                                    ? scheme.onPrimary
+                                                    : scheme.primary)
+                                                .withValues(alpha: 0.85),
                                       ),
                                     ),
                                   ],
@@ -312,7 +371,9 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                               foregroundColor: colors.textSecondary,
                               side: BorderSide(color: colors.border),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(AppRadius.md.r),
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.md.r,
+                                ),
                               ),
                             ),
                           ),
@@ -326,6 +387,44 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// عرض بديل لصورة الشكوى — بلا وسائط أصلاً، أو الصورة فشل تحميلها.
+/// نفس الشكل بفرق حجم الأيقونة والنص (راجع مواقع الاستدعاء).
+class _MediaFallback extends StatelessWidget {
+  const _MediaFallback({
+    required this.icon,
+    required this.label,
+    required this.colors,
+    this.color,
+    this.iconSize = 56,
+  });
+
+  final IconData icon;
+  final String label;
+  final AppSemanticColors colors;
+  final Color? color;
+  final double iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: iconSize, color: color ?? colors.textSecondary),
+        SizedBox(height: 10.h),
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'monospace',
+            fontSize: 11.sp,
+            color: colors.textHint,
+            letterSpacing: 0.3,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -347,7 +446,10 @@ class _Chip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-      decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(24.r)),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(24.r),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -355,7 +457,11 @@ class _Chip extends StatelessWidget {
           SizedBox(width: 4.w),
           Text(
             label,
-            style: TextStyle(fontSize: 11.5.sp, fontWeight: FontWeight.w600, color: foreground),
+            style: TextStyle(
+              fontSize: 11.5.sp,
+              fontWeight: FontWeight.w600,
+              color: foreground,
+            ),
           ),
         ],
       ),
@@ -364,10 +470,20 @@ class _Chip extends StatelessWidget {
 }
 
 class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.label, required this.value, this.mono = false});
+  const _InfoRow({
+    required this.label,
+    this.value,
+    this.valueWidget,
+    this.mono = false,
+  }) : assert(value != null || valueWidget != null);
 
   final String label;
-  final String value;
+  final String? value;
+
+  /// بديل [value] لما القيمة مش نصاً جاهزاً (مثلاً اسم مكان بينحلّ
+  /// بالخلفية) — نفس المحاذاة والقصّ.
+  final Widget? valueWidget;
+
   final bool mono;
 
   @override
@@ -376,26 +492,28 @@ class _InfoRow extends StatelessWidget {
       padding: EdgeInsets.only(bottom: 10.h),
       child: Row(
         children: [
-          Expanded(
-            child: Text(label, style: context.texts.f12W400SecColor),
-          ),
+          Expanded(child: Text(label, style: context.texts.f12W400SecColor)),
           Flexible(
             child: Directionality(
-              textDirection: mono ? ui.TextDirection.ltr : Directionality.of(context),
-              child: Text(
-                value,
-                textAlign: TextAlign.end,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: mono
-                    ? TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w500,
-                        color: context.colors.textPrimary,
-                      )
-                    : context.texts.f14W600Black,
-              ),
+              textDirection: mono
+                  ? ui.TextDirection.ltr
+                  : Directionality.of(context),
+              child:
+                  valueWidget ??
+                  Text(
+                    value!,
+                    textAlign: TextAlign.end,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: mono
+                        ? TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w500,
+                            color: context.colors.textPrimary,
+                          )
+                        : context.texts.f14W600Black,
+                  ),
             ),
           ),
         ],

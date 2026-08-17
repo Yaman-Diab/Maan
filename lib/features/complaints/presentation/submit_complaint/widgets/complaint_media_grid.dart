@@ -84,7 +84,11 @@ class _MediaTile extends StatelessWidget {
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => ColoredBox(
                         color: colors.fieldDisabledBackground,
-                        child: Icon(Icons.image_rounded, size: 24.sp, color: colors.textHint),
+                        child: Icon(
+                          Icons.image_rounded,
+                          size: 24.sp,
+                          color: colors.textHint,
+                        ),
                       ),
                     ),
             ),
@@ -105,7 +109,11 @@ class _MediaTile extends StatelessWidget {
                     BoxShadow(color: Color(0x33000000), blurRadius: 3),
                   ],
                 ),
-                child: Icon(Icons.close_rounded, size: 15.sp, color: context.scheme.error),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 15.sp,
+                  color: context.scheme.error,
+                ),
               ),
             ),
           ),
@@ -129,10 +137,17 @@ class _AddTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12.r),
         child: Container(
           decoration: BoxDecoration(
-            border: Border.all(color: context.colors.border, style: BorderStyle.solid),
+            border: Border.all(
+              color: context.colors.border,
+              style: BorderStyle.solid,
+            ),
             borderRadius: BorderRadius.circular(12.r),
           ),
-          child: Icon(Icons.add_rounded, size: 24.sp, color: context.scheme.primary),
+          child: Icon(
+            Icons.add_rounded,
+            size: 24.sp,
+            color: context.scheme.primary,
+          ),
         ),
       ),
     );

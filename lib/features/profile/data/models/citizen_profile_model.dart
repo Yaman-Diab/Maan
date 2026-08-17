@@ -20,7 +20,18 @@ class CitizenProfileModel {
 
   factory CitizenProfileModel.fromMap(Map<String, dynamic> json) {
     final container = _asMap(json[_Keys.data]) ?? json;
-    final userMap = _asMap(container[_Keys.user]) ?? container;
+    final rawUserMap = _asMap(container[_Keys.user]) ?? container;
+
+    // ⚠️ **الصورة براجعة بمستوى الملف الشخصي (`data.image`) لا جوّا
+    // `user`** — مؤكّد بمثال استجابة حقيقي لـ`GET /api/profile`. بلا
+    // هالدمج `AuthUserModel.fromMap` ما رح يلاقي الصورة أبداً لأنها مش
+    // بنفس الخريطة يلي بيفحصها (كانت هيك دايماً `null` رغم وجودها
+    // فعلياً عند السيرفر).
+    final userMap = {
+      ...rawUserMap,
+      if (rawUserMap[_Keys.image] == null && container[_Keys.image] != null)
+        _Keys.image: container[_Keys.image],
+    };
 
     return CitizenProfileModel(
       user: AuthUserModel.fromMap(userMap),
@@ -37,9 +48,14 @@ class CitizenProfileModel {
   // Stats
   // -------------------------
 
-  /// ⚠️ الأسماء هون **تخمين موثّق**، مش عقد. ما في endpoint بـ
-  /// `collection.md` بيرجّع مؤشرات، فأي مفتاح ما بينوجد بيضل `null`
-  /// والواجهة بتعرض «—». يوم يثبّت الباك اند أسماءه، التعديل هون فقط.
+  /// ✅ `citizenship_score`/`credibility_score` **مؤكّدان** بمثال
+  /// استجابة حقيقي لـ`GET /api/profile` — `credibility_score` بيرجع
+  /// كنص عشري (`"50.00"`) لا رقم، فـ`read` بتجرّب `double.tryParse`
+  /// بعد فشل `int.tryParse` بدل ما تفوّت القيمة.
+  ///
+  /// ⚠️ العدّادات التلاتة الباقية لسه **تخمين موثّق**، مش عقد — ما في
+  /// endpoint بـ`collection.md` بيرجّعهم. يوم يثبّت الباك اند أسماءهم،
+  /// التعديل هون فقط.
   static ProfileStats _statsFrom(
     Map<String, dynamic> container,
     Map<String, dynamic> userMap,
@@ -48,7 +64,9 @@ class CitizenProfileModel {
       final value = container[key] ?? userMap[key];
 
       if (value is num) return value.toInt();
-      if (value is String) return int.tryParse(value);
+      if (value is String) {
+        return int.tryParse(value) ?? double.tryParse(value)?.round();
+      }
 
       return null;
     }
@@ -63,7 +81,7 @@ class CitizenProfileModel {
 
     return ProfileStats(
       citizenshipIndex: readPercentage(_Keys.citizenshipIndex),
-      authenticationIndex: readPercentage(_Keys.authenticationIndex),
+      credibilityIndex: readPercentage(_Keys.credibilityIndex),
       volunteeringCount: read(_Keys.volunteeringCount),
       contributionsCount: read(_Keys.contributionsCount),
       licensesCount: read(_Keys.licensesCount),
@@ -85,9 +103,10 @@ class CitizenProfileModel {
 abstract final class _Keys {
   static const String data = 'data';
   static const String user = 'user';
+  static const String image = 'image';
 
-  static const String citizenshipIndex = 'citizenship_index';
-  static const String authenticationIndex = 'authentication_index';
+  static const String citizenshipIndex = 'citizenship_score';
+  static const String credibilityIndex = 'credibility_score';
   static const String volunteeringCount = 'volunteering_count';
   static const String contributionsCount = 'contributions_count';
   static const String licensesCount = 'licenses_count';

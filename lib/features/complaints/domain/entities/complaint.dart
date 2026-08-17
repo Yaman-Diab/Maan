@@ -10,12 +10,17 @@ import 'complaint_type.dart';
 
 /// شكوى مقدَّمة — مواطن (فردية/جماعية) أو بلاغ طارئ.
 ///
-/// ⚠️ **شكل استجابة القراءة (`GET /api/complains/...`) غير مؤكّد** —
-/// Postman collection عندها أمثلة الإرسال بس (بلا مثال استجابة).
-/// الحقول الأساسية (`id`, `type`, `category_id`, `title`, `status`)
-/// مؤكّدة لأنها نفس حقول الإرسال؛ الباقي (`votes`, `hasVoted`,
-/// `mediaCount`) تخمين موثّق حسب اصطلاح Laravel الشائع — راجع
-/// `ComplaintModel.fromMap` لنقطة التصحيح.
+/// ✅ **شكل القراءة مؤكّد أخيراً بأمثلة استجابة حقيقية** — `id`/`type`/
+/// `title`/`status` كانت مؤكّدة أصلاً (نفس حقول الإرسال). التصنيف
+/// والموقع يوصلوا الآن ككائنين متداخلين (`category: {id,name}` و
+/// `location`/`pin: {latitude,longitude}`) لا حقول مسطّحة — راجع
+/// `ComplaintModel.fromMap`. الوسائط أصبحت روابط حقيقية (`mediaUrls`)
+/// بدل عدّاد/علم بوجودها بس.
+///
+/// ⚠️ عدّاد التصويت (`votes`/`hasVoted`) **لسه بلا عقد مؤكّد** — كل
+/// الأمثلة الحقيقية الواصلة كانت لشكاوى المستخدم نفسه (صفر أصوات
+/// منطقياً)، فما وصل مثال بعد يثبت اسم الحقل الحقيقي لو كان مختلفاً عن
+/// التخمين الحالي.
 final class Complaint extends Equatable {
   final int id;
   final ComplaintType type;
@@ -27,7 +32,7 @@ final class Complaint extends Equatable {
   final double? longitude;
   final int votes;
   final bool hasVoted;
-  final bool hasMedia;
+  final List<String> mediaUrls;
   final DateTime? createdAt;
 
   /// شكواي أنا لا شكوى مواطن ثاني — من التاب المفتوح وقت الطلب، مش من
@@ -45,10 +50,12 @@ final class Complaint extends Equatable {
     this.longitude,
     this.votes = 0,
     this.hasVoted = false,
-    this.hasMedia = false,
+    this.mediaUrls = const [],
     this.createdAt,
     this.isMine = false,
   });
+
+  bool get hasMedia => mediaUrls.isNotEmpty;
 
   /// الطارئة والجماعية أوزانهما أعلى بترتيب «الأولوية» — نفس معادلة
   /// التصميم الأصلي، بانتظار تأكيد معادلة الباك اند الحقيقية لو اختلفت.
@@ -74,7 +81,7 @@ final class Complaint extends Equatable {
       longitude: longitude,
       votes: votes ?? this.votes,
       hasVoted: hasVoted ?? this.hasVoted,
-      hasMedia: hasMedia,
+      mediaUrls: mediaUrls,
       createdAt: createdAt,
       isMine: isMine,
     );
@@ -92,7 +99,7 @@ final class Complaint extends Equatable {
     longitude,
     votes,
     hasVoted,
-    hasMedia,
+    mediaUrls,
     createdAt,
     isMine,
   ];

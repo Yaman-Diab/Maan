@@ -111,11 +111,11 @@ class ProfileContent extends StatelessWidget {
               SizedBox(width: 12.w),
               Expanded(
                 child: StatIndexCard(
-                  label: 'authentication_index'.tr(),
+                  label: 'credibility_index'.tr(),
                   icon: Icons.shield_rounded,
                   iconForeground: context.scheme.primary,
                   iconBackground: context.colors.brandSurface,
-                  percentage: stats.authenticationIndex,
+                  percentage: stats.credibilityIndex,
                 ),
               ),
             ],
@@ -250,7 +250,11 @@ class _VerifyAccountBanner extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.verified_user_outlined, size: 22.sp, color: scheme.primary),
+            Icon(
+              Icons.verified_user_outlined,
+              size: 22.sp,
+              color: scheme.primary,
+            ),
             SizedBox(width: 12.w),
             Expanded(
               child: Column(
@@ -282,9 +286,6 @@ class _VerifyAccountBanner extends StatelessWidget {
 
 /// مدخل «الشهادات والمهارات» — بانر مصمَت بلون الهوية، بعكس بانر
 /// التوثيق (خلفية فاتحة وحدود). دايماً ظاهر، مش شرطي بحالة الحساب.
-///
-/// ⏳ الشاشة الحقيقية لسه ما انبنت — بيوصل مؤقّتاً لـ`_TempPage` عبر
-/// `AppRoutes.certificatesAndSkills`.
 class _CertificatesBanner extends StatelessWidget {
   const _CertificatesBanner({required this.onTap});
 

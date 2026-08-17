@@ -44,9 +44,9 @@ void main() {
   });
 
   test('بتمرّر الفشل كما هو بلا تحويل', () async {
-    when(() => repository.getProfile()).thenAnswer(
-      (_) async => const Err(NetworkFailure('error_connection')),
-    );
+    when(
+      () => repository.getProfile(),
+    ).thenAnswer((_) async => const Err(NetworkFailure('error_connection')));
 
     final result = await useCase(const NoParams());
 

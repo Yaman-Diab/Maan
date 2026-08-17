@@ -10,7 +10,8 @@ import 'package:maan/features/profile/presentation/edit_identity/cubit/edit_iden
 import 'package:maan/features/profile/presentation/edit_identity/cubit/edit_identity_state.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockUpdateIdentityUseCase extends Mock implements UpdateIdentityUseCase {}
+class _MockUpdateIdentityUseCase extends Mock
+    implements UpdateIdentityUseCase {}
 
 AuthUser _user({
   AccountStatus status = AccountStatus.visitor,
@@ -79,8 +80,10 @@ void main() {
   group('submit — حساب مقفول', () {
     blocTest<EditIdentityCubit, EditIdentityState>(
       'ما بيضرب الشبكة إطلاقاً حتى لو استُدعي مباشرة',
-      build: () =>
-          EditIdentityCubit(useCase, user: _user(status: AccountStatus.verified)),
+      build: () => EditIdentityCubit(
+        useCase,
+        user: _user(status: AccountStatus.verified),
+      ),
       act: (cubit) => cubit.submit(isFormValid: _valid),
       verify: (_) => verifyNever(() => useCase(any())),
       expect: () => <EditIdentityState>[],
@@ -122,7 +125,9 @@ void main() {
     blocTest<EditIdentityCubit, EditIdentityState>(
       'النجاح بيمرّر الحقول ككيان domain للـ birthDate',
       build: () {
-        when(() => useCase(any())).thenAnswer((_) async => const Ok<void>(null));
+        when(
+          () => useCase(any()),
+        ).thenAnswer((_) async => const Ok<void>(null));
 
         return EditIdentityCubit(useCase, user: _user());
       },
@@ -136,7 +141,10 @@ void main() {
 
         expect(captured.firstName, 'Yaman');
         expect(captured.nationalId, '123456789012');
-        expect(captured.birthDate, const BirthDate(day: 1, month: 2, year: 2003));
+        expect(
+          captured.birthDate,
+          const BirthDate(day: 1, month: 2, year: 2003),
+        );
       },
     );
 

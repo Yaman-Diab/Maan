@@ -105,7 +105,9 @@ class SubmitComplaintCubit extends Cubit<SubmitComplaintState> {
         emit(state.copyWith(isSubmitting: false, submitted: true));
 
       case Err(:final failure):
-        emit(state.copyWith(isSubmitting: false, errorMessage: failure.message));
+        emit(
+          state.copyWith(isSubmitting: false, errorMessage: failure.message),
+        );
     }
   }
 }

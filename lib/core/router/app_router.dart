@@ -18,7 +18,11 @@ import 'package:maan/features/complaints/presentation/complaints/pages/complaint
 import 'package:maan/features/complaints/presentation/submit_complaint/pages/submit_complaint_page.dart';
 import 'package:maan/features/profile/presentation/edit_identity/pages/edit_identity_page.dart';
 import 'package:maan/features/profile/presentation/profile/pages/profile_page.dart';
+import 'package:maan/features/municipal_services/presentation/municipal_services/pages/municipal_services_page.dart';
 import 'package:maan/features/settings/presentation/pages/settings_page.dart';
+import 'package:maan/features/skills/domain/entities/skill.dart';
+import 'package:maan/features/skills/presentation/skills/pages/skill_detail_page.dart';
+import 'package:maan/features/skills/presentation/skills/pages/skills_page.dart';
 import 'package:maan/features/verification/presentation/verification/pages/verification_page.dart';
 import 'package:maan/features/splash/presentation/pages/splash_page.dart';
 import '../../features/app_shell/app_shell_page.dart';
@@ -32,11 +36,11 @@ import 'route_args.dart';
 
 class AppRouter {
   AppRouter({
- required this.refreshListenable,
- required this.isInitialized,
- required this.isLoggedIn,
- this.isFirstLaunch,
- this.accountStatus,
+    required this.refreshListenable,
+    required this.isInitialized,
+    required this.isLoggedIn,
+    this.isFirstLaunch,
+    this.accountStatus,
   });
 
   final Listenable refreshListenable;
@@ -46,17 +50,17 @@ class AppRouter {
   final AccountStatus Function()? accountStatus;
 
   late final GoRouter router = GoRouter(
- initialLocation: AppRoutes.splash,
- refreshListenable: refreshListenable,
- debugLogDiagnostics: true,
- redirect: (context, state) {
-   return AppRedirect(
-     isInitialized: isInitialized(),
-     isLoggedIn: isLoggedIn(),
-     isFirstLaunch: isFirstLaunch?.call() ?? false,
-     accountStatus: accountStatus?.call() ?? AccountStatus.unknown,
-   ).call(state);
- },
+    initialLocation: AppRoutes.splash,
+    refreshListenable: refreshListenable,
+    debugLogDiagnostics: true,
+    redirect: (context, state) {
+      return AppRedirect(
+        isInitialized: isInitialized(),
+        isLoggedIn: isLoggedIn(),
+        isFirstLaunch: isFirstLaunch?.call() ?? false,
+        accountStatus: accountStatus?.call() ?? AccountStatus.unknown,
+      ).call(state);
+    },
     routes: [
       GoRoute(
         path: AppRoutes.splash,
@@ -168,14 +172,35 @@ class AppRouter {
         },
       ),
 
-      // ⏳ الشاشة الحقيقية لسه ما انبنت — راجع `AppRoutes.certificatesAndSkills`.
       GoRoute(
         path: AppRoutes.certificatesAndSkills,
         builder: (context, state) {
-          return _TempPage(
-            title: 'certificates_skills_title'.tr(),
-            description: 'coming_soon'.tr(),
-          );
+          return const SkillsPage();
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.skillDetail,
+        builder: (context, state) {
+          // نفس منطق `complaintDetail`: الكيان بيوصل جاهزاً عبر `extra`
+          // لأن مصدره الوحيد بطاقة بالقائمة، فما في داعي لاستعلام جديد.
+          final skill = state.extra as Skill?;
+
+          if (skill == null) {
+            return _TempPage(
+              title: 'page_not_found_title'.tr(),
+              description: 'route_not_found'.tr(),
+            );
+          }
+
+          return SkillDetailPage(skill: skill);
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.municipalServices,
+        builder: (context, state) {
+          return const MunicipalServicesPage();
         },
       ),
 

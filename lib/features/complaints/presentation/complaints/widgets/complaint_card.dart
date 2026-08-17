@@ -10,6 +10,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../core/design_system/app_spacing.dart';
 import '../../../../../core/design_system/app_theme_context.dart';
+import '../../../../../core/design_system/widgets/place_name_text.dart';
 import '../../../domain/entities/complaint.dart';
 import '../../../domain/entities/complaint_status.dart';
 import '../../../domain/entities/complaint_type.dart';
@@ -53,7 +54,11 @@ class ComplaintCard extends StatelessWidget {
           color: isEmergency ? scheme.errorContainer : scheme.surface,
           borderRadius: BorderRadius.circular(AppRadius.lg.r),
           boxShadow: const [
-            BoxShadow(color: Color(0x0F000000), offset: Offset(0, 1), blurRadius: 3),
+            BoxShadow(
+              color: Color(0x0F000000),
+              offset: Offset(0, 1),
+              blurRadius: 3,
+            ),
           ],
         ),
         child: Column(
@@ -65,24 +70,33 @@ class ComplaintCard extends StatelessWidget {
                 Container(
                   width: 64.w,
                   height: 64.w,
+                  clipBehavior: Clip.hardEdge,
                   decoration: BoxDecoration(
                     color: complaint.hasMedia
                         ? colors.fieldDisabledBackground
-                        : (categoryStyle?.background ?? colors.fieldDisabledBackground),
+                        : (categoryStyle?.background ??
+                              colors.fieldDisabledBackground),
                     borderRadius: BorderRadius.circular(AppRadius.md.r),
                     border: complaint.hasMedia
                         ? Border.all(color: colors.border)
                         : null,
                   ),
-                  child: Icon(
-                    complaint.hasMedia
-                        ? Icons.image_rounded
-                        : (categoryStyle?.icon ?? Icons.campaign_rounded),
-                    size: complaint.hasMedia ? 24.sp : 28.sp,
-                    color: complaint.hasMedia
-                        ? colors.textHint
-                        : (categoryStyle?.foreground ?? colors.textSecondary),
-                  ),
+                  child: complaint.hasMedia
+                      ? Image.network(
+                          complaint.mediaUrls.first,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stack) => Icon(
+                            Icons.image_rounded,
+                            size: 24.sp,
+                            color: colors.textHint,
+                          ),
+                        )
+                      : Icon(
+                          categoryStyle?.icon ?? Icons.campaign_rounded,
+                          size: 28.sp,
+                          color:
+                              categoryStyle?.foreground ?? colors.textSecondary,
+                        ),
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
@@ -107,9 +121,12 @@ class ComplaintCard extends StatelessWidget {
                           _Chip(
                             icon: typeStyle.icon,
                             label: switch (complaint.type) {
-                              ComplaintType.individual => 'complaint_type_individual'.tr(),
-                              ComplaintType.collective => 'complaint_type_collective'.tr(),
-                              ComplaintType.emergency => 'complaint_type_emergency'.tr(),
+                              ComplaintType.individual =>
+                                'complaint_type_individual'.tr(),
+                              ComplaintType.collective =>
+                                'complaint_type_collective'.tr(),
+                              ComplaintType.emergency =>
+                                'complaint_type_emergency'.tr(),
                             },
                             background: typeStyle.background,
                             foreground: typeStyle.foreground,
@@ -130,10 +147,26 @@ class ComplaintCard extends StatelessWidget {
             SizedBox(height: 10.h),
             Row(
               children: [
-                Icon(Icons.location_on_rounded, size: 15.sp, color: colors.textSecondary),
+                Icon(
+                  Icons.location_on_rounded,
+                  size: 15.sp,
+                  color: colors.textSecondary,
+                ),
                 SizedBox(width: 4.w),
-                if (complaint.createdAt != null) ...[
+                if (complaint.latitude != null && complaint.longitude != null)
+                  Expanded(
+                    child: PlaceNameText(
+                      latitude: complaint.latitude!,
+                      longitude: complaint.longitude!,
+                      style: context.texts.f12W400SecColor.copyWith(
+                        fontSize: 11.5.sp,
+                      ),
+                    ),
+                  )
+                else
                   const Spacer(),
+                if (complaint.createdAt != null) ...[
+                  SizedBox(width: 8.w),
                   Text(
                     complaint.createdAt!.toLocal().toString().split(' ').first,
                     style: context.texts.f12W400SecColor.copyWith(
@@ -141,8 +174,7 @@ class ComplaintCard extends StatelessWidget {
                       color: colors.textHint,
                     ),
                   ),
-                ] else
-                  const Spacer(),
+                ],
               ],
             ),
             SizedBox(height: 10.h),
@@ -211,7 +243,10 @@ class _Chip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-      decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(24.r)),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(24.r),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -219,7 +254,11 @@ class _Chip extends StatelessWidget {
           SizedBox(width: 4.w),
           Text(
             label,
-            style: TextStyle(fontSize: 11.5.sp, fontWeight: FontWeight.w600, color: foreground),
+            style: TextStyle(
+              fontSize: 11.5.sp,
+              fontWeight: FontWeight.w600,
+              color: foreground,
+            ),
           ),
         ],
       ),
@@ -280,7 +319,8 @@ class _VoteButton extends StatelessWidget {
                 'complaint_vote_label'.tr(),
                 style: TextStyle(
                   fontSize: 12.sp,
-                  color: (voted ? scheme.primary : colors.textPrimary).withValues(alpha: 0.75),
+                  color: (voted ? scheme.primary : colors.textPrimary)
+                      .withValues(alpha: 0.75),
                 ),
               ),
             ],

@@ -9,19 +9,21 @@ enum StatLevel { beginner, intermediate, advanced }
 
 /// مؤشرات المواطن وعدّادات نشاطه.
 ///
-/// ⚠️ **ولا حقل من هدول مؤكّد بعقد الباك اند.** التصميم بيعرضهم، بس
-/// `collection.md` ما بيوثّق أي endpoint بيرجّعهم. فكلهم `null` قابلة
-/// للقراءة لو أضافهم `/api/profile` لاحقاً، والواجهة بتعرض «—» بدل رقم
-/// مخترع لحد ما يوصلوا.
+/// ✅ **`citizenshipIndex`/`credibilityIndex` مؤكّدان أخيراً** بمثال
+/// استجابة حقيقي لـ`GET /api/profile` (`citizenship_score` و
+/// `credibility_score`) — راجع `CitizenProfileModel`. `credibilityIndex`
+/// هو «مؤشر المصداقية» لا «مؤشر التوثيق»: الاسم القديم
+/// `authenticationIndex` كان تخميناً غلط قبل وصول المثال الحقيقي.
 ///
-/// المفاتيح المتوقّعة موثّقة بـ`ProfileStatsModel` — لما يثبّت الباك اند
-/// أسماءه الحقيقية، التعديل بملف واحد.
+/// ⚠️ العدّادات التلاتة (تطوّع/مساهمات/تراخيص) لسه بلا عقد — `null`
+/// قابلة للقراءة لو أضافهم `/api/profile` لاحقاً، والواجهة بتعرض «—»
+/// بدل رقم مخترع لحد ما توصل.
 final class ProfileStats extends Equatable {
-  /// نسبة من 0 لـ100.
+  /// نسبة من 0 لـ100 — `citizenship_score`.
   final int? citizenshipIndex;
 
-  /// نسبة من 0 لـ100.
-  final int? authenticationIndex;
+  /// نسبة من 0 لـ100 — `credibility_score` («مؤشر المصداقية»).
+  final int? credibilityIndex;
 
   final int? volunteeringCount;
   final int? contributionsCount;
@@ -29,7 +31,7 @@ final class ProfileStats extends Equatable {
 
   const ProfileStats({
     this.citizenshipIndex,
-    this.authenticationIndex,
+    this.credibilityIndex,
     this.volunteeringCount,
     this.contributionsCount,
     this.licensesCount,
@@ -51,7 +53,7 @@ final class ProfileStats extends Equatable {
   @override
   List<Object?> get props => [
     citizenshipIndex,
-    authenticationIndex,
+    credibilityIndex,
     volunteeringCount,
     contributionsCount,
     licensesCount,

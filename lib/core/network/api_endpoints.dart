@@ -102,4 +102,43 @@ class ApiEndpoints {
 
   /// الإبلاغ عن شكوى — `{"complain_id", "type_id", "description"}`.
   static const String reportsStore = '$api/reports';
+
+  // -------------------------
+  // Skills & Certificates
+  // -------------------------
+  //
+  // موردان منفصلان بالباك اند، مؤكّدان من Postman collection حقيقي —
+  // راجع CLAUDE.md › قسم الشهادات والمهارات.
+
+  static const String skillsIndex = '$api/skill/';
+
+  /// `POST` — الحقول: `name` (نص)، `type` (`SkillType`).
+  static const String skillsStore = '$api/skill/store';
+
+  /// `POST` — نفس حقول [skillsStore].
+  static String skillsUpdate(int skillId) => '$api/skill/update/$skillId';
+
+  static String skillsDelete(int skillId) => '$api/skill/$skillId';
+
+  static const String certificatesIndex = '$api/certificate';
+
+  /// `POST` multipart — `user_skill_id` + `file_path`.
+  static const String certificatesStore = '$api/certificate/store';
+
+  /// `POST` multipart — `file_path` بس عادةً (`user_skill_id` بيضل
+  /// ثابت، ما بيترسل مع التحديث حسب مثال الـcollection).
+  static String certificatesUpdate(int certificateId) =>
+      '$api/certificate/update/$certificateId';
+
+  // -------------------------
+  // Municipal Services
+  // -------------------------
+
+  /// ⚠️ **المسار فيه `/admin/` بس المستخدم مؤكَّد من المواطن أيضاً** —
+  /// شاشة «خدمات البلدية» بتستخدمه لعرض القائمة + حساب وقت الانتظار
+  /// المقدّر محلياً (`estimated_time_minutes × people_waiting`). مؤكّد
+  /// بمثال استجابة حقيقي كامل (أربع خدمات، كل الحقول). لا علاقة لهالميزة
+  /// بمسارات `Queue/Citizen` (الانضمام الفعلي للطابور) — خارج نطاق
+  /// تطبيق المواطن كلياً حسب توضيح صاحب المشروع.
+  static const String municipalServicesIndex = '$api/admin/services';
 }

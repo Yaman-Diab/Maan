@@ -111,16 +111,31 @@ void main() {
       expect(notVoted.entity.hasVoted, isFalse);
     });
 
-    test('hasMedia من قائمة media، أو media_count، أو has_media', () {
-      final fromList = ComplaintModel.fromMap({
+    test('mediaUrls من file_url — الشكل الحقيقي المؤكّد', () {
+      final withMedia = ComplaintModel.fromMap({
         'id': 1,
         'type': 'individual',
         'title': 'x',
         'media': [
-          {'url': 'a'},
+          {
+            'id': 1,
+            'file_path': 'a.jpg',
+            'media_type': 'image',
+            'file_url': 'https://x/a.jpg',
+          },
+          {
+            'id': 2,
+            'file_path': 'b.jpg',
+            'media_type': 'image',
+            'file_url': 'https://x/b.jpg',
+          },
         ],
       });
-      expect(fromList.entity.hasMedia, isTrue);
+      expect(withMedia.entity.mediaUrls, [
+        'https://x/a.jpg',
+        'https://x/b.jpg',
+      ]);
+      expect(withMedia.entity.hasMedia, isTrue);
 
       final emptyList = ComplaintModel.fromMap({
         'id': 1,
@@ -128,15 +143,63 @@ void main() {
         'title': 'x',
         'media': [],
       });
+      expect(emptyList.entity.mediaUrls, isEmpty);
       expect(emptyList.entity.hasMedia, isFalse);
 
-      final fromCount = ComplaintModel.fromMap({
+      final missing = ComplaintModel.fromMap({
         'id': 1,
         'type': 'individual',
         'title': 'x',
-        'media_count': 2,
       });
-      expect(fromCount.entity.hasMedia, isTrue);
+      expect(missing.entity.hasMedia, isFalse);
+    });
+  });
+
+  group('التصنيف والموقع — كائنان متداخلان (الشكل الحقيقي المؤكّد)', () {
+    test('category ككائن متداخل بلا category_id مسطّح (شكل my-complains)', () {
+      final model = ComplaintModel.fromMap({
+        'id': 1,
+        'type': 'collective',
+        'title': 'x',
+        'category': {'id': 2, 'name': 'Waste & Cleanliness'},
+      });
+
+      expect(model.entity.category, ComplaintCategory.waste);
+    });
+
+    test('location ككائن متداخل (شكل my-complains)', () {
+      final model = ComplaintModel.fromMap({
+        'id': 1,
+        'type': 'individual',
+        'title': 'x',
+        'location': {'latitude': '33.5138000', 'longitude': '36.2760000'},
+      });
+
+      expect(model.entity.latitude, 33.5138);
+      expect(model.entity.longitude, 36.276);
+    });
+
+    test('pin ككائن متداخل — نفس المفهوم باسم مختلف (شكل استجابة الإنشاء)', () {
+      final model = ComplaintModel.fromMap({
+        'id': 1,
+        'type': 'individual',
+        'title': 'x',
+        'pin': {'latitude': '33.5138000', 'longitude': '36.2760000'},
+      });
+
+      expect(model.entity.latitude, 33.5138);
+      expect(model.entity.longitude, 36.276);
+    });
+
+    test('category_id المسطّح لسه بيشتغل لو category الكائن غايب', () {
+      final model = ComplaintModel.fromMap({
+        'id': 1,
+        'type': 'individual',
+        'title': 'x',
+        'category_id': 3,
+      });
+
+      expect(model.entity.category, ComplaintCategory.lighting);
     });
   });
 

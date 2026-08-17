@@ -57,7 +57,9 @@ class _SortSheet extends StatelessWidget {
             SizedBox(height: 14.h),
             Text(
               'complaint_sort_sheet_title'.tr(),
-              style: context.texts.f16W500Black.copyWith(fontWeight: FontWeight.w600),
+              style: context.texts.f16W500Black.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
             SizedBox(height: 4.h),
             for (final sort in ComplaintSort.values)
@@ -72,19 +74,26 @@ class _SortSheet extends StatelessWidget {
                             ? Icons.radio_button_checked_rounded
                             : Icons.radio_button_unchecked_rounded,
                         size: 22.sp,
-                        color: sort == selected ? scheme.primary : colors.border,
+                        color: sort == selected
+                            ? scheme.primary
+                            : colors.border,
                       ),
                       SizedBox(width: 12.w),
                       Text(
                         switch (sort) {
-                          ComplaintSort.priority => 'complaint_sort_priority'.tr(),
+                          ComplaintSort.priority =>
+                            'complaint_sort_priority'.tr(),
                           ComplaintSort.newest => 'complaint_sort_newest'.tr(),
                           ComplaintSort.oldest => 'complaint_sort_oldest'.tr(),
                         },
                         style: TextStyle(
                           fontSize: 16.sp,
-                          fontWeight: sort == selected ? FontWeight.w600 : FontWeight.w400,
-                          color: sort == selected ? scheme.primary : colors.textPrimary,
+                          fontWeight: sort == selected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
+                          color: sort == selected
+                              ? scheme.primary
+                              : colors.textPrimary,
                         ),
                       ),
                     ],

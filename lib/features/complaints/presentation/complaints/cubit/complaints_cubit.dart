@@ -50,7 +50,9 @@ class ComplaintsCubit extends Cubit<ComplaintsState> {
   Future<void> changeTab(ComplaintsTab tab) async {
     if (tab == state.tab) return;
 
-    emit(state.copyWith(tab: tab, status: ComplaintsListStatus.loading, page: 1));
+    emit(
+      state.copyWith(tab: tab, status: ComplaintsListStatus.loading, page: 1),
+    );
     await _fetch(page: 1);
   }
 
@@ -79,7 +81,9 @@ class ComplaintsCubit extends Cubit<ComplaintsState> {
   }
 
   Future<void> setSort(ComplaintSort sort) async {
-    emit(state.copyWith(sort: sort, status: ComplaintsListStatus.loading, page: 1));
+    emit(
+      state.copyWith(sort: sort, status: ComplaintsListStatus.loading, page: 1),
+    );
     await _fetch(page: 1);
   }
 
@@ -101,7 +105,9 @@ class ComplaintsCubit extends Cubit<ComplaintsState> {
               pageSize: _pageSize,
             ),
           )
-        : await _getMine(GetMyComplaintsParams(page: page, pageSize: _pageSize));
+        : await _getMine(
+            GetMyComplaintsParams(page: page, pageSize: _pageSize),
+          );
 
     if (isClosed) return;
 

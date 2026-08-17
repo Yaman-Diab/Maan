@@ -54,10 +54,7 @@ class ProfileGuestView extends StatelessWidget {
 
             SizedBox(height: 28.h),
 
-            AppButton(
-              buttonText: 'sign_in'.tr(),
-              buttonOnPressed: onSignInTap,
-            ),
+            AppButton(buttonText: 'sign_in'.tr(), buttonOnPressed: onSignInTap),
           ],
         ),
       ),

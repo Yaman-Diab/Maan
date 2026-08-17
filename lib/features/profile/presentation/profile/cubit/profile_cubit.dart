@@ -68,9 +68,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   /// القص، فإخفاؤها لحد ما يخلص الرفع بيحسّ كأن شي وقع. ولو فشل الرفع
   /// بترجع الصورة القديمة — عرض صورة السيرفر ما استلمها كذبة.
   Future<void> uploadAvatar(PickedImage image) async {
-    emit(
-      state.copyWith(localAvatarPath: image.path, isUploadingAvatar: true),
-    );
+    emit(state.copyWith(localAvatarPath: image.path, isUploadingAvatar: true));
 
     final result = await _uploadAvatar(
       UploadAvatarParams(bytes: image.bytes, fileName: image.fileName),

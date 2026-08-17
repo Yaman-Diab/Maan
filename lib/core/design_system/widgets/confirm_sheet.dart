@@ -1,20 +1,22 @@
 // -------------------------
-// Settings Confirm Sheet
+// Confirm Sheet
 // -------------------------
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../core/design_system/app_spacing.dart';
-import '../../../../core/design_system/app_theme_context.dart';
-import '../../../../core/design_system/widgets/app_button.dart';
+import '../app_spacing.dart';
+import '../app_theme_context.dart';
+import 'app_button.dart';
 
-/// ورقة تأكيد مشتركة — تسجيل الخروج وحذف الحساب نفس الشكل، لون الزر
-/// وحده الفرق. بترجّع `true` بس لو ضغط زر التأكيد؛ أي طريقة خروج تانية
-/// (نقرة برّا، سحب، إلغاء) بترجّع `false` — عكس عجلة الاختيار، هون
-/// «الخروج بلا زر» قرار واضح: ما أكّد.
-Future<bool> showSettingsConfirmSheet({
+/// ورقة تأكيد مشتركة — نشأت بميزة settings (تسجيل الخروج/حذف الحساب،
+/// نفس الشكل بلون زر مختلف)، انتقلت لـ`core` لما احتاجتها ميزة
+/// skills لتأكيد حذف مهارة، نفس سبب `AppCard`/`ImageSourceSheet`.
+/// بترجّع `true` بس لو ضغط زر التأكيد؛ أي طريقة خروج تانية (نقرة برّا،
+/// سحب، إلغاء) بترجّع `false` — عكس عجلة الاختيار، هون «الخروج بلا
+/// زر» قرار واضح: ما أكّد.
+Future<bool> showConfirmSheet({
   required BuildContext context,
   required String title,
   required String body,

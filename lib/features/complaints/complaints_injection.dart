@@ -75,6 +75,9 @@ void registerComplaintsDependencies(GetIt sl) {
   );
 
   sl.registerFactory<SubmitComplaintCubit>(
-    () => SubmitComplaintCubit(sl<SubmitComplaintUseCase>(), sl<LocationService>()),
+    () => SubmitComplaintCubit(
+      sl<SubmitComplaintUseCase>(),
+      sl<LocationService>(),
+    ),
   );
 }

@@ -103,16 +103,26 @@ class ComplaintsRemoteDataSourceImpl implements ComplaintsRemoteDataSource {
       _typeField: type.wireValue,
       _categoryField: category.id,
       _titleField: title,
-      if (description != null && description.isNotEmpty) _descriptionField: description,
+      if (description != null && description.isNotEmpty)
+        _descriptionField: description,
       _latitudeField: latitude,
       _longitudeField: longitude,
     });
 
-    // نفس سبب `images[]` بميزة التوثيق: اسم الحقل لازم ينتهي بـ`[]`
-    // صراحة حتى يجمعهم Laravel كمصفوفة.
-    for (final item in media) {
+    // ⚠️ **`media[0]`/`media[1]`... بترقيم صريح — لا `media[]` فاضي**.
+    // مؤكّد حرفياً من مثال جسم الإرسال الحقيقي بـcollection.md. الشكل
+    // الفاضي (نفس اصطلاح `images[]` بميزة التوثيق) بيخلّي الشكوى تتنشأ
+    // بنجاح بس بـ`media: []` — السيرفر بيقبل الطلب لكن ما بيربط الملفات،
+    // فالصور تختفي بصمت بدل ما يفشل الإرسال بخطأ واضح.
+    for (var i = 0; i < media.length; i++) {
       formData.files.add(
-        MapEntry(_mediaField, await MultipartFile.fromFile(item.path, filename: item.fileName)),
+        MapEntry(
+          _mediaField(i),
+          await MultipartFile.fromFile(
+            media[i].path,
+            filename: media[i].fileName,
+          ),
+        ),
       );
     }
 
@@ -164,7 +174,7 @@ class ComplaintsRemoteDataSourceImpl implements ComplaintsRemoteDataSource {
   static const String _descriptionField = 'description';
   static const String _latitudeField = 'latitude';
   static const String _longitudeField = 'longitude';
-  static const String _mediaField = 'media[]';
+  static String _mediaField(int index) => 'media[$index]';
   static const String _idField = 'id';
   static const String _reportComplaintIdField = 'complain_id';
   static const String _reportTypeIdField = 'type_id';

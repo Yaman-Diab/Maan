@@ -105,73 +105,98 @@ class _ComplaintsBody extends StatelessWidget {
                       onChanged: cubit.changeTab,
                     ),
                   ),
-                  SizedBox(
-                    height: 44.h,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      children: [
-                        _SortButton(
-                          sort: state.sort,
-                          onTap: () => _openSort(context, state),
-                        ),
-                        SizedBox(width: 8.w),
-                        Container(width: 1, height: 26.h, color: context.colors.divider),
-                        SizedBox(width: 8.w),
-                        _FilterChip(
-                          label: 'complaint_type_all'.tr(),
-                          icon: Icons.filter_list_rounded,
-                          selected: state.typeFilter == null,
-                          onTap: () => cubit.setTypeFilter(null),
-                        ),
-                        for (final type in ComplaintType.values) ...[
+                  // فلاتر النوع والتصنيف بتشتغل بس مع الشكاوى المنشورة —
+                  // `GET /api/complains/my-complains` بياخد `page`/
+                  // `page_size` بس (راجع collection.md)، ما عندها `type`
+                  // ولا `category_id`. بلا هالشرط كانت الفلاتر بتظهر
+                  // وتستجيب باللمس بتاب «شكاواي» بلا أي أثر فعلي على
+                  // النتائج — لبس تحديد بلا تنفيذ.
+                  if (state.tab == ComplaintsTab.published) ...[
+                    SizedBox(
+                      height: 44.h,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        children: [
+                          _SortButton(
+                            sort: state.sort,
+                            onTap: () => _openSort(context, state),
+                          ),
+                          SizedBox(width: 8.w),
+                          Container(
+                            width: 1,
+                            height: 26.h,
+                            color: context.colors.divider,
+                          ),
                           SizedBox(width: 8.w),
                           _FilterChip(
-                            label: switch (type) {
-                              ComplaintType.individual => 'complaint_type_individual'.tr(),
-                              ComplaintType.collective => 'complaint_type_collective'.tr(),
-                              ComplaintType.emergency => 'complaint_type_emergency'.tr(),
-                            },
-                            icon: ComplaintStyle.type(context, type).icon,
-                            selected: state.typeFilter == type,
-                            onTap: () => cubit.setTypeFilter(type),
+                            label: 'complaint_type_all'.tr(),
+                            icon: Icons.filter_list_rounded,
+                            selected: state.typeFilter == null,
+                            onTap: () => cubit.setTypeFilter(null),
                           ),
+                          for (final type in ComplaintType.values) ...[
+                            SizedBox(width: 8.w),
+                            _FilterChip(
+                              label: switch (type) {
+                                ComplaintType.individual =>
+                                  'complaint_type_individual'.tr(),
+                                ComplaintType.collective =>
+                                  'complaint_type_collective'.tr(),
+                                ComplaintType.emergency =>
+                                  'complaint_type_emergency'.tr(),
+                              },
+                              icon: ComplaintStyle.type(context, type).icon,
+                              selected: state.typeFilter == type,
+                              onTap: () => cubit.setTypeFilter(type),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10.h),
-                  SizedBox(
-                    height: 40.h,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      children: [
-                        _FilterChip(
-                          label: 'cat_all'.tr(),
-                          icon: Icons.apps_rounded,
-                          selected: state.categoryFilter == null,
-                          onTap: () => cubit.setCategoryFilter(null),
-                        ),
-                        for (final category in ComplaintCategory.values) ...[
-                          SizedBox(width: 8.w),
+                    SizedBox(height: 10.h),
+                    SizedBox(
+                      height: 40.h,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        children: [
                           _FilterChip(
-                            label: _categoryLabel(category),
-                            icon: ComplaintStyle.category(context, category).icon,
-                            selected: state.categoryFilter == category,
-                            onTap: () => cubit.setCategoryFilter(category),
+                            label: 'cat_all'.tr(),
+                            icon: Icons.apps_rounded,
+                            selected: state.categoryFilter == null,
+                            onTap: () => cubit.setCategoryFilter(null),
                           ),
+                          for (final category in ComplaintCategory.values) ...[
+                            SizedBox(width: 8.w),
+                            _FilterChip(
+                              label: _categoryLabel(category),
+                              icon: ComplaintStyle.category(
+                                context,
+                                category,
+                              ).icon,
+                              selected: state.categoryFilter == category,
+                              onTap: () => cubit.setCategoryFilter(category),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 12.h),
+                    SizedBox(height: 12.h),
+                  ],
                   if (!state.canParticipate)
                     Padding(
                       padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 12.h),
-                      child: _VerifyBanner(onTap: () => context.push(AppRoutes.verification)),
+                      child: _VerifyBanner(
+                        onTap: () => context.push(AppRoutes.verification),
+                      ),
                     ),
-                  Expanded(child: _Content(state: state, onOpen: (c) => _openDetail(context, c))),
+                  Expanded(
+                    child: _Content(
+                      state: state,
+                      onOpen: (c) => _openDetail(context, c),
+                    ),
+                  ),
                 ],
               ),
               PositionedDirectional(
@@ -217,7 +242,9 @@ class _Content extends StatelessWidget {
       ),
       ComplaintsListStatus.empty => _EmptyView(
         onSubmit: state.canParticipate
-            ? () => context.push<bool>(AppRoutes.submitComplaint).then((submitted) {
+            ? () => context.push<bool>(AppRoutes.submitComplaint).then((
+                submitted,
+              ) {
                 if (submitted == true && context.mounted) {
                   context.read<ComplaintsCubit>().load();
                 }
@@ -259,10 +286,14 @@ class _List extends StatelessWidget {
                   'complaints_page_label'.tr(
                     namedArgs: {
                       'shown': '${state.items.length}',
-                      'total': '${state.items.length}${state.hasMore ? '+' : ''}',
+                      'total':
+                          '${state.items.length}${state.hasMore ? '+' : ''}',
                     },
                   ),
-                  style: TextStyle(fontSize: 11.5.sp, color: context.colors.textHint),
+                  style: TextStyle(
+                    fontSize: 11.5.sp,
+                    color: context.colors.textHint,
+                  ),
                 ),
               ],
             ),
@@ -279,7 +310,9 @@ class _List extends StatelessWidget {
             if (!state.canParticipate) {
               ScaffoldMessenger.of(context)
                 ..hideCurrentSnackBar()
-                ..showSnackBar(SnackBar(content: Text('complaint_vote_locked'.tr())));
+                ..showSnackBar(
+                  SnackBar(content: Text('complaint_vote_locked'.tr())),
+                );
               return;
             }
 
@@ -328,7 +361,11 @@ class _TabSegment extends StatelessWidget {
 }
 
 class _TabSegmentItem extends StatelessWidget {
-  const _TabSegmentItem({required this.label, required this.selected, required this.onTap});
+  const _TabSegmentItem({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
 
   final String label;
   final bool selected;
@@ -386,7 +423,11 @@ class _SortButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.swap_vert_rounded, size: 18.sp, color: context.scheme.primary),
+            Icon(
+              Icons.swap_vert_rounded,
+              size: 18.sp,
+              color: context.scheme.primary,
+            ),
             SizedBox(width: 6.w),
             Text(
               switch (sort) {
@@ -440,7 +481,11 @@ class _FilterChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 17.sp, color: selected ? scheme.primary : colors.textSecondary),
+            Icon(
+              icon,
+              size: 17.sp,
+              color: selected ? scheme.primary : colors.textSecondary,
+            ),
             SizedBox(width: 6.w),
             Text(
               label,
@@ -479,19 +524,33 @@ class _VerifyBanner extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.verified_user_outlined, size: 22.sp, color: scheme.primary),
+            Icon(
+              Icons.verified_user_outlined,
+              size: 22.sp,
+              color: scheme.primary,
+            ),
             SizedBox(width: 12.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('complaints_verify_title'.tr(), style: context.texts.f14W600Black),
+                  Text(
+                    'complaints_verify_title'.tr(),
+                    style: context.texts.f14W600Black,
+                  ),
                   SizedBox(height: 2.h),
-                  Text('complaints_verify_subtitle'.tr(), style: context.texts.f12W400SecColor),
+                  Text(
+                    'complaints_verify_subtitle'.tr(),
+                    style: context.texts.f12W400SecColor,
+                  ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, size: 22.sp, color: scheme.primary),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 22.sp,
+              color: scheme.primary,
+            ),
           ],
         ),
       ),
@@ -562,23 +621,38 @@ class _EmptyView extends StatelessWidget {
             Container(
               width: 88.w,
               height: 88.w,
-              decoration: BoxDecoration(color: colors.brandSurface, shape: BoxShape.circle),
-              child: Icon(Icons.campaign_rounded, size: 40.sp, color: scheme.primary),
+              decoration: BoxDecoration(
+                color: colors.brandSurface,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.campaign_rounded,
+                size: 40.sp,
+                color: scheme.primary,
+              ),
             ),
             SizedBox(height: 14.h),
             Text(
               'complaints_empty_title'.tr(),
-              style: context.texts.f16W500Black.copyWith(fontWeight: FontWeight.w600),
+              style: context.texts.f16W500Black.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
             SizedBox(height: 8.h),
             Text(
               'complaints_empty_body'.tr(),
               textAlign: TextAlign.center,
-              style: context.texts.f14W400HintColor.copyWith(color: colors.textSecondary, height: 1.6),
+              style: context.texts.f14W400HintColor.copyWith(
+                color: colors.textSecondary,
+                height: 1.6,
+              ),
             ),
             if (onSubmit != null) ...[
               SizedBox(height: 20.h),
-              AppButton(buttonText: 'complaints_empty_action'.tr(), buttonOnPressed: onSubmit!),
+              AppButton(
+                buttonText: 'complaints_empty_action'.tr(),
+                buttonOnPressed: onSubmit!,
+              ),
             ],
           ],
         ),
@@ -601,12 +675,18 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off_rounded, size: 72.sp, color: context.colors.textSecondary),
+            Icon(
+              Icons.cloud_off_rounded,
+              size: 72.sp,
+              color: context.colors.textSecondary,
+            ),
             SizedBox(height: AppSpacing.md.h),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: context.texts.f14W400HintColor.copyWith(color: context.colors.textSecondary),
+              style: context.texts.f14W400HintColor.copyWith(
+                color: context.colors.textSecondary,
+              ),
             ),
             SizedBox(height: AppSpacing.lg.h),
             AppButton(buttonText: 'retry'.tr(), buttonOnPressed: onRetry),

@@ -14,7 +14,9 @@ import '../../../../../core/design_system/app_theme_context.dart';
 /// مستقل بدل تعديل الودجت العامة بحالة خاصة بميزة وحدة.
 enum ComplaintMediaSource { camera, gallery, video }
 
-Future<ComplaintMediaSource?> showComplaintMediaSourceSheet(BuildContext context) {
+Future<ComplaintMediaSource?> showComplaintMediaSourceSheet(
+  BuildContext context,
+) {
   return showModalBottomSheet<ComplaintMediaSource>(
     context: context,
     backgroundColor: context.scheme.surface,
@@ -42,7 +44,9 @@ class _MediaSourceSheet extends StatelessWidget {
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(
                   'media_sheet_title'.tr(),
-                  style: context.texts.f16W500Black.copyWith(fontWeight: FontWeight.w600),
+                  style: context.texts.f16W500Black.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),

@@ -12,7 +12,8 @@ import 'package:maan/features/profile/presentation/edit_identity/cubit/edit_iden
 import 'package:maan/features/profile/presentation/edit_identity/widgets/edit_identity_form.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockUpdateIdentityUseCase extends Mock implements UpdateIdentityUseCase {}
+class _MockUpdateIdentityUseCase extends Mock
+    implements UpdateIdentityUseCase {}
 
 const _designSize = Size(375, 812);
 

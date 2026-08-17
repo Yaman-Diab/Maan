@@ -16,7 +16,9 @@ import 'core/settings/cubit/settings_state.dart';
 import 'core/settings/widgets/text_scale_scope.dart';
 import 'features/auth/auth_injection.dart';
 import 'features/complaints/complaints_injection.dart';
+import 'features/municipal_services/municipal_services_injection.dart';
 import 'features/profile/profile_injection.dart';
+import 'features/skills/skills_injection.dart';
 import 'features/splash/presentation/pages/splash_page.dart';
 import 'features/verification/verification_injection.dart';
 
@@ -38,6 +40,8 @@ Future<void> main() async {
   registerProfileDependencies(sl);
   registerVerificationDependencies(sl);
   registerComplaintsDependencies(sl);
+  registerSkillsDependencies(sl);
+  registerMunicipalServicesDependencies(sl);
 
   // -------------------------
   // Settings

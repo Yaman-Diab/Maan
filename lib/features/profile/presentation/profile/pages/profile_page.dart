@@ -94,7 +94,10 @@ class _ProfileBody extends StatelessWidget {
   /// مباشرة لو هيك اختار).
   ///
   /// الإلغاء بأي خطوة بيرجّع `null` وبنوقف بهدوء — مش خطأ.
-  Future<void> _changeAvatar(BuildContext context, {required bool hasAvatar}) async {
+  Future<void> _changeAvatar(
+    BuildContext context, {
+    required bool hasAvatar,
+  }) async {
     final cubit = context.read<ProfileCubit>();
 
     // بتتبنى قبل أي `await`: بعد الفجوة الزمنية ممكن يكون الـ context
@@ -133,7 +136,10 @@ class _ProfileBody extends StatelessWidget {
 
   /// بيفتح شاشة التعديل وبيحدّث الملف عند الرجوع بنجاح — `true` بس لو
   /// الشاشة قفلت نفسها بعد حفظ ناجح (راجع `EditIdentityPage`).
-  Future<void> _editIdentity(BuildContext context, CitizenProfile profile) async {
+  Future<void> _editIdentity(
+    BuildContext context,
+    CitizenProfile profile,
+  ) async {
     final cubit = context.read<ProfileCubit>();
 
     final saved = await context.push<bool>(
@@ -167,8 +173,6 @@ class _ProfileBody extends StatelessWidget {
     await cubit.load();
   }
 
-  /// ⏳ بتنقل لـ`_TempPage` حالياً — الشاشة الحقيقية لسه ما انبنت،
-  /// راجع `AppRoutes.certificatesAndSkills`.
   void _openCertificates(BuildContext context) {
     context.push(AppRoutes.certificatesAndSkills);
   }
@@ -231,8 +235,7 @@ class _ProfileBody extends StatelessWidget {
               avatarRemoved: state.avatarRemoved,
               isUploadingAvatar: state.isUploadingAvatar,
               isRemovingAvatar: state.isRemovingAvatar,
-              onAddPhotoTap: () =>
-                  _changeAvatar(context, hasAvatar: hasAvatar),
+              onAddPhotoTap: () => _changeAvatar(context, hasAvatar: hasAvatar),
               onEditTap: () => _editIdentity(context, profile),
               onVerifyTap: () => _openVerification(context),
               onCertificatesTap: () => _openCertificates(context),

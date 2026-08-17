@@ -59,8 +59,15 @@ abstract final class AppRoutes {
   static const String verification = '/profile/verification';
 
   /// الشهادات والمهارات — فرعي عن `profile` متل الباقي.
-  ///
-  /// ⏳ **صفحة تجريبية مؤقّتة (`_TempPage`) لحد الآن** — البانر بالملف
-  /// الشخصي جاهز وبينقل للمسار، بس الشاشة الحقيقية لسه ما انبنت.
   static const String certificatesAndSkills = '/profile/certificates-skills';
+
+  /// تفاصيل مهارة — الكيان كامل بيوصل عبر `extra` (نفس منطق
+  /// `complaintDetail`)، فما في مسار GET يعيد الجلب؛ القائمة أصلاً
+  /// عندها البيانات.
+  static const String skillDetail = '/profile/certificates-skills/detail';
+
+  /// خدمات البلدية — للعرض فقط (وقت انتظار مقدّر لكل خدمة)، بلا أي
+  /// علاقة بنظام الطابور الفعلي. مدخلها الحالي زر مؤقّت بـ
+  /// `HomeVerificationPage` لحد ما تُبنى شاشة Home الحقيقية.
+  static const String municipalServices = '/municipal-services';
 }

@@ -1,4 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- ⚠️ لازم يكون هون بالـ main لا بالـ debug/profile بس. Flutter
+         بينشئ الإذن تلقائياً بمانيفست debug وprofile (لـ hot reload)،
+         فالتطبيق بيشتغل تمام وقت التطوير — بس بناء الـ release ما إله
+         إنترنت إطلاقاً: كل طلبات الـ API والصور وتحويل الإحداثيات
+         بتفشل. لا تشيله. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- موقع الشكوى الجغرافي (geolocator) — أذونات وقت تشغيل حقيقية،
          بعكس image_picker. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
