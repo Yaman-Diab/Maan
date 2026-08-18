@@ -47,6 +47,12 @@ class ApiEndpoints {
   /// `ProfileRemoteDataSource._avatarField`.
   static const String profileUpdate = '$api/profile/update';
 
+  /// حذف الصورة الشخصية — `DELETE`، بلا جسم. ✅ **مؤكّد بمثال استجابة
+  /// حقيقي** (`{"data":{"image":null,"user":{...}}}`) — endpoint مخصّص
+  /// منفصل تماماً عن [profileUpdate]، عكس الافتراض الأولي (حقل `image`
+  /// فاضي عبر مسار التحديث العام).
+  static const String profileAvatar = '$api/profile/avatar';
+
   // -------------------------
   // Verification
   // -------------------------
@@ -141,4 +147,68 @@ class ApiEndpoints {
   /// بمسارات `Queue/Citizen` (الانضمام الفعلي للطابور) — خارج نطاق
   /// تطبيق المواطن كلياً حسب توضيح صاحب المشروع.
   static const String municipalServicesIndex = '$api/admin/services';
+
+  // -------------------------
+  // Projects — Voting
+  // -------------------------
+  //
+  // ✅ التصويت مؤكّد بالكامل (جسم/استجابة/أخطاء) — راجع CLAUDE.md ›
+  // قسم المشاريع. ⚠️ باقي المسار (`create`/`submit`/تعديل/تطوّع) لسه
+  // بلا عقد — `getProjects`/`vote` بس اللي بيضربوا الباك اند الحقيقي.
+
+  /// المشاريع القابلة للتصويت + إحصائياتها (`total_votes`،
+  /// `weighted_yes_votes`، `weighted_no_votes`، `approval_percentage`،
+  /// `has_voted`، `my_vote`).
+  ///
+  /// ⚠️ **غير مؤكّد إذا بترجع تفاصيل المشروع الكاملة** (وصف/صورة/
+  /// احتياج تطوّع أو تبرّع) **أو بيانات التصويت بس** — المثال يلي
+  /// وصل غطّى حقول التصويت حصراً. `MunicipalProjectModel.fromMap`
+  /// بيقرأ الحقلين النوعين دفاعياً (زي كل نموذج بالمشروع)، فلو طلعت
+  /// بيانات التصويت بس، حقول الوصف/الصورة/التطوّع بترجع فاضية بلا
+  /// كراش. نقطة التصحيح لما يوصل مثال كامل: هالتعليق +
+  /// `MunicipalProjectModel`.
+  static const String projectVotable = '$api/project/votable';
+
+  /// تصويت (`POST`) — جسم `{"value": true|false}` (`true` = أحبذ،
+  /// `false` = لا أحبذ). محاولة تصويت ثانية على نفس المشروع (بغض
+  /// النظر عن القيمة) بترجع `409` — التبديل بين أحبذ/لا أحبذ لازم
+  /// يمرّ بـ`DELETE` (سحب) قبل `POST` جديد، نفس مسار الرابط بس ميثود
+  /// مختلفة.
+  static String projectVote(int projectId) => '$api/project/vote/$projectId';
+
+  /// إحصائيات تبرعات مشروع — `total_donated`/`donation_target`/
+  /// `remaining_amount`/`donation_percentage`/`number_of_donors`.
+  ///
+  /// ⚠️ **endpoint منفصل لكل مشروع** (مش مضمّن بـ[projectVotable])، فجلب
+  /// إحصائيات قائمة كاملة معناه طلب لكل مشروع. `ProjectsRepositoryImpl`
+  /// بيجلبها **بالتوازي وللمشاريع اللي بتقبل تبرعات بس** — راجع
+  /// تعليقه للتفاصيل والمقايضة.
+  static String projectDonationStats(int projectId) =>
+      '$api/project/$projectId/donations/stats';
+
+  /// تقديم طلب تطوع — جسم `{"whatsapp_number": "..."}`.
+  ///
+  /// ⚠️ **الرفض هون منطق أعمال لا مجرّد تحقّق شكلي** — المشروع ممكن
+  /// يرفض لأسباب ما بتبيّن بالواجهة أصلاً (فترة التطوع ما بلّشت أو
+  /// خلصت، الحالة مش مفتوحة، مهارات المستخدم ما بتطابق أي متطلّب متاح،
+  /// أو المتطلّب اكتمل عدده). كلها `422` برسالة مختلفة، فالرسالة
+  /// الراجعة من السيرفر هي المصدر الوحيد لتفسير الرفض — راجع
+  /// `VolunteerDialog`.
+  static String projectVolunteer(int projectId) =>
+      '$api/project/volunteer/$projectId';
+
+  // -------------------------
+  // News
+  // -------------------------
+
+  /// الأخبار المنشورة — الباك اند بيفلتر `status = approved` لحاله،
+  /// فما في حاجة لفلتر بالتطبيق.
+  ///
+  /// ⚠️ **`type=news` مُمرَّر بس بلا معنى بالواجهة** — التطبيق ما بيفرّق
+  /// بين «خبر» و«إعلان» (قرار صريح من صاحب المشروع: «نفس الشي»)، فما
+  /// في شارة نوع ولا فلتر. مُمرَّر لأن العقد بيسرده.
+  static const String news = '$api/news';
+
+  /// خبر واحد — بيرجّع `404` لو مش `approved` حتى لو موجود فعلياً.
+  static String newsDetail(int newsId) => '$api/news/$newsId';
 }

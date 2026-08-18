@@ -4,7 +4,13 @@
 
 import 'package:equatable/equatable.dart';
 
-enum BirthDateError { missing, invalidYear, invalidMonth, invalidDate, tooYoung }
+enum BirthDateError {
+  missing,
+  invalidYear,
+  invalidMonth,
+  invalidDate,
+  tooYoung,
+}
 
 /// تاريخ الميلاد كقيمة لها قواعدها.
 ///
@@ -45,10 +51,7 @@ final class BirthDate extends Equatable {
   /// أقصى يوم متاح للشهر/السنة المختارين، مع قيم افتراضية آمنة لو
   /// المستخدم لسه ما اختار.
   static int maxSelectableDay({int? month, int? year}) {
-    return daysInMonth(
-      year ?? maxAllowedYear(),
-      month ?? DateTime.now().month,
-    );
+    return daysInMonth(year ?? maxAllowedYear(), month ?? DateTime.now().month);
   }
 
   /// اليوم اللي المفروض تفتح عليه العجلة — مقصوص لحدود الشهر.
@@ -83,10 +86,7 @@ final class BirthDate extends Equatable {
   static List<int> selectableYears() {
     final maxYear = maxAllowedYear();
 
-    return List.generate(
-      maxYear - minimumYear + 1,
-      (index) => maxYear - index,
-    );
+    return List.generate(maxYear - minimumYear + 1, (index) => maxYear - index);
   }
 
   /// بيقصّ اليوم المختار لو صار خارج حدود الشهر/السنة الجديدة

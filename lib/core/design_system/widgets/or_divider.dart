@@ -19,12 +19,19 @@ class OrDivider extends StatelessWidget {
 
     return Row(
       children: [
-        Expanded(child: Divider(color: lineColor, thickness: 1.h)),
+        Expanded(
+          child: Divider(color: lineColor, thickness: 1.h),
+        ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 12.w),
-          child: Text('or_divider_text'.tr(), style: context.texts.f14W400HintColor),
+          child: Text(
+            'or_divider_text'.tr(),
+            style: context.texts.f14W400HintColor,
+          ),
         ),
-        Expanded(child: Divider(color: lineColor, thickness: 1.h)),
+        Expanded(
+          child: Divider(color: lineColor, thickness: 1.h),
+        ),
       ],
     );
   }

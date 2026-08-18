@@ -153,6 +153,30 @@ void main() {
       });
       expect(missing.entity.hasMedia, isFalse);
     });
+
+    test('mediaUrls من file_path بس — شكل POST /api/complains الحقيقي '
+        '(بلا file_url إطلاقاً) بيتحوّل لرابط كامل عبر AppConfig.baseUrl', () {
+      final model = ComplaintModel.fromMap({
+        'id': 5,
+        'type': 'collective',
+        'title': 'x',
+        'media': [
+          {
+            'id': 5,
+            'complain_id': 5,
+            'media_type': 'image',
+            'file_path':
+                'complains/images/1787000938_53c27c04-1f34-41e8-a94d-3099db7db282.png',
+          },
+        ],
+      });
+
+      expect(model.entity.hasMedia, isTrue);
+      expect(model.entity.mediaUrls, [
+        'http://10.0.2.2:8000/storage/complains/images/'
+            '1787000938_53c27c04-1f34-41e8-a94d-3099db7db282.png',
+      ]);
+    });
   });
 
   group('التصنيف والموقع — كائنان متداخلان (الشكل الحقيقي المؤكّد)', () {

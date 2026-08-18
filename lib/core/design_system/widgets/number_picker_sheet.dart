@@ -156,7 +156,11 @@ class _NumberPickerSheetState extends State<_NumberPickerSheet> {
                   ],
                 ),
               ),
-              Divider(height: 1.h, thickness: 1.h, color: context.colors.border),
+              Divider(
+                height: 1.h,
+                thickness: 1.h,
+                color: context.colors.border,
+              ),
               Expanded(
                 child: Stack(
                   alignment: Alignment.center,

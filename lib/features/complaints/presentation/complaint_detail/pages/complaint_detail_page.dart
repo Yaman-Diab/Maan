@@ -14,6 +14,7 @@ import '../../../../../core/design_system/app_theme_context.dart';
 import '../../../../../core/design_system/widgets/app_card.dart';
 import '../../../../../core/design_system/widgets/place_name_text.dart';
 import '../../../../../core/di/service_locator.dart';
+import '../../../../../core/result/result.dart';
 import '../../../domain/entities/complaint.dart';
 import '../../../domain/entities/complaint_status.dart';
 import '../../../domain/usecases/unvote_complaint_usecase.dart';
@@ -72,6 +73,14 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
         );
       }
     });
+
+    // ⚠️ تعارض حقيقي وارد (409 صوّت قبل هيك من جهاز تاني، مثلاً) —
+    // بلا رسالة كان الزر بيرجع لحالته القديمة بصمت تام بلا أي تفسير.
+    if (result case Err(:final failure)) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(failure.message)));
+    }
   }
 
   Future<void> _openReport() async {
@@ -163,27 +172,7 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                   border: Border(bottom: BorderSide(color: colors.divider)),
                 ),
                 child: _complaint.hasMedia
-                    ? Image.network(
-                        _complaint.mediaUrls.first,
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, progress) {
-                          if (progress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: colors.textHint,
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stack) => _MediaFallback(
-                          icon: Icons.broken_image_rounded,
-                          label: 'photo_placeholder'.tr(),
-                          colors: colors,
-                          iconSize: 34.sp,
-                        ),
-                      )
+                    ? _MediaCarousel(urls: _complaint.mediaUrls, colors: colors)
                     : _MediaFallback(
                         icon: categoryStyle?.icon ?? Icons.campaign_rounded,
                         label: 'no_media_placeholder'.tr(),
@@ -331,27 +320,49 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                                           ? scheme.onPrimary
                                           : scheme.primary,
                                     ),
-                                    SizedBox(width: 8.w),
-                                    Text(
-                                      '${_complaint.votes}',
-                                      style: TextStyle(
-                                        fontSize: 15.sp,
-                                        fontWeight: FontWeight.w600,
-                                        color: _complaint.hasVoted
-                                            ? scheme.onPrimary
-                                            : scheme.primary,
+                                    SizedBox(width: 6.w),
+                                    // ⚠️ `Flexible` لا نص ثابت — «أعاني
+                                    // من هذه الشكوى» جملة طويلة تشارك
+                                    // نصف عرض الصف مع زر الإبلاغ.
+                                    Flexible(
+                                      child: Text(
+                                        'complaint_vote_label'.tr(),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 13.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: _complaint.hasVoted
+                                              ? scheme.onPrimary
+                                              : scheme.primary,
+                                        ),
                                       ),
                                     ),
-                                    SizedBox(width: 4.w),
-                                    Text(
-                                      'complaint_vote_label'.tr(),
-                                      style: TextStyle(
-                                        fontSize: 13.sp,
+                                    SizedBox(width: 6.w),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 6.w,
+                                        vertical: 1.h,
+                                      ),
+                                      decoration: BoxDecoration(
                                         color:
                                             (_complaint.hasVoted
                                                     ? scheme.onPrimary
                                                     : scheme.primary)
-                                                .withValues(alpha: 0.85),
+                                                .withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(
+                                          AppRadius.pill.r,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        '${_complaint.votes}',
+                                        style: TextStyle(
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: _complaint.hasVoted
+                                              ? scheme.onPrimary
+                                              : scheme.primary,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -387,6 +398,93 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// معرض صور الشكوى — `PageView` بنقاط مؤشّر لو أكتر من صورة، صورة
+/// وحدة بلا مؤشّر لو وحدة بس. كل صورة إلها `errorBuilder` مستقل حتى
+/// فشل تحميل وحدة ما يمنع باقي الصور من الظهور.
+class _MediaCarousel extends StatefulWidget {
+  const _MediaCarousel({required this.urls, required this.colors});
+
+  final List<String> urls;
+  final AppSemanticColors colors;
+
+  @override
+  State<_MediaCarousel> createState() => _MediaCarouselState();
+}
+
+class _MediaCarouselState extends State<_MediaCarousel> {
+  final _controller = PageController();
+  int _page = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        PageView.builder(
+          controller: _controller,
+          itemCount: widget.urls.length,
+          onPageChanged: (index) => setState(() => _page = index),
+          itemBuilder: (context, index) => Image.network(
+            widget.urls[index],
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, progress) {
+              if (progress == null) return child;
+              return Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: widget.colors.textHint,
+                ),
+              );
+            },
+            errorBuilder: (context, error, stack) => _MediaFallback(
+              icon: Icons.broken_image_rounded,
+              label: 'photo_placeholder'.tr(),
+              colors: widget.colors,
+              iconSize: 34.sp,
+            ),
+          ),
+        ),
+        if (widget.urls.length > 1)
+          PositionedDirectional(
+            bottom: 10.h,
+            start: 0,
+            end: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var i = 0; i < widget.urls.length; i++) ...[
+                  Container(
+                    width: i == _page ? 16.w : 6.w,
+                    height: 6.w,
+                    decoration: BoxDecoration(
+                      // ⚠️ استثناء واعٍ من قاعدة «ممنوع لون يدوي» —
+                      // النقاط فوق صورة حقيقية بمحتوى عشوائي (بلا علاقة
+                      // بثيم التطبيق)، و`scheme.onPrimary` بينعكس لغامق
+                      // بالوضع الداكن فبيصير شبه غير مرئي فوق أي صورة.
+                      color: Colors.white.withValues(
+                        alpha: i == _page ? 0.95 : 0.5,
+                      ),
+                      borderRadius: BorderRadius.circular(AppRadius.pill.r),
+                    ),
+                  ),
+                  if (i != widget.urls.length - 1) SizedBox(width: 4.w),
+                ],
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

@@ -70,10 +70,7 @@ class SignUpForm extends StatelessWidget {
                       maxLength: AppValidators.nameMaxLength,
                       onChanged: cubit.firstNameChanged,
                       validationMessage: (value) =>
-                          AppValidators.requiredName(
-                            value,
-                            'first_name'.tr(),
-                          ),
+                          AppValidators.requiredName(value, 'first_name'.tr()),
                     ),
                   ),
                 ),

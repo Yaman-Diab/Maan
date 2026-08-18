@@ -91,7 +91,14 @@ void main() {
 
   group('حالة القفل — تعديل الهوية لحساب موثّق', () {
     testWidgets('بتخفي سهم الاختيار', (tester) async {
-      await _pump(tester, day: 12, month: 10, year: 1998, enabled: false, picked: []);
+      await _pump(
+        tester,
+        day: 12,
+        month: 10,
+        year: 1998,
+        enabled: false,
+        picked: [],
+      );
 
       expect(find.byIcon(Icons.keyboard_arrow_down_rounded), findsNothing);
     });

@@ -138,7 +138,10 @@ void main() {
             verify(() => registerUseCase(captureAny())).captured.single
                 as RegisterParams;
 
-        expect(captured.birthDate, const BirthDate(day: 1, month: 1, year: 2000));
+        expect(
+          captured.birthDate,
+          const BirthDate(day: 1, month: 1, year: 2000),
+        );
         expect(captured.email, 'a@b.com');
         expect(captured.passwordConfirmation, 'Secret1!');
       },

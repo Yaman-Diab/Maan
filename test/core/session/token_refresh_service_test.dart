@@ -40,7 +40,10 @@ ResponseBody _json(Map<String, dynamic> body, int statusCode) {
   );
 }
 
-TokenRefreshService _service(_FakeAdapter adapter, SecureStorageService storage) {
+TokenRefreshService _service(
+  _FakeAdapter adapter,
+  SecureStorageService storage,
+) {
   final dio = Dio(BaseOptions(baseUrl: 'https://example.test'))
     ..httpClientAdapter = adapter;
 
@@ -73,31 +76,28 @@ void main() {
   });
 
   group('فشل — أشكال حقيقية موثّقة من الباك اند', () {
-    test(
-      '«Token not provided» — status:1 رغم إنه فشل، data:null',
-      () async {
-        // ⚠️ هاي بالضبط الحالة يلي `ApiEnvelope` القياسية ما بتلتقطها
-        // (status ما يساوي صفر) — الحماية هون من غياب `data.token`
-        // صراحة، مش من `status`.
-        final storage = _MockSecureStorage();
-        when(() => storage.getAccessToken()).thenAnswer((_) async => 'old-token');
+    test('«Token not provided» — status:1 رغم إنه فشل، data:null', () async {
+      // ⚠️ هاي بالضبط الحالة يلي `ApiEnvelope` القياسية ما بتلتقطها
+      // (status ما يساوي صفر) — الحماية هون من غياب `data.token`
+      // صراحة، مش من `status`.
+      final storage = _MockSecureStorage();
+      when(() => storage.getAccessToken()).thenAnswer((_) async => 'old-token');
 
-        final adapter = _FakeAdapter(
-          () => _json({
-            'status': 1,
-            'message': 'Token not provided',
-            'data': null,
-          }, 200),
-        );
+      final adapter = _FakeAdapter(
+        () => _json({
+          'status': 1,
+          'message': 'Token not provided',
+          'data': null,
+        }, 200),
+      );
 
-        await expectLater(
-          _service(adapter, storage).refreshTokenIfNeeded(),
-          throwsA(isA<TokenRefreshException>()),
-        );
+      await expectLater(
+        _service(adapter, storage).refreshTokenIfNeeded(),
+        throwsA(isA<TokenRefreshException>()),
+      );
 
-        verifyNever(() => storage.saveAccessToken(any()));
-      },
-    );
+      verifyNever(() => storage.saveAccessToken(any()));
+    });
 
     test('«Wrong number of segments» — status:0', () async {
       final storage = _MockSecureStorage();
@@ -130,7 +130,9 @@ void main() {
           'status': 0,
           'message': 'Could not decode token: Error while decoding from JSON',
           'errors': {
-            'general': ['Could not decode token: Error while decoding from JSON'],
+            'general': [
+              'Could not decode token: Error while decoding from JSON',
+            ],
           },
         }, 200),
       );

@@ -78,20 +78,13 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     return _readAvatarUrl(response);
   }
 
-  /// نفس مسار الرفع بحقل `image` فاضي — لا `null`: `multipart/form-data`
-  /// ما بيحمل قيمة فاضية أصلاً غير نص فاضي.
-  ///
-  /// ⚠️ **افتراض غير مؤكّد**: إن الباك اند بيقرأ حقل نصّي فاضي باسم
-  /// `image` كـ«امسح الصورة الحالية». ما في مثال استجابة حقيقي لهالحالة
-  /// بعد — لو ما اشتغل، هون نقطة التصحيح الوحيدة.
+  /// ✅ `DELETE /api/profile/avatar` — endpoint مخصّص، مؤكّد بمثال
+  /// استجابة حقيقي. بلا جسم.
   @override
   Future<void> removeAvatar() async {
-    final formData = FormData.fromMap({_avatarField: ''});
-
     await _apiClient.request(
-      endpoint: ApiEndpoints.profileUpdate,
-      method: ApiMethod.post,
-      data: formData,
+      endpoint: ApiEndpoints.profileAvatar,
+      method: ApiMethod.delete,
     );
   }
 

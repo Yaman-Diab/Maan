@@ -132,6 +132,14 @@ class ApiErrorMessages {
       case ApiStatusCodes.notFound:
         return 'error_not_found'.tr();
 
+      // ⚠️ **رسالة الباك اند هون نص جاهز للعرض لكن إنجليزي دائماً**
+      // (مثلاً "You have already voted on this complaint") — استخدامه
+      // كـ`fallbackMessage` كان رح يعرض إنجليزي لمستخدم عربي بغض النظر
+      // عن لغة التطبيق. رسالة عامة مترجَمة بدل الرسالة الخام، نفس نمط
+      // باقي رموز الحالة هون.
+      case ApiStatusCodes.conflict:
+        return 'error_conflict'.tr();
+
       case ApiStatusCodes.gone:
         return 'error_gone'.tr();
 

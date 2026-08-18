@@ -53,11 +53,7 @@ class DocumentUploadSlot extends StatelessWidget {
         if (picked == null)
           _EmptySlot(onPick: onPick, isEnabled: isEnabled)
         else
-          _FilledSlot(
-            image: picked,
-            onRemove: onRemove,
-            isEnabled: isEnabled,
-          ),
+          _FilledSlot(image: picked, onRemove: onRemove, isEnabled: isEnabled),
       ],
     );
   }
@@ -216,10 +212,7 @@ class DottedBorderBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: _DashedBorderPainter(
-        color: color,
-        radius: AppRadius.md.r,
-      ),
+      painter: _DashedBorderPainter(color: color, radius: AppRadius.md.r),
       child: child,
     );
   }

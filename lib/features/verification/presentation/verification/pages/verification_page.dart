@@ -94,10 +94,7 @@ class _VerificationPageState extends State<VerificationPage> {
 
     final cubit = context.read<VerificationCubit>();
 
-    final saved = await context.push<bool>(
-      AppRoutes.editIdentity,
-      extra: user,
-    );
+    final saved = await context.push<bool>(AppRoutes.editIdentity, extra: user);
 
     if (saved != true || !context.mounted) return;
 

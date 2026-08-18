@@ -11,10 +11,7 @@ class SignUpHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'start_contributing'.tr(),
-          style: context.texts.f32W600Black,
-        ),
+        Text('start_contributing'.tr(), style: context.texts.f32W600Black),
         SizedBox(height: 8.h),
         Text(
           'sign_up_subtitle'.tr(),

@@ -119,9 +119,7 @@ class VerificationApprovedView extends StatelessWidget {
               ),
               SizedBox(height: AppSpacing.sm.h),
 
-              VerificationInfoBox(
-                message: 'verification_approved_note'.tr(),
-              ),
+              VerificationInfoBox(message: 'verification_approved_note'.tr()),
             ],
           ),
         ),
@@ -169,9 +167,7 @@ class _UnlockedItem extends StatelessWidget {
             child: Icon(icon, size: 16.sp, color: context.scheme.primary),
           ),
           SizedBox(width: AppSpacing.sm.w),
-          Expanded(
-            child: Text(label, style: context.texts.f14W400GreyColor),
-          ),
+          Expanded(child: Text(label, style: context.texts.f14W400GreyColor)),
         ],
       ),
     );

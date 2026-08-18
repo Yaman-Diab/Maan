@@ -60,7 +60,9 @@ void main() {
 
     await sl.reset();
     sl.registerLazySingleton<AppSessionController>(() => session);
-    sl.registerLazySingleton<AppPermissionService>(() => _MockPermissionService());
+    sl.registerLazySingleton<AppPermissionService>(
+      () => _MockPermissionService(),
+    );
 
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = _designSize;

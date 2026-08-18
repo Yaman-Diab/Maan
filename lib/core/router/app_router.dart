@@ -18,7 +18,10 @@ import 'package:maan/features/complaints/presentation/complaints/pages/complaint
 import 'package:maan/features/complaints/presentation/submit_complaint/pages/submit_complaint_page.dart';
 import 'package:maan/features/profile/presentation/edit_identity/pages/edit_identity_page.dart';
 import 'package:maan/features/profile/presentation/profile/pages/profile_page.dart';
+import 'package:maan/features/home/presentation/home/pages/home_page.dart';
 import 'package:maan/features/municipal_services/presentation/municipal_services/pages/municipal_services_page.dart';
+import 'package:maan/features/news/presentation/news/pages/news_page.dart';
+import 'package:maan/features/projects/presentation/projects/pages/projects_page.dart';
 import 'package:maan/features/settings/presentation/pages/settings_page.dart';
 import 'package:maan/features/skills/domain/entities/skill.dart';
 import 'package:maan/features/skills/presentation/skills/pages/skill_detail_page.dart';
@@ -26,7 +29,6 @@ import 'package:maan/features/skills/presentation/skills/pages/skills_page.dart'
 import 'package:maan/features/verification/presentation/verification/pages/verification_page.dart';
 import 'package:maan/features/splash/presentation/pages/splash_page.dart';
 import '../../features/app_shell/app_shell_page.dart';
-import '../../features/app_shell/home_verification_page.dart';
 import '../di/service_locator.dart';
 import '../session/account_status.dart';
 import '../session/app_session_controller.dart';
@@ -245,9 +247,7 @@ class AppRouter {
               GoRoute(
                 path: AppRoutes.home,
                 builder: (context, state) {
-                  // مؤقّتة للفحص اليدوي بعد الدخول — راجع التعليق
-                  // بالملف. بتنستبدل بشاشة Home الحقيقية لاحقاً.
-                  return const HomeVerificationPage();
+                  return const HomePage();
                 },
               ),
             ],
@@ -259,6 +259,28 @@ class AppRouter {
                 path: AppRoutes.complaints,
                 builder: (context, state) {
                   return const ComplaintsPage();
+                },
+              ),
+            ],
+          ),
+
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.news,
+                builder: (context, state) {
+                  return const NewsPage();
+                },
+              ),
+            ],
+          ),
+
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.projects,
+                builder: (context, state) {
+                  return const ProjectsPage();
                 },
               ),
             ],

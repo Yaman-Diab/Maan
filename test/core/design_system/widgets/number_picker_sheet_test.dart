@@ -154,7 +154,11 @@ void main() {
     ) async {
       int? result = _notCalled;
 
-      await _openSheet(tester, onResult: (value) => result = value, initialValue: 7);
+      await _openSheet(
+        tester,
+        onResult: (value) => result = value,
+        initialValue: 7,
+      );
 
       await tester.tap(find.text('done'));
       await tester.pumpAndSettle();

@@ -125,7 +125,11 @@ class _RejectionReasonCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.error_outline_rounded, size: 18.sp, color: scheme.error),
+              Icon(
+                Icons.error_outline_rounded,
+                size: 18.sp,
+                color: scheme.error,
+              ),
               SizedBox(width: AppSpacing.xs.w),
               Expanded(
                 child: Text(

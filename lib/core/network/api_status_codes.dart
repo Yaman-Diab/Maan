@@ -12,6 +12,11 @@ class ApiStatusCodes {
   static const int unauthorized = 401;
   static const int forbidden = 403;
   static const int notFound = 404;
+
+  /// تعارض حالة — مؤكّد من عقد تصويت الشكاوى (صوّت قبل هيك / ما صوّت
+  /// أصلاً). راجع `ApiErrorMessages._messageFromStatusCode`.
+  static const int conflict = 409;
+
   static const int gone = 410;
 
   /// رمز Laravel القياسي لأخطاء التحقق — هو اللي بيرجّعه الباك اند

@@ -69,10 +69,7 @@ class _SignUpPageState extends State<SignUpPage> {
             backgroundColor: context.colors.pageBackground,
             body: SafeArea(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 16.w,
-                  vertical: 18.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 18.h),
                 child: SignUpForm(
                   formKey: _formKey,
                   state: state,

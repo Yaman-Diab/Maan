@@ -4,10 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
 
 class ForgotPasswordButton extends StatelessWidget {
-  const ForgotPasswordButton({
-    super.key,
-    this.onTap,
-  });
+  const ForgotPasswordButton({super.key, this.onTap});
 
   final VoidCallback? onTap;
 

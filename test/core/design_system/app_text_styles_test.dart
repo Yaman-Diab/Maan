@@ -131,7 +131,8 @@ void main() {
       );
 
       // 32 : 16 : 12 لازم تضل 8 : 4 : 3 مهما كان المقاس.
-      final ratio = styles.f32W600Black.fontSize! / styles.f16W400Black.fontSize!;
+      final ratio =
+          styles.f32W600Black.fontSize! / styles.f16W400Black.fontSize!;
       expect(ratio, closeTo(2, 0.01));
     });
   });

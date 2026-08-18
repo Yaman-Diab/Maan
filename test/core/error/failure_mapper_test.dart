@@ -183,10 +183,7 @@ void main() {
     });
 
     test('أي استثناء آخر بيصير UnknownFailure', () {
-      expect(
-        FailureMapper.fromError(Exception('boom')),
-        isA<UnknownFailure>(),
-      );
+      expect(FailureMapper.fromError(Exception('boom')), isA<UnknownFailure>());
     });
   });
 }

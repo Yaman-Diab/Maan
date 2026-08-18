@@ -67,10 +67,7 @@ void main() {
       seed: () => const VerificationCodeState(email: _email, code: '12345a'),
       act: (cubit) => cubit.submit(),
       verify: (cubit) {
-        expect(
-          cubit.state.codeError,
-          'code_digits_only',
-        );
+        expect(cubit.state.codeError, 'code_digits_only');
         verifyNever(() => checkCodeUseCase(any()));
       },
     );

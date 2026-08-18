@@ -231,54 +231,51 @@ void main() {
         images: _twoImages(),
       );
 
-      expect(
-        (result as Ok).value.status,
-        VerificationRequestStatus.approved,
-      );
+      expect((result as Ok).value.status, VerificationRequestStatus.approved);
     });
 
-    test('حالة غير معروفة برجعها الباك اند بترجع unknown بدل ما ترمي', () async {
-      final body = _successBody();
-      (body['data'] as Map)['status'] = 'escalated';
+    test(
+      'حالة غير معروفة برجعها الباك اند بترجع unknown بدل ما ترمي',
+      () async {
+        final body = _successBody();
+        (body['data'] as Map)['status'] = 'escalated';
 
-      final built = _buildWith(() => _json(body, 200));
+        final built = _buildWith(() => _json(body, 200));
 
-      final result = await built.repository.submit(
-        nationalId: '12345678901',
-        images: _twoImages(),
-      );
+        final result = await built.repository.submit(
+          nationalId: '12345678901',
+          images: _twoImages(),
+        );
 
-      expect(
-        (result as Ok).value.status,
-        VerificationRequestStatus.unknown,
-      );
-    });
+        expect((result as Ok).value.status, VerificationRequestStatus.unknown);
+      },
+    );
   });
 
   group('تعديل طلب توثيق قائم — الاستجابة الحقيقية', () {
-    test('POST على /api/verification/update بحقلَي id وnational_id بس', () async {
-      final built = _buildWith(() => _json(_updateSuccessBody(), 200));
+    test(
+      'POST على /api/verification/update بحقلَي id وnational_id بس',
+      () async {
+        final built = _buildWith(() => _json(_updateSuccessBody(), 200));
 
-      await built.repository.update(requestId: 2, nationalId: '01234567892');
+        await built.repository.update(requestId: 2, nationalId: '01234567892');
 
-      final captured = built.adapter.captured!;
-      expect(captured.method, 'POST');
-      expect(captured.path, '/api/verification/update');
+        final captured = built.adapter.captured!;
+        expect(captured.method, 'POST');
+        expect(captured.path, '/api/verification/update');
 
-      final data = captured.data as FormData;
+        final data = captured.data as FormData;
 
-      // ⚠️ الصور مش جزء من هالطلب — تثبيت هيك بيخلّي أي إضافة مستقبلية
-      // لحقل صور هون قراراً واعياً لا انزلاقاً صامتاً.
-      expect(data.files, isEmpty);
-      expect(
-        data.fields.singleWhere((f) => f.key == 'id').value,
-        '2',
-      );
-      expect(
-        data.fields.singleWhere((f) => f.key == 'national_id').value,
-        '01234567892',
-      );
-    });
+        // ⚠️ الصور مش جزء من هالطلب — تثبيت هيك بيخلّي أي إضافة مستقبلية
+        // لحقل صور هون قراراً واعياً لا انزلاقاً صامتاً.
+        expect(data.files, isEmpty);
+        expect(data.fields.singleWhere((f) => f.key == 'id').value, '2');
+        expect(
+          data.fields.singleWhere((f) => f.key == 'national_id').value,
+          '01234567892',
+        );
+      },
+    );
 
     test('بتقرأ الحقول المحدَّثة — نفس شكل استجابة store', () async {
       final built = _buildWith(() => _json(_updateSuccessBody(), 200));
@@ -322,20 +319,23 @@ void main() {
       expect(result, isA<Err>());
     });
 
-    test('عدد صور خطأ (صورة وحدة) بيرجّع نفس نوع الخطأ — العدد ثابت لا حد أدنى', () async {
-      final built = _buildWith(() => _json(_wrongImageCountBody(), 422));
+    test(
+      'عدد صور خطأ (صورة وحدة) بيرجّع نفس نوع الخطأ — العدد ثابت لا حد أدنى',
+      () async {
+        final built = _buildWith(() => _json(_wrongImageCountBody(), 422));
 
-      final result = await built.repository.submit(
-        nationalId: '12345678901',
-        images: [_twoImages().first],
-      );
+        final result = await built.repository.submit(
+          nationalId: '12345678901',
+          images: [_twoImages().first],
+        );
 
-      final failure = (result as Err).failure;
-      expect(failure, isA<ValidationFailure>());
-      expect(
-        (failure as ValidationFailure).fieldErrors?['images'],
-        contains('The images field must contain 2 items.'),
-      );
-    });
+        final failure = (result as Err).failure;
+        expect(failure, isA<ValidationFailure>());
+        expect(
+          (failure as ValidationFailure).fieldErrors?['images'],
+          contains('The images field must contain 2 items.'),
+        );
+      },
+    );
   });
 }

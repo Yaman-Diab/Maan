@@ -291,34 +291,34 @@ void main() {
       );
 
       expect(result.failureOrNull, isA<AuthFailure>());
-      expect(
-        result.failureOrNull?.message,
-        'error_invalid_credentials',
-      );
-    });
-
-    test('401 بالشكل الحقيقي (بلا code، رسالة نصّية فقط) بترجع نفس الخطأ', () async {
-      // نسخة طبق الأصل عن استجابة حقيقية من الباك اند — بلا `code`،
-      // وبـ`status: 1` (حقل مضلِّل هون، بس ما بيهم لأن 401 مش 2xx فما
-      // بيمرّ على فحص المظروف أصلاً). كان هالشكل بيوقع على الرسالة
-      // العامة «سجّل دخولك من جديد» بدل رسالة بيانات الدخول الخاطئة،
-      // لأن الفرع القديم كان بيعتمد حصرياً على وجود `code`.
-      final sut = _build(
-        () => _json({
-          'status': 1,
-          'message': 'your email or password is wrong',
-          'data': null,
-        }, 401),
-      );
-
-      final result = await sut.repository.login(
-        email: 'a@b.com',
-        password: 'wrong',
-      );
-
-      expect(result.failureOrNull, isA<AuthFailure>());
       expect(result.failureOrNull?.message, 'error_invalid_credentials');
     });
+
+    test(
+      '401 بالشكل الحقيقي (بلا code، رسالة نصّية فقط) بترجع نفس الخطأ',
+      () async {
+        // نسخة طبق الأصل عن استجابة حقيقية من الباك اند — بلا `code`،
+        // وبـ`status: 1` (حقل مضلِّل هون، بس ما بيهم لأن 401 مش 2xx فما
+        // بيمرّ على فحص المظروف أصلاً). كان هالشكل بيوقع على الرسالة
+        // العامة «سجّل دخولك من جديد» بدل رسالة بيانات الدخول الخاطئة،
+        // لأن الفرع القديم كان بيعتمد حصرياً على وجود `code`.
+        final sut = _build(
+          () => _json({
+            'status': 1,
+            'message': 'your email or password is wrong',
+            'data': null,
+          }, 401),
+        );
+
+        final result = await sut.repository.login(
+          email: 'a@b.com',
+          password: 'wrong',
+        );
+
+        expect(result.failureOrNull, isA<AuthFailure>());
+        expect(result.failureOrNull?.message, 'error_invalid_credentials');
+      },
+    );
 
     test('422 بأخطاء حقول بترجع ValidationFailure بتفاصيلها', () async {
       // 422 هو الرمز الحقيقي يلي بيرجّعه الباك اند لأخطاء التحقق —
@@ -376,10 +376,7 @@ void main() {
       );
 
       expect(result.failureOrNull, isA<NetworkFailure>());
-      expect(
-        result.failureOrNull?.message,
-        'error_connection',
-      );
+      expect(result.failureOrNull?.message, 'error_connection');
     });
   });
 }

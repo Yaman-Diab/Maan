@@ -75,10 +75,10 @@ void main() {
         'assets/translations/ar.json',
       ]) {
         final raw = File(path).readAsStringSync();
-        final found = RegExp(r'^\s*"([^"]+)"\s*:', multiLine: true)
-            .allMatches(raw)
-            .map((m) => m.group(1)!)
-            .toList();
+        final found = RegExp(
+          r'^\s*"([^"]+)"\s*:',
+          multiLine: true,
+        ).allMatches(raw).map((m) => m.group(1)!).toList();
 
         final duplicates = <String>{};
         final seen = <String>{};
@@ -86,7 +86,11 @@ void main() {
           if (!seen.add(key)) duplicates.add(key);
         }
 
-        expect(duplicates, isEmpty, reason: 'مفاتيح مكررة بـ$path: $duplicates');
+        expect(
+          duplicates,
+          isEmpty,
+          reason: 'مفاتيح مكررة بـ$path: $duplicates',
+        );
       }
     });
   });
@@ -164,10 +168,14 @@ void main() {
       final placeholder = RegExp(r'\{(\w+)\}');
 
       for (final key in en.keys) {
-        final enArgs =
-            placeholder.allMatches(en[key] as String).map((m) => m.group(1)!).toSet();
-        final arArgs =
-            placeholder.allMatches(ar[key] as String).map((m) => m.group(1)!).toSet();
+        final enArgs = placeholder
+            .allMatches(en[key] as String)
+            .map((m) => m.group(1)!)
+            .toSet();
+        final arArgs = placeholder
+            .allMatches(ar[key] as String)
+            .map((m) => m.group(1)!)
+            .toSet();
 
         expect(
           arArgs,

@@ -129,9 +129,7 @@ abstract class VerificationCodeCubit extends Cubit<VerificationCodeState> {
         _startTimer();
 
       case Err(:final failure):
-        emit(
-          state.copyWith(isResending: false, errorMessage: failure.message),
-        );
+        emit(state.copyWith(isResending: false, errorMessage: failure.message));
     }
   }
 

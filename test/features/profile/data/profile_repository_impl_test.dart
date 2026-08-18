@@ -206,26 +206,30 @@ void main() {
   });
 
   group('إزالة الصورة الشخصية', () {
-    test('POST بنفس مسار التحديث بحقل image نصّي فاضي — لا file', () async {
+    test('DELETE على endpoint مخصّص، بلا جسم', () async {
       final built = _buildWith(() => _json({'status': 1}, 200));
 
       await built.repository.removeAvatar();
 
       final captured = built.adapter.captured!;
-      expect(captured.method, 'POST');
-      expect(captured.path, '/api/profile/update');
-
-      final data = captured.data as FormData;
-
-      // فاضي يعني حقل نصّي بقيمة فاضية، مش ملف — هيك بيتفرّق شكلياً
-      // عن الرفع (اللي بيبعت `MultipartFile` بنفس الاسم).
-      expect(data.files, isEmpty);
-      expect(data.fields.single.key, 'image');
-      expect(data.fields.single.value, '');
+      expect(captured.method, 'DELETE');
+      expect(captured.path, '/api/profile/avatar');
+      expect(captured.data, isNull);
     });
 
     test('بترجّع Ok لو نجح الطلب', () async {
-      final built = _buildWith(() => _json({'status': 1}, 200));
+      final built = _buildWith(
+        () => _json({
+          'status': 1,
+          'message': 'Avatar deleted successfully',
+          'data': {
+            'id': 1,
+            'user_id': 5,
+            'image': null,
+            'user': <String, dynamic>{},
+          },
+        }, 200),
+      );
 
       final result = await built.repository.removeAvatar();
 

@@ -33,8 +33,7 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage>
-    with TickerProviderStateMixin {
+class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   /// دورة الحلقات النابضة — 3s بالتصميم.
   late final AnimationController _rings = AnimationController(
     vsync: this,
@@ -99,10 +98,7 @@ class _SplashPageState extends State<SplashPage>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SplashLogo(
-                        ringAnimation: _rings,
-                        cardAnimation: _cardIn,
-                      ),
+                      SplashLogo(ringAnimation: _rings, cardAnimation: _cardIn),
 
                       SizedBox(height: 36.h),
 
@@ -123,9 +119,7 @@ class _SplashPageState extends State<SplashPage>
 
                       _FadeUp(
                         animation: _subtitleIn,
-                        child: _SubtitleWithRules(
-                          text: 'splash_subtitle'.tr(),
-                        ),
+                        child: _SubtitleWithRules(text: 'splash_subtitle'.tr()),
                       ),
                     ],
                   ),

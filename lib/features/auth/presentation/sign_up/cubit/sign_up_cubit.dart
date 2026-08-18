@@ -53,11 +53,21 @@ class SignUpCubit extends Cubit<SignUpState> {
   /// تغيير الشهر أو السنة ممكن يخلّي اليوم المختار غير موجود
   /// (مثلاً 31 ثم شهر فيه 30 يوم)، فبنقصّه للحد الأعلى.
   void monthChanged(int value) {
-    emit(state.copyWith(month: value, day: _clampedDay(month: value)));
+    emit(
+      state.copyWith(
+        month: value,
+        day: _clampedDay(month: value),
+      ),
+    );
   }
 
   void yearChanged(int value) {
-    emit(state.copyWith(year: value, day: _clampedDay(year: value)));
+    emit(
+      state.copyWith(
+        year: value,
+        day: _clampedDay(year: value),
+      ),
+    );
   }
 
   int? _clampedDay({int? month, int? year}) {

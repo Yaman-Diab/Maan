@@ -37,7 +37,10 @@ void main() {
       expect(model.nationalId, '12345678901');
       expect(model.status, VerificationRequestStatus.pending);
       expect(model.images, hasLength(1));
-      expect(model.images.single.imageUrl, 'http://localhost/storage/uploads/a.png');
+      expect(
+        model.images.single.imageUrl,
+        'http://localhost/storage/uploads/a.png',
+      );
     });
 
     test('بتقرأ الجذر مباشرة لو ما في data', () {
@@ -71,7 +74,9 @@ void main() {
     });
 
     test('toEntity بتحافظ على القيم', () {
-      final entity = VerificationRequestModel.fromMap(_realResponse()).toEntity();
+      final entity = VerificationRequestModel.fromMap(
+        _realResponse(),
+      ).toEntity();
 
       expect(entity.id, 1);
       expect(entity.status, VerificationRequestStatus.pending);

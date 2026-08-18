@@ -61,10 +61,8 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<CreateNewPasswordCubit>(
-      create: (_) => sl<CreateNewPasswordCubit>(
-        param1: widget.email,
-        param2: widget.code,
-      ),
+      create: (_) =>
+          sl<CreateNewPasswordCubit>(param1: widget.email, param2: widget.code),
       child: BlocConsumer<CreateNewPasswordCubit, CreateNewPasswordState>(
         listener: _onStateChanged,
         builder: (context, state) {

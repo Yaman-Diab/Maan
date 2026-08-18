@@ -140,8 +140,11 @@ class ComplaintsCubit extends Cubit<ComplaintsState> {
 
   /// تفاؤلي: العدّاد والحالة بيتغيّروا فوراً، وبيترجعوا لو فشل الطلب —
   /// نفس منطق إزالة الصورة بالبروفايل.
-  Future<void> toggleVote(Complaint complaint) async {
-    if (!state.canParticipate) return;
+  /// بترجع النتيجة حتى الشاشة تعرض سبب الفشل — تعارض حقيقي (409 صوّت
+  /// قبل هيك من جهاز تاني، مثلاً) وارد فعلاً حسب عقد الباك اند
+  /// المؤكّد، مش مجرّد افتراض دفاعي.
+  Future<Result<void>> toggleVote(Complaint complaint) async {
+    if (!state.canParticipate) return const Ok(null);
 
     final wasVoted = complaint.hasVoted;
     final optimistic = complaint.copyWith(
@@ -155,11 +158,13 @@ class ComplaintsCubit extends Cubit<ComplaintsState> {
         ? await _unvote(complaint.id)
         : await _vote(complaint.id);
 
-    if (isClosed) return;
+    if (isClosed) return result;
 
     if (result case Err()) {
       emit(state.copyWith(items: _replace(complaint)));
     }
+
+    return result;
   }
 
   List<Complaint> _replace(Complaint updated) {

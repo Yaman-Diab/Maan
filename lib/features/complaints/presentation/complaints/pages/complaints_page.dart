@@ -12,6 +12,7 @@ import '../../../../../core/design_system/app_spacing.dart';
 import '../../../../../core/design_system/app_theme_context.dart';
 import '../../../../../core/design_system/widgets/app_button.dart';
 import '../../../../../core/di/service_locator.dart';
+import '../../../../../core/result/result.dart';
 import '../../../../../core/router/app_routes.dart';
 import '../../../domain/entities/complaint.dart';
 import '../../../domain/entities/complaint_category.dart';
@@ -306,7 +307,7 @@ class _List extends StatelessWidget {
           complaint: complaint,
           canVote: state.canParticipate,
           onTap: () => onOpen(complaint),
-          onVoteTap: () {
+          onVoteTap: () async {
             if (!state.canParticipate) {
               ScaffoldMessenger.of(context)
                 ..hideCurrentSnackBar()
@@ -316,7 +317,18 @@ class _List extends StatelessWidget {
               return;
             }
 
-            cubit.toggleVote(complaint);
+            final result = await cubit.toggleVote(complaint);
+
+            // ⚠️ تعارض حقيقي وارد (409 صوّت قبل هيك من جهاز تاني، مثلاً)
+            // — الفشل بلا رسالة كان رح يخلّي المستخدم يشوف البطاقة
+            // ترجع لحالتها القديمة بلا أي تفسير.
+            if (result case Err(:final failure)) {
+              if (!context.mounted) return;
+
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(SnackBar(content: Text(failure.message)));
+            }
           },
         );
       },

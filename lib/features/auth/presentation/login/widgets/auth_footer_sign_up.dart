@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
 
 class AuthFooterSignUp extends StatelessWidget {
-  const AuthFooterSignUp({
-    super.key,
-    this.onTap,
-  });
+  const AuthFooterSignUp({super.key, this.onTap});
 
   final VoidCallback? onTap;
 

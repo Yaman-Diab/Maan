@@ -13,7 +13,14 @@ import '../../../domain/entities/verification_request.dart';
 /// [loading] أول ما تُفتح الشاشة لحد ما يرد `GET /api/verification`،
 /// و[loadFailure] لو ما رد — بلاها الشاشة رح تعرض النموذج لمستخدم عنده
 /// طلب `pending` أصلاً فيرسل طلب مكرّر بلا ما يدري.
-enum VerificationView { loading, loadFailure, form, pending, rejected, approved }
+enum VerificationView {
+  loading,
+  loadFailure,
+  form,
+  pending,
+  rejected,
+  approved,
+}
 
 /// حالة عمليات الإرسال/التصحيح — منفصلة عن [VerificationView] لأن
 /// الإرسال بيصير **فوق** عرض قائم (النموذج بيضل ظاهر وقت التحميل).
@@ -77,8 +84,7 @@ final class VerificationState extends Equatable {
   /// بيقبل من 6 خانات — فبنمشي على التصميم بدل ما نخترع قاعدة.
   static const int minNationalIdLength = 6;
 
-  bool get isNationalIdValid =>
-      nationalId.trim().length >= minNationalIdLength;
+  bool get isNationalIdValid => nationalId.trim().length >= minNationalIdLength;
 
   bool get canSubmit {
     if (isSubmitting || !isNationalIdValid) return false;

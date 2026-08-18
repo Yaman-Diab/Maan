@@ -117,9 +117,7 @@ class _InfoRow extends StatelessWidget {
       padding: EdgeInsets.only(bottom: isLast ? 0 : AppSpacing.xs.h),
       child: Row(
         children: [
-          Expanded(
-            child: Text(label, style: context.texts.f12W400SecColor),
-          ),
+          Expanded(child: Text(label, style: context.texts.f12W400SecColor)),
           Flexible(
             child: Text(
               value,

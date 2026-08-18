@@ -1,4 +1,3 @@
-
 // -------------------------
 // App Session Controller
 // -------------------------
@@ -44,9 +43,7 @@ class AppSessionController extends ChangeNotifier {
   /// `AppRedirect`، وحركة دخولها بتاخد وقتاً — بلا هالحدّ بتختفي الشاشة
   /// قبل ما تكتمل الحركة. القيمة بتجي من نقطة التركيب لا مكتوبة هون،
   /// فالتحكم بالتوقيت بيضل عند الواجهة.
-  Future<void> bootstrap({
-    Duration minimumDuration = Duration.zero,
-  }) async {
+  Future<void> bootstrap({Duration minimumDuration = Duration.zero}) async {
     final startedAt = DateTime.now();
 
     _isLoggedIn = await storage.isLoggedIn();

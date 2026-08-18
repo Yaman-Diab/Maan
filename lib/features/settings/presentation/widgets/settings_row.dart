@@ -109,7 +109,11 @@ class SettingsRowDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsetsDirectional.only(start: 16.w),
-      child: Divider(height: 1.h, thickness: 1.h, color: context.colors.divider),
+      child: Divider(
+        height: 1.h,
+        thickness: 1.h,
+        color: context.colors.divider,
+      ),
     );
   }
 }

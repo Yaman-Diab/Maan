@@ -73,9 +73,7 @@ class VerificationPendingView extends StatelessWidget {
               _RequestSummaryCard(request: request),
               SizedBox(height: AppSpacing.sm.h),
 
-              VerificationInfoBox(
-                message: 'verification_pending_note'.tr(),
-              ),
+              VerificationInfoBox(message: 'verification_pending_note'.tr()),
             ],
           ),
         ),
@@ -297,9 +295,7 @@ class _SummaryRow extends StatelessWidget {
       padding: EdgeInsets.only(bottom: AppSpacing.xs.h),
       child: Row(
         children: [
-          Expanded(
-            child: Text(label, style: context.texts.f12W400SecColor),
-          ),
+          Expanded(child: Text(label, style: context.texts.f12W400SecColor)),
           Flexible(
             child: Text(
               value,

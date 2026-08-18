@@ -15,7 +15,9 @@ class PasswordRuleItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isValid ? context.scheme.primary : context.colors.textPrimary;
-    final iconColor = isValid ? context.scheme.primary : context.colors.noticeForeground;
+    final iconColor = isValid
+        ? context.scheme.primary
+        : context.colors.noticeForeground;
 
     return AnimatedDefaultTextStyle(
       duration: const Duration(milliseconds: 180),
@@ -37,12 +39,7 @@ class PasswordRuleItem extends StatelessWidget {
             ),
           ),
           SizedBox(width: 5.w),
-          Expanded(
-            child: Text(
-              text,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Expanded(child: Text(text, overflow: TextOverflow.ellipsis)),
         ],
       ),
     );

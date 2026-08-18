@@ -24,6 +24,13 @@ import 'package:maan/features/verification/domain/repositories/verification_repo
 import 'package:maan/features/verification/domain/usecases/submit_verification_usecase.dart';
 import 'package:maan/features/verification/domain/usecases/update_verification_usecase.dart';
 import 'package:maan/features/verification/verification_injection.dart';
+import 'package:maan/features/complaints/complaints_injection.dart';
+import 'package:maan/features/home/home_injection.dart';
+import 'package:maan/features/home/presentation/home/cubit/home_cubit.dart';
+import 'package:maan/features/news/news_injection.dart';
+import 'package:maan/features/news/presentation/news/cubit/news_cubit.dart';
+import 'package:maan/features/projects/projects_injection.dart';
+import 'package:maan/features/projects/presentation/projects/cubit/projects_cubit.dart';
 
 /// بيتأكد إن نقطة التركيب بتركّب فعلاً.
 ///
@@ -42,6 +49,10 @@ void main() {
     registerAuthDependencies(sl);
     registerProfileDependencies(sl);
     registerVerificationDependencies(sl);
+    registerComplaintsDependencies(sl);
+    registerNewsDependencies(sl);
+    registerProjectsDependencies(sl);
+    registerHomeDependencies(sl);
   });
 
   tearDown(() => sl.reset());
@@ -95,6 +106,17 @@ void main() {
     // الشاشة لسه ما انبنت، فمنتأكد من الـ use case لحاله بدل Cubit.
     expect(sl<SubmitVerificationUseCase>(), isA<SubmitVerificationUseCase>());
     expect(sl<UpdateVerificationUseCase>(), isA<UpdateVerificationUseCase>());
+  });
+
+  test('سلسلة اعتماديات الرئيسية بتتحل كاملة', () {
+    // `HomeCubit` بيجمّع use cases من أربع ميزات — حلّه بيثبت إن
+    // ترتيب التسجيل بـ`main.dart` صحيح (الرئيسية آخر وحدة).
+    expect(sl<HomeCubit>(), isA<HomeCubit>());
+  });
+
+  test('سلسلة اعتماديات الأخبار والمشاريع بتتحل — بمصادرها الوهمية', () {
+    expect(sl<NewsCubit>(), isA<NewsCubit>());
+    expect(sl<ProjectsCubit>(), isA<ProjectsCubit>());
   });
 
   test('تفضيلات العرض مسجّلة كـ singleton عام', () {

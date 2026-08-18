@@ -299,7 +299,9 @@ class ImagePickerService {
     String prefix = 'maan_avatar',
   }) async {
     final name = '${prefix}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final file = File('${Directory.systemTemp.path}${Platform.pathSeparator}$name');
+    final file = File(
+      '${Directory.systemTemp.path}${Platform.pathSeparator}$name',
+    );
 
     return file.writeAsBytes(bytes, flush: true);
   }

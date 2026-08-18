@@ -183,12 +183,19 @@ class ComplaintCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _VoteButton(
-                  votes: complaint.votes,
-                  voted: complaint.hasVoted,
-                  enabled: canVote,
-                  onTap: onVoteTap,
+                // ⚠️ `Expanded` لا حجم طبيعي — «أعاني من هذه الشكوى»
+                // نص أطول بكتير من «صوت» القديمة، وبلا هالتقييد بيرمي
+                // RenderFlex overflow على شاشة ضيّقة أو حجم خط أكبر
+                // (نفس فئة الباگ الموثّقة بشبكة تصنيفات الشكاوى).
+                Expanded(
+                  child: _VoteButton(
+                    votes: complaint.votes,
+                    voted: complaint.hasVoted,
+                    enabled: canVote,
+                    onTap: onVoteTap,
+                  ),
                 ),
+                SizedBox(width: 8.w),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -292,6 +299,7 @@ class _VoteButton extends StatelessWidget {
         child: Container(
           height: 44.h,
           padding: EdgeInsets.symmetric(horizontal: 14.w),
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: voted ? colors.brandSurface : scheme.surface,
             border: Border.all(color: voted ? scheme.primary : colors.border),
@@ -306,21 +314,37 @@ class _VoteButton extends StatelessWidget {
                 color: voted ? scheme.primary : colors.textSecondary,
               ),
               SizedBox(width: 6.w),
-              Text(
-                '$votes',
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: voted ? scheme.primary : colors.textPrimary,
+              // ⚠️ العدّاد شارة منفصلة لا مدموج بالنص — «أعاني من هذه
+              // الشكوى» جملة كاملة، ما بتنقرأ صح لو التصق فيها رقم
+              // مباشرة («12 أعاني من هذه الشكوى» ركيك نحوياً).
+              Flexible(
+                child: Text(
+                  'complaint_vote_label'.tr(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: voted ? scheme.primary : colors.textPrimary,
+                  ),
                 ),
               ),
-              SizedBox(width: 3.w),
-              Text(
-                'complaint_vote_label'.tr(),
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: (voted ? scheme.primary : colors.textPrimary)
-                      .withValues(alpha: 0.75),
+              SizedBox(width: 6.w),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
+                decoration: BoxDecoration(
+                  color: voted
+                      ? scheme.primary.withValues(alpha: 0.15)
+                      : colors.fieldDisabledBackground,
+                  borderRadius: BorderRadius.circular(AppRadius.pill.r),
+                ),
+                child: Text(
+                  '$votes',
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w700,
+                    color: voted ? scheme.primary : colors.textSecondary,
+                  ),
                 ),
               ),
             ],

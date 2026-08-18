@@ -2,6 +2,7 @@
 // Complaint Model
 // -------------------------
 
+import '../../../../core/network/api_media.dart';
 import '../../../../core/network/api_response_keys.dart';
 import '../../domain/entities/complaint.dart';
 import '../../domain/entities/complaint_category.dart';
@@ -112,41 +113,21 @@ class ComplaintModel {
     return const [];
   }
 
-  /// `file_url` هو الاسم المؤكّد بمثال حقيقي — `url`/`image_url` خط
-  /// دفاع احتياطي لو اختلف الشكل بمسار تاني.
+  /// ⚠️ **الشكل بيختلف بين الإنشاء والقراءة**: `POST /api/complains`
+  /// بيرجّع `file_path` بس (مسار نسبي)، بينما `my-complains` بترجّع
+  /// `file_url` كامل كمان. `ApiMedia` بتتعامل مع الاثنين — راجع
+  /// تعليقها للباگ الحقيقي يلي كانت الصور تختفي فيه بعد الإرسال.
+  ///
+  /// ⚠️ **بلا فلترة نوع هون عمداً** — بعكس الأخبار، الشكوى بتقبل فيديو
+  /// كمان وبدنا نعرف إنه في وسائط أصلاً (`hasMedia`). النتيجة إن أول
+  /// عنصر ممكن يكون فيديو فيفشل تحميله كصورة — فجوة موثّقة بـCLAUDE.md.
   static List<String> _mediaUrls(Map<String, dynamic> json) {
-    final media = json['media'];
-    if (media is! List) return const [];
-
-    final urls = <String>[];
-
-    for (final item in media) {
-      if (item is! Map) continue;
-
-      final url = _firstString(Map<String, dynamic>.from(item), [
-        'file_url',
-        'url',
-        'image_url',
-      ]);
-
-      if (url != null) urls.add(url);
-    }
-
-    return urls;
+    return ApiMedia.urls(json['media']);
   }
 
   static Map<String, dynamic>? _asMap(dynamic value) {
     if (value is Map<String, dynamic>) return value;
     if (value is Map) return Map<String, dynamic>.from(value);
-
-    return null;
-  }
-
-  static String? _firstString(Map<String, dynamic> json, List<String> keys) {
-    for (final key in keys) {
-      final value = json[key];
-      if (value is String && value.isNotEmpty) return value;
-    }
 
     return null;
   }

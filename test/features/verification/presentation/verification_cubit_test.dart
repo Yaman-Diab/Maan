@@ -94,9 +94,9 @@ void main() {
 
     // البطاقة الشخصية مش محور هالاختبارات؛ فشل قراءتها مقبول عن قصد
     // (الشاشة بتخفي البطاقة وبتكمّل) — الاختبار المخصّص لها تحت.
-    when(() => getProfile(any())).thenAnswer(
-      (_) async => const Err(NetworkFailure('error_connection')),
-    );
+    when(
+      () => getProfile(any()),
+    ).thenAnswer((_) async => const Err(NetworkFailure('error_connection')));
   });
 
   VerificationCubit build() =>
@@ -105,9 +105,8 @@ void main() {
   group('load — العرض بيتحدّد من حالة الطلب', () {
     blocTest<VerificationCubit, VerificationState>(
       'بلا طلب سابق بتعرض النموذج',
-      setUp: () => when(
-        () => getStatus(any()),
-      ).thenAnswer((_) async => const Ok(null)),
+      setUp: () =>
+          when(() => getStatus(any())).thenAnswer((_) async => const Ok(null)),
       build: build,
       act: (cubit) => cubit.load(),
       expect: () => [
@@ -118,9 +117,8 @@ void main() {
 
     blocTest<VerificationCubit, VerificationState>(
       'طلب pending بتعرض «قيد المراجعة» وبتعبّي الرقم الوطني',
-      setUp: () => when(
-        () => getStatus(any()),
-      ).thenAnswer((_) async => Ok(_request())),
+      setUp: () =>
+          when(() => getStatus(any())).thenAnswer((_) async => Ok(_request())),
       build: build,
       act: (cubit) => cubit.load(),
       verify: (cubit) {
@@ -132,8 +130,7 @@ void main() {
     blocTest<VerificationCubit, VerificationState>(
       'طلب rejected بتعرض عرض الرفض',
       setUp: () => when(() => getStatus(any())).thenAnswer(
-        (_) async =>
-            Ok(_request(status: VerificationRequestStatus.rejected)),
+        (_) async => Ok(_request(status: VerificationRequestStatus.rejected)),
       ),
       build: build,
       act: (cubit) => cubit.load(),
@@ -143,8 +140,7 @@ void main() {
     blocTest<VerificationCubit, VerificationState>(
       'طلب approved بتعرض الاعتماد وبتبلّغ الجلسة إن الحساب صار موثّقاً',
       setUp: () => when(() => getStatus(any())).thenAnswer(
-        (_) async =>
-            Ok(_request(status: VerificationRequestStatus.approved)),
+        (_) async => Ok(_request(status: VerificationRequestStatus.approved)),
       ),
       build: build,
       act: (cubit) => cubit.load(),
@@ -168,9 +164,9 @@ void main() {
 
     blocTest<VerificationCubit, VerificationState>(
       'فشل التحميل بيعرض شاشة إعادة المحاولة لا النموذج',
-      setUp: () => when(() => getStatus(any())).thenAnswer(
-        (_) async => const Err(NetworkFailure('error_connection')),
-      ),
+      setUp: () => when(
+        () => getStatus(any()),
+      ).thenAnswer((_) async => const Err(NetworkFailure('error_connection'))),
       build: build,
       act: (cubit) => cubit.load(),
       verify: (cubit) {
@@ -184,12 +180,8 @@ void main() {
     blocTest<VerificationCubit, VerificationState>(
       'بتتحمّل مع حالة الطلب بنفس الاستدعاء',
       setUp: () {
-        when(
-          () => getStatus(any()),
-        ).thenAnswer((_) async => const Ok(null));
-        when(
-          () => getProfile(any()),
-        ).thenAnswer((_) async => Ok(_profile()));
+        when(() => getStatus(any())).thenAnswer((_) async => const Ok(null));
+        when(() => getProfile(any())).thenAnswer((_) async => Ok(_profile()));
       },
       build: build,
       act: (cubit) => cubit.load(),
@@ -202,9 +194,7 @@ void main() {
     blocTest<VerificationCubit, VerificationState>(
       'فشل قراءتها ما بيوقّع الشاشة — بتضل تعرض النموذج بلا بطاقة',
       setUp: () {
-        when(
-          () => getStatus(any()),
-        ).thenAnswer((_) async => const Ok(null));
+        when(() => getStatus(any())).thenAnswer((_) async => const Ok(null));
         when(() => getProfile(any())).thenAnswer(
           (_) async => const Err(NetworkFailure('error_connection')),
         );
@@ -248,9 +238,8 @@ void main() {
   group('تصحيح طلب قائم', () {
     blocTest<VerificationCubit, VerificationState>(
       'editRequested بترجّع للنموذج بوضع التصحيح بلا ما تفقد الطلب',
-      setUp: () => when(
-        () => getStatus(any()),
-      ).thenAnswer((_) async => Ok(_request())),
+      setUp: () =>
+          when(() => getStatus(any())).thenAnswer((_) async => Ok(_request())),
       build: build,
       act: (cubit) async {
         await cubit.load();
@@ -267,9 +256,7 @@ void main() {
     blocTest<VerificationCubit, VerificationState>(
       'الإرسال بوضع التصحيح بيضرب update لا submit',
       setUp: () {
-        when(
-          () => getStatus(any()),
-        ).thenAnswer((_) async => Ok(_request()));
+        when(() => getStatus(any())).thenAnswer((_) async => Ok(_request()));
         when(
           () => update(any()),
         ).thenAnswer((_) async => Ok(_request(nationalId: '99999999999')));
@@ -300,8 +287,7 @@ void main() {
     blocTest<VerificationCubit, VerificationState>(
       'resubmitRequested بتمسح الطلب القديم فيصير طلباً جديداً لا تصحيحاً',
       setUp: () => when(() => getStatus(any())).thenAnswer(
-        (_) async =>
-            Ok(_request(status: VerificationRequestStatus.rejected)),
+        (_) async => Ok(_request(status: VerificationRequestStatus.rejected)),
       ),
       build: build,
       act: (cubit) async {
@@ -321,9 +307,8 @@ void main() {
   group('الصور', () {
     blocTest<VerificationCubit, VerificationState>(
       'الاختيار والحذف بيأثّروا على الخانة الصحيحة بس',
-      setUp: () => when(
-        () => getStatus(any()),
-      ).thenAnswer((_) async => const Ok(null)),
+      setUp: () =>
+          when(() => getStatus(any())).thenAnswer((_) async => const Ok(null)),
       build: build,
       act: (cubit) async {
         await cubit.load();
@@ -342,9 +327,7 @@ void main() {
     blocTest<VerificationCubit, VerificationState>(
       'بيضل بالنموذج مع رسالة الخطأ بدل ما يبدّل العرض',
       setUp: () {
-        when(
-          () => getStatus(any()),
-        ).thenAnswer((_) async => const Ok(null));
+        when(() => getStatus(any())).thenAnswer((_) async => const Ok(null));
         when(() => submit(any())).thenAnswer(
           (_) async => const Err(ValidationFailure('error_validation_generic')),
         );

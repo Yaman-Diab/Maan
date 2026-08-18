@@ -24,12 +24,8 @@ abstract class ProfileRepository {
     required String fileName,
   });
 
-  /// إزالة الصورة الشخصية.
-  ///
-  /// ⚠️ **بلا endpoint مخصّص** — نفس `POST /api/profile/update`، بس
-  /// بحقل `image` فاضي. الافتراض إن الباك اند بيفهم القيمة الفاضية
-  /// كـ«امسح الصورة الحالية» لسه غير مؤكّد؛ نقطة التصحيح الوحيدة
-  /// `ProfileRemoteDataSource.removeAvatar`.
+  /// إزالة الصورة الشخصية — ✅ `DELETE /api/profile/avatar`، endpoint
+  /// مخصّص مؤكّد بمثال استجابة حقيقي.
   Future<Result<void>> removeAvatar();
 
   /// تحديث بيانات الهوية الأساسية — الاسم الأول والأخير والرقم الوطني

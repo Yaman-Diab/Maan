@@ -26,9 +26,15 @@ abstract final class AppRoutes {
   static const String home = '/home';
   static const String profile = '/profile';
 
-  /// تاب ثالث بالشريط السفلي — راجع `AppRouter` لعدد فروع
+  /// تاب ثاني بالشريط السفلي — راجع `AppRouter` لعدد فروع
   /// `StatefulShellRoute` المطلوب مطابقته.
   static const String complaints = '/complaints';
+
+  /// تاب ثالث — الأخبار والإعلانات المعتمدة (`GET /api/news`).
+  static const String news = '/news';
+
+  /// تاب رابع — المشاريع البلدية (تصويت/تطوّع/تبرّع).
+  static const String projects = '/projects';
 
   /// تقديم شكوى جديدة — فرعي عن `complaints` بس **مش** تحت `/complaints`
   /// بالمسار (شاشة مكدّسة فوق التاب، مش تاب رابع).
@@ -67,7 +73,6 @@ abstract final class AppRoutes {
   static const String skillDetail = '/profile/certificates-skills/detail';
 
   /// خدمات البلدية — للعرض فقط (وقت انتظار مقدّر لكل خدمة)، بلا أي
-  /// علاقة بنظام الطابور الفعلي. مدخلها الحالي زر مؤقّت بـ
-  /// `HomeVerificationPage` لحد ما تُبنى شاشة Home الحقيقية.
+  /// علاقة بنظام الطابور الفعلي. مدخلها اختصار بشاشة الرئيسية.
   static const String municipalServices = '/municipal-services';
 }

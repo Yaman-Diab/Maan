@@ -122,7 +122,10 @@ class _CardHeaderSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Bone.square(size: 32.w, borderRadius: BorderRadius.circular(AppRadius.sm.r)),
+        Bone.square(
+          size: 32.w,
+          borderRadius: BorderRadius.circular(AppRadius.sm.r),
+        ),
         SizedBox(width: AppSpacing.xs.w),
         Expanded(child: Bone.text(words: 2)),
       ],

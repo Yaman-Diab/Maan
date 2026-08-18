@@ -130,106 +130,105 @@ void main() {
     await EasyLocalization.ensureInitialized();
   });
 
-  testWidgets(
-    'شاشة الإعدادات — مسجّل دخوله: كل السيناريوهات بماونت واحد',
-    (tester) async {
-      final session = await _session(loggedIn: true);
-      final permissionService = _MockPermissionService();
-      when(
-        () => permissionService.openSystemSettings(),
-      ).thenAnswer((_) async {});
+  testWidgets('شاشة الإعدادات — مسجّل دخوله: كل السيناريوهات بماونت واحد', (
+    tester,
+  ) async {
+    final session = await _session(loggedIn: true);
+    final permissionService = _MockPermissionService();
+    when(() => permissionService.openSystemSettings()).thenAnswer((_) async {});
 
-      final cubit = await _pump(
-        tester,
-        session: session,
-        permissionService: permissionService,
-      );
+    final cubit = await _pump(
+      tester,
+      session: session,
+      permissionService: permissionService,
+    );
 
-      // -------------------------
-      // المظهر
-      // -------------------------
-      await tester.tap(find.text('Dark'));
-      await tester.pumpAndSettle();
-      expect(cubit.state.themeMode, ThemeMode.dark);
+    // -------------------------
+    // المظهر
+    // -------------------------
+    await tester.tap(find.text('Dark'));
+    await tester.pumpAndSettle();
+    expect(cubit.state.themeMode, ThemeMode.dark);
 
-      await tester.tap(find.text('A+'));
-      await tester.pumpAndSettle();
-      expect(cubit.state.textScale, AppTextScale.large);
+    await tester.tap(find.text('A+'));
+    await tester.pumpAndSettle();
+    expect(cubit.state.textScale, AppTextScale.large);
 
-      // -------------------------
-      // الخصوصية والأذونات
-      // -------------------------
-      await tester.ensureVisible(find.text('Location Access'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Location Access'));
-      await tester.pumpAndSettle();
-      verify(() => permissionService.openSystemSettings()).called(1);
+    // -------------------------
+    // الخصوصية والأذونات
+    // -------------------------
+    await tester.ensureVisible(find.text('Location Access'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Location Access'));
+    await tester.pumpAndSettle();
+    verify(() => permissionService.openSystemSettings()).called(1);
 
-      await tester.ensureVisible(find.text('Camera & Photos'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Camera & Photos'));
-      await tester.pumpAndSettle();
-      verify(() => permissionService.openSystemSettings()).called(1);
+    await tester.ensureVisible(find.text('Camera & Photos'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Camera & Photos'));
+    await tester.pumpAndSettle();
+    verify(() => permissionService.openSystemSettings()).called(1);
 
-      // -------------------------
-      // حول التطبيق — روابط بلا وجهة مؤكّدة بعد
-      // -------------------------
-      await tester.ensureVisible(find.text('Contact Support'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Contact Support'));
-      await tester.pumpAndSettle();
-      expect(find.text('Coming soon'), findsOneWidget);
+    // -------------------------
+    // حول التطبيق — روابط بلا وجهة مؤكّدة بعد
+    // -------------------------
+    await tester.ensureVisible(find.text('Contact Support'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Contact Support'));
+    await tester.pumpAndSettle();
+    expect(find.text('Coming soon'), findsOneWidget);
 
-      // -------------------------
-      // الحساب — حذف (ما في endpoint حقيقي لسه)
-      // -------------------------
-      await tester.ensureVisible(find.text('Delete Account'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Delete Account'));
-      await tester.pumpAndSettle();
-      expect(find.text('Delete your account?'), findsOneWidget);
+    // -------------------------
+    // الحساب — حذف (ما في endpoint حقيقي لسه)
+    // -------------------------
+    await tester.ensureVisible(find.text('Delete Account'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete Account'));
+    await tester.pumpAndSettle();
+    expect(find.text('Delete your account?'), findsOneWidget);
 
-      await tester.tap(find.text('Delete Account').last);
-      await tester.pumpAndSettle();
-      expect(
-        find.text("Account deletion isn't available yet. Please contact support."),
-        findsOneWidget,
-      );
-      // ⚠️ ما في endpoint حقيقي — الحساب يضل مسجّل دخوله، ما انحذف شي.
-      expect(session.isLoggedIn, isTrue);
+    await tester.tap(find.text('Delete Account').last);
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        "Account deletion isn't available yet. Please contact support.",
+      ),
+      findsOneWidget,
+    );
+    // ⚠️ ما في endpoint حقيقي — الحساب يضل مسجّل دخوله، ما انحذف شي.
+    expect(session.isLoggedIn, isTrue);
 
-      // -------------------------
-      // الحساب — إلغاء ورقة الخروج
-      // -------------------------
-      await tester.ensureVisible(find.text('Log out'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Log out'));
-      await tester.pumpAndSettle();
-      expect(find.text("Log out of Ma'an?"), findsOneWidget);
+    // -------------------------
+    // الحساب — إلغاء ورقة الخروج
+    // -------------------------
+    await tester.ensureVisible(find.text('Log out'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Log out'));
+    await tester.pumpAndSettle();
+    expect(find.text("Log out of Ma'an?"), findsOneWidget);
 
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
-      expect(session.isLoggedIn, isTrue);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(session.isLoggedIn, isTrue);
 
-      // -------------------------
-      // الحساب — تسجيل خروج فعلي (آخر خطوة: بيغيّر حالة الجلسة)
-      // -------------------------
-      await tester.ensureVisible(find.text('Log out'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Log out'));
-      await tester.pumpAndSettle();
-      expect(find.text("Log out of Ma'an?"), findsOneWidget);
+    // -------------------------
+    // الحساب — تسجيل خروج فعلي (آخر خطوة: بيغيّر حالة الجلسة)
+    // -------------------------
+    await tester.ensureVisible(find.text('Log out'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Log out'));
+    await tester.pumpAndSettle();
+    expect(find.text("Log out of Ma'an?"), findsOneWidget);
 
-      // زر التأكيد جوّا الورقة نفس نص الصف («Log out»)، فبنلقط آخر
-      // واحد (الأحدث بالشجرة = جوّا الورقة).
-      await tester.tap(find.text('Log out').last);
-      await tester.pumpAndSettle();
-      expect(session.isLoggedIn, isFalse);
+    // زر التأكيد جوّا الورقة نفس نص الصف («Log out»)، فبنلقط آخر
+    // واحد (الأحدث بالشجرة = جوّا الورقة).
+    await tester.tap(find.text('Log out').last);
+    await tester.pumpAndSettle();
+    expect(session.isLoggedIn, isFalse);
 
-      // قسم الحساب بينخفي فوراً بعد الخروج — الصفحة نفسها ضلّت مفتوحة.
-      expect(find.text('Account'), findsNothing);
-      expect(find.text('Log out'), findsNothing);
-      expect(find.text('Delete Account'), findsNothing);
-    },
-  );
+    // قسم الحساب بينخفي فوراً بعد الخروج — الصفحة نفسها ضلّت مفتوحة.
+    expect(find.text('Account'), findsNothing);
+    expect(find.text('Log out'), findsNothing);
+    expect(find.text('Delete Account'), findsNothing);
+  });
 }

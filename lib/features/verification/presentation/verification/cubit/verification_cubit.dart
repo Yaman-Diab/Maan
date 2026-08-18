@@ -83,21 +83,17 @@ class VerificationCubit extends Cubit<VerificationState> {
   }
 
   void imagePicked(DocumentSlot slot, PickedImage image) {
-    emit(
-      switch (slot) {
-        DocumentSlot.front => state.copyWith(frontImage: image),
-        DocumentSlot.selfie => state.copyWith(selfieImage: image),
-      },
-    );
+    emit(switch (slot) {
+      DocumentSlot.front => state.copyWith(frontImage: image),
+      DocumentSlot.selfie => state.copyWith(selfieImage: image),
+    });
   }
 
   void imageRemoved(DocumentSlot slot) {
-    emit(
-      switch (slot) {
-        DocumentSlot.front => state.copyWith(clearFrontImage: true),
-        DocumentSlot.selfie => state.copyWith(clearSelfieImage: true),
-      },
-    );
+    emit(switch (slot) {
+      DocumentSlot.front => state.copyWith(clearFrontImage: true),
+      DocumentSlot.selfie => state.copyWith(clearSelfieImage: true),
+    });
   }
 
   /// الرجوع من «قيد المراجعة» للنموذج لتصحيح الرقم الوطني. الطلب بيضل

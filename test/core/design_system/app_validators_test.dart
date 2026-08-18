@@ -31,7 +31,10 @@ void main() {
     });
 
     test('بلا رقم', () {
-      expect(AppValidators.passwordValidator('Abcdefgh!'), 'password_needs_digit');
+      expect(
+        AppValidators.passwordValidator('Abcdefgh!'),
+        'password_needs_digit',
+      );
     });
 
     test('بلا حرف كبير', () {

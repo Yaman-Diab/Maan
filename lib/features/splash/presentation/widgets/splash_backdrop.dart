@@ -48,11 +48,7 @@ class SplashBackdrop extends StatelessWidget {
 }
 
 class _Glow extends StatelessWidget {
-  const _Glow({
-    required this.size,
-    required this.color,
-    required this.opacity,
-  });
+  const _Glow({required this.size, required this.color, required this.opacity});
 
   final double size;
   final Color color;

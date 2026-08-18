@@ -68,7 +68,8 @@ class BirthDateFields extends StatelessWidget {
       children: [
         Text(
           label,
-          style: labelStyle ??
+          style:
+              labelStyle ??
               context.texts.f16W500Black.copyWith(fontSize: 16.sp),
         ),
         SizedBox(height: labelGap.h),

@@ -124,7 +124,9 @@ void main() {
     });
 
     test('bootstrap بيسترجع الحالة المخبّأة', () async {
-      when(() => storage.getAccountStatus()).thenAnswer((_) async => 'verified');
+      when(
+        () => storage.getAccountStatus(),
+      ).thenAnswer((_) async => 'verified');
       when(() => storage.isLoggedIn()).thenAnswer((_) async => true);
 
       await controller.bootstrap();
@@ -134,7 +136,9 @@ void main() {
     });
 
     test('قيمة مخزّنة تالفة ما بتوقّع الإقلاع', () async {
-      when(() => storage.getAccountStatus()).thenAnswer((_) async => '!!تالف!!');
+      when(
+        () => storage.getAccountStatus(),
+      ).thenAnswer((_) async => '!!تالف!!');
 
       await controller.bootstrap();
 
@@ -165,17 +169,20 @@ void main() {
       verify(() => storage.saveAccountStatus('verified')).called(1);
     });
 
-    test('loginCompleted بتقبل الحالة اختيارياً — العقد لسه غير مثبّت', () async {
-      await controller.loginCompleted();
-      expect(
-        controller.accountStatus,
-        AccountStatus.unknown,
-        reason: 'بلا حالة من الاستجابة بتضل مجهولة لحد ما تُجلب من profile',
-      );
+    test(
+      'loginCompleted بتقبل الحالة اختيارياً — العقد لسه غير مثبّت',
+      () async {
+        await controller.loginCompleted();
+        expect(
+          controller.accountStatus,
+          AccountStatus.unknown,
+          reason: 'بلا حالة من الاستجابة بتضل مجهولة لحد ما تُجلب من profile',
+        );
 
-      await controller.loginCompleted(accountStatus: AccountStatus.verified);
-      expect(controller.accountStatus, AccountStatus.verified);
-    });
+        await controller.loginCompleted(accountStatus: AccountStatus.verified);
+        expect(controller.accountStatus, AccountStatus.verified);
+      },
+    );
 
     test('تسجيل الخروج بيسقط الصلاحية', () async {
       await controller.accountStatusChanged(AccountStatus.verified);

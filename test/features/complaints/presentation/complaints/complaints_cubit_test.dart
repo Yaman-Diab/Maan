@@ -70,13 +70,15 @@ void main() {
   group('load', () {
     blocTest<ComplaintsCubit, ComplaintsState>(
       'ناجح بقائمة أقل من حجم الصفحة → ready بلا hasMore',
-      setUp: () => when(() => getPublished(any())).thenAnswer(
-        (_) async => Ok([_complaint()]),
-      ),
+      setUp: () => when(
+        () => getPublished(any()),
+      ).thenAnswer((_) async => Ok([_complaint()])),
       build: build,
       act: (cubit) => cubit.load(),
       expect: () => [
-        predicate<ComplaintsState>((s) => s.status == ComplaintsListStatus.loading),
+        predicate<ComplaintsState>(
+          (s) => s.status == ComplaintsListStatus.loading,
+        ),
         predicate<ComplaintsState>(
           (s) =>
               s.status == ComplaintsListStatus.ready &&
@@ -89,24 +91,31 @@ void main() {
 
     blocTest<ComplaintsCubit, ComplaintsState>(
       'قائمة فاضية → empty',
-      setUp: () => when(() => getPublished(any())).thenAnswer((_) async => const Ok([])),
+      setUp: () =>
+          when(() => getPublished(any())).thenAnswer((_) async => const Ok([])),
       build: build,
       act: (cubit) => cubit.load(),
       expect: () => [
-        predicate<ComplaintsState>((s) => s.status == ComplaintsListStatus.loading),
-        predicate<ComplaintsState>((s) => s.status == ComplaintsListStatus.empty),
+        predicate<ComplaintsState>(
+          (s) => s.status == ComplaintsListStatus.loading,
+        ),
+        predicate<ComplaintsState>(
+          (s) => s.status == ComplaintsListStatus.empty,
+        ),
       ],
     );
 
     blocTest<ComplaintsCubit, ComplaintsState>(
       'فشل الطلب → error برسالة الفشل',
-      setUp: () => when(() => getPublished(any())).thenAnswer(
-        (_) async => const Err(NetworkFailure('error_connection')),
-      ),
+      setUp: () => when(
+        () => getPublished(any()),
+      ).thenAnswer((_) async => const Err(NetworkFailure('error_connection'))),
       build: build,
       act: (cubit) => cubit.load(),
       expect: () => [
-        predicate<ComplaintsState>((s) => s.status == ComplaintsListStatus.loading),
+        predicate<ComplaintsState>(
+          (s) => s.status == ComplaintsListStatus.loading,
+        ),
         predicate<ComplaintsState>(
           (s) =>
               s.status == ComplaintsListStatus.error &&
@@ -139,9 +148,9 @@ void main() {
     blocTest<ComplaintsCubit, ComplaintsState>(
       'نجح: العدّاد والحالة يضلّوا متغيّرين',
       setUp: () {
-        when(() => getPublished(any())).thenAnswer(
-          (_) async => Ok([_complaint(votes: 3)]),
-        );
+        when(
+          () => getPublished(any()),
+        ).thenAnswer((_) async => Ok([_complaint(votes: 3)]));
         when(() => vote(any())).thenAnswer((_) async => const Ok(null));
       },
       build: build,
@@ -158,19 +167,24 @@ void main() {
     );
 
     blocTest<ComplaintsCubit, ComplaintsState>(
-      'فشل: يرجع للحالة الأصلية',
+      'فشل: يرجع للحالة الأصلية وبيبلّغ الشاشة بسبب الفشل',
       setUp: () {
-        when(() => getPublished(any())).thenAnswer(
-          (_) async => Ok([_complaint(votes: 3)]),
-        );
-        when(() => vote(any())).thenAnswer(
-          (_) async => const Err(NetworkFailure('error_connection')),
-        );
+        when(
+          () => getPublished(any()),
+        ).thenAnswer((_) async => Ok([_complaint(votes: 3)]));
+        when(
+          () => vote(any()),
+        ).thenAnswer((_) async => const Err(NetworkFailure('error_conflict')));
       },
       build: build,
       act: (cubit) async {
         await cubit.load();
-        await cubit.toggleVote(cubit.state.items.first);
+        // ⚠️ الـCubit بيرجّع النتيجة (لا `void`) عمداً — الشاشة محتاجتها
+        // لعرض سبب الفشل (تعارض 409 حقيقي وارد حسب عقد الباك اند
+        // المؤكّد، مش مجرّد رسالة اتصال عامة).
+        final result = await cubit.toggleVote(cubit.state.items.first);
+        expect(result, isA<Err<void>>());
+        expect((result as Err<void>).failure.message, 'error_conflict');
       },
       skip: 3,
       expect: () => [
@@ -184,9 +198,9 @@ void main() {
       'غير موثّق (canParticipate false) — ما بيصوّت أصلاً',
       setUp: () {
         when(() => session.canUseMunicipalityServices).thenReturn(false);
-        when(() => getPublished(any())).thenAnswer(
-          (_) async => Ok([_complaint(votes: 3)]),
-        );
+        when(
+          () => getPublished(any()),
+        ).thenAnswer((_) async => Ok([_complaint(votes: 3)]));
       },
       build: build,
       act: (cubit) async {

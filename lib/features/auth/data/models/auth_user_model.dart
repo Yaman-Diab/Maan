@@ -74,7 +74,8 @@ class AuthUserModel {
       termsOfServiceAccepted: _asBool(json['terms_of_service_accepted']),
       fcmToken: json['fcm_token'] as String?,
       accountStatus: AccountStatus.fromApi(json['account_status'] as String?),
-      verificationAttempts: (json['verification_attempts'] as num?)?.toInt() ?? 0,
+      verificationAttempts:
+          (json['verification_attempts'] as num?)?.toInt() ?? 0,
       expiresAt: _tryParseDate(json['expires_at']),
     );
   }

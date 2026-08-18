@@ -120,7 +120,7 @@ class AuthInterceptor extends Interceptor {
       }
 
       requestOptions.extra[ApiRequestFlags.retried] = true;
-        requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+      requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
 
       final response = await dio.fetch(requestOptions);
 

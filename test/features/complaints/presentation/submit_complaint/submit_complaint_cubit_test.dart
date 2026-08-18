@@ -87,7 +87,10 @@ void main() {
       expect: () => [
         predicate<SubmitComplaintState>((s) => s.isLocating == true),
         predicate<SubmitComplaintState>(
-          (s) => s.isLocating == false && s.latitude == 33.5 && s.longitude == 36.2,
+          (s) =>
+              s.isLocating == false &&
+              s.latitude == 33.5 &&
+              s.longitude == 36.2,
         ),
       ],
     );
@@ -129,7 +132,8 @@ void main() {
         latitude: 1,
         longitude: 1,
       ),
-      setUp: () => when(() => submit(any())).thenAnswer((_) async => const Ok(null)),
+      setUp: () =>
+          when(() => submit(any())).thenAnswer((_) async => const Ok(null)),
       build: build,
       act: (cubit) => cubit.submit(),
       expect: () => [
@@ -149,9 +153,9 @@ void main() {
         latitude: 1,
         longitude: 1,
       ),
-      setUp: () => when(() => submit(any())).thenAnswer(
-        (_) async => const Err(NetworkFailure('error_connection')),
-      ),
+      setUp: () => when(
+        () => submit(any()),
+      ).thenAnswer((_) async => const Err(NetworkFailure('error_connection'))),
       build: build,
       act: (cubit) => cubit.submit(),
       expect: () => [

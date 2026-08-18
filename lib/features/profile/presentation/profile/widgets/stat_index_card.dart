@@ -9,6 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/design_system/app_theme_context.dart';
 import '../../../domain/entities/profile_stats.dart';
 import '../../../../../core/design_system/widgets/app_card.dart';
+import '../../../../../core/design_system/widgets/app_progress_bar.dart';
 import 'profile_icon_chip.dart';
 
 /// بطاقة مؤشّر بنسبة مئوية وشريط تقدّم.
@@ -106,7 +107,7 @@ class StatIndexCard extends StatelessWidget {
 
           SizedBox(height: 10.h),
 
-          _ProgressBar(percentage: percentage),
+          AppProgressBar(percentage: percentage),
         ],
       ),
     );
@@ -121,30 +122,5 @@ class StatIndexCard extends StatelessWidget {
       StatLevel.intermediate => 'level_intermediate'.tr(),
       StatLevel.advanced => 'level_advanced'.tr(),
     };
-  }
-}
-
-class _ProgressBar extends StatelessWidget {
-  const _ProgressBar({required this.percentage});
-
-  final int? percentage;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(3.r),
-      child: Container(
-        height: 6.h,
-        color: colors.trackBackground,
-        child: FractionallySizedBox(
-          // `centerStart` لا `centerLeft`: الشريط بيتعبّى من اليمين بالعربي.
-          alignment: AlignmentDirectional.centerStart,
-          widthFactor: (percentage ?? 0) / 100,
-          child: Container(color: context.scheme.primary),
-        ),
-      ),
-    );
   }
 }

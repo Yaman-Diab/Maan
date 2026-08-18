@@ -167,8 +167,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
       infoBackground: infoBackground ?? this.infoBackground,
       infoForeground: infoForeground ?? this.infoForeground,
       splashGradientTop: splashGradientTop ?? this.splashGradientTop,
-      splashGradientMiddle:
-          splashGradientMiddle ?? this.splashGradientMiddle,
+      splashGradientMiddle: splashGradientMiddle ?? this.splashGradientMiddle,
     );
   }
 

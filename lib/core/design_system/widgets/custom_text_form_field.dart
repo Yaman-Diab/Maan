@@ -40,6 +40,7 @@ class CustomTextFormField extends StatelessWidget {
   final void Function(String)? onChanged;
   final VoidCallback? onTap;
   final TextInputAction? textInputAction;
+
   /// `null` يعني خُذ اللون من الثيم — راجع `AppButton` لنفس النمط.
   final Color? enabledBorderColor;
   final double radius;
@@ -87,7 +88,8 @@ class CustomTextFormField extends StatelessWidget {
             ? null
             : [
                 if (digitsOnly) FilteringTextInputFormatter.digitsOnly,
-                if (maxLength != null) LengthLimitingTextInputFormatter(maxLength),
+                if (maxLength != null)
+                  LengthLimitingTextInputFormatter(maxLength),
               ],
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(

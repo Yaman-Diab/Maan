@@ -34,11 +34,7 @@ class SplashLogo extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           _Ring(animation: ringAnimation, color: scheme.primary, phase: 0),
-          _Ring(
-            animation: ringAnimation,
-            color: scheme.primary,
-            phase: 1 / 3,
-          ),
+          _Ring(animation: ringAnimation, color: scheme.primary, phase: 1 / 3),
           _Ring(
             animation: ringAnimation,
             color: scheme.secondary,

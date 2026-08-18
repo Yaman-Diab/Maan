@@ -80,6 +80,13 @@ dependencies:
   # بس. راجع `LocationService.describeCoordinates`.
   geocoding: ^5.0.0
 
+  # تنسيق الأرقام (فواصل الآلاف بمبالغ التبرعات) — كانت موجودة أصلاً
+  # كاعتماديّة غير مباشرة عبر `flutter_localizations`، فتصريحها هون
+  # بلا أي خطر توافق (نفس النسخة المحلولة أصلاً بـ`pubspec.lock`).
+  # صرّحناها لأن الاعتماد على حزمة غير مصرَّحة بيكسر مع أي تغيير
+  # بسلسلة الاعتماديّات فوقها. راجع `AmountFormatter`.
+  intl: ^0.20.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

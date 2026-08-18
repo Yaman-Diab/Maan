@@ -41,10 +41,23 @@ class PlaceNameText extends StatefulWidget {
 class _PlaceNameTextState extends State<PlaceNameText> {
   String? _placeName;
 
+  /// آخر لغة صار التحويل فيها — مش `initState`: `context.locale` بيعتمد
+  /// على `EasyLocalization.of(context)` (InheritedWidget)، وقراءته قبل
+  /// ما يخلص `initState` بترمي استثناء حقيقي (جرّبناه على جهاز حقيقي).
+  /// `didChangeDependencies` هو المكان الصحيح، وبيتنادى تلقائياً أول
+  /// مرة بعد `initState` كمان فبيغطّي التحميل الأولي.
+  Locale? _resolvedLocale;
+
   @override
-  void initState() {
-    super.initState();
-    _resolve();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final locale = context.locale;
+
+    if (_resolvedLocale != locale) {
+      _resolvedLocale = locale;
+      _resolve();
+    }
   }
 
   @override

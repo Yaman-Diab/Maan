@@ -106,7 +106,9 @@ void main() {
         'status': 0,
         'message': 'Location not allowed. You must be inside the municipality.',
         'errors': {
-          'general': ['Location not allowed. You must be inside the municipality.'],
+          'general': [
+            'Location not allowed. You must be inside the municipality.',
+          ],
         },
       });
 

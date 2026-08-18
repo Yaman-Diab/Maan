@@ -85,9 +85,7 @@ void main() {
     expect(field.maxLength, 12);
   });
 
-  testWidgets('بطاقة البيانات الشخصية بتظهر لما يوصل المستخدم', (
-    tester,
-  ) async {
+  testWidgets('بطاقة البيانات الشخصية بتظهر لما يوصل المستخدم', (tester) async {
     await _pump(
       tester,
       const VerificationState(view: VerificationView.form, user: _user),
@@ -98,9 +96,7 @@ void main() {
     expect(find.text('Abo Hawa'), findsOneWidget);
   });
 
-  testWidgets('بتختفي كلياً لو ما وصل المستخدم بدل حقول فاضية', (
-    tester,
-  ) async {
+  testWidgets('بتختفي كلياً لو ما وصل المستخدم بدل حقول فاضية', (tester) async {
     await _pump(tester, const VerificationState(view: VerificationView.form));
 
     expect(find.text('verification_profile_section'), findsNothing);

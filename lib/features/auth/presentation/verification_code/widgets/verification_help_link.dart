@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:maan/core/design_system/app_theme_context.dart';
 
 class VerificationHelpLink extends StatelessWidget {
-  const VerificationHelpLink({
-    super.key,
-    required this.onTap,
-  });
+  const VerificationHelpLink({super.key, required this.onTap});
 
   final VoidCallback onTap;
 
