@@ -1,5 +1,18 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:maan/core/config/app_config.dart';
 import 'package:maan/core/network/api_media.dart';
+
+/// ⚠️ **بلا تثبيت لقيمة `AppConfig.baseUrl` كنص حرفي** — القيمة
+/// الافتراضية بالكود نفسه معدّة عمداً لتتبدّل محلياً (`--dart-define`
+/// أو تعديل مباشر وقت الاختبار على باك اند بديل زي ngrok)، فتثبيتها
+/// هون كان بيخلّي الاختبار يفشل كل ما حدا يبدّل الافتراضي. `_storageUrl`
+/// هون بتكرّر نفس منطق `ApiMedia._storageUrl` (قصّ الشرطة الزائدة)
+/// بدل ما تفترض قيمة معيّنة.
+String _storageUrl(String path) {
+  final base = AppConfig.baseUrl.replaceAll(RegExp(r'/+$'), '');
+
+  return '$base/storage/$path';
+}
 
 void main() {
   group('urls — file_url مفضّل، file_path احتياطي', () {
@@ -16,7 +29,7 @@ void main() {
         {'file_path': 'complains/images/x.png', 'media_type': 'image'},
       ]);
 
-      expect(result, ['http://10.0.2.2:8000/storage/complains/images/x.png']);
+      expect(result, [_storageUrl('complains/images/x.png')]);
     });
 
     test('بلا أي حقل رابط → العنصر بينترمى بصمت', () {
@@ -39,7 +52,7 @@ void main() {
         {'file_path': '/leading/slash.jpg'},
       ]);
 
-      expect(result.single, 'http://10.0.2.2:8000/storage/leading/slash.jpg');
+      expect(result.single, _storageUrl('leading/slash.jpg'));
     });
   });
 

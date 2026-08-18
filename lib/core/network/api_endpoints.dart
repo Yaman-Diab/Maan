@@ -186,6 +186,13 @@ class ApiEndpoints {
   static String projectDonationStats(int projectId) =>
       '$api/project/$projectId/donations/stats';
 
+  /// تفاصيل مشروع واحد — `is_voluntary`/`is_donation`/الصورة/الموقع،
+  /// كل الحقول يلي [projectVotable] ما بيرجّعها. ✅ **مؤكّد
+  /// citizen-accessible** من صلاحيات الباك اند (`project.show` ضمن
+  /// أدوار المواطن). `ProjectsRepositoryImpl` بيجلبه لكل مشروع
+  /// بالتوازي، نفس نمط [projectDonationStats].
+  static String projectDetail(int projectId) => '$api/project/$projectId';
+
   /// تقديم طلب تطوع — جسم `{"whatsapp_number": "..."}`.
   ///
   /// ⚠️ **الرفض هون منطق أعمال لا مجرّد تحقّق شكلي** — المشروع ممكن
@@ -204,9 +211,12 @@ class ApiEndpoints {
   /// الأخبار المنشورة — الباك اند بيفلتر `status = approved` لحاله،
   /// فما في حاجة لفلتر بالتطبيق.
   ///
-  /// ⚠️ **`type=news` مُمرَّر بس بلا معنى بالواجهة** — التطبيق ما بيفرّق
-  /// بين «خبر» و«إعلان» (قرار صريح من صاحب المشروع: «نفس الشي»)، فما
-  /// في شارة نوع ولا فلتر. مُمرَّر لأن العقد بيسرده.
+  /// ⚠️ **بلا `type` بالاستعلام عمداً** — كان مُرسَلاً قبل (`type=news`)
+  /// بس هيك بيناقض قرارنا الصريح إن الأخبار والإعلانات نفس الشي بلا
+  /// تفريق: باگ حقيقي اكتشفناه من مثال استجابة حقيقي فيه `type: "news"`
+  /// و`type: "announcement"` مع بعض — لو الباك اند فعلاً بيفلتر حسب
+  /// القيمة، الإعلانات كانت رح تختفي بصمت. راجع
+  /// `NewsRemoteDataSourceImpl.getNews`.
   static const String news = '$api/news';
 
   /// خبر واحد — بيرجّع `404` لو مش `approved` حتى لو موجود فعلياً.

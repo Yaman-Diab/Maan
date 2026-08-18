@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../core/design_system/app_theme_context.dart';
+import '../../../../../core/format/amount_formatter.dart';
 import '../../../../../core/session/account_status.dart';
 import '../../../domain/entities/citizen_profile.dart';
 import 'activity_card.dart';
@@ -151,7 +152,7 @@ class ProfileContent extends StatelessWidget {
                 child: ActivityCard(
                   title: 'activity_contributions'.tr(),
                   countLabel: _count(
-                    stats.contributionsCount,
+                    stats.donationCount,
                     (count) => 'activity_donations_count'.tr(
                       namedArgs: {'count': count},
                     ),
@@ -164,16 +165,11 @@ class ProfileContent extends StatelessWidget {
               SizedBox(width: 12.w),
               Expanded(
                 child: ActivityCard(
-                  title: 'activity_licenses'.tr(),
-                  countLabel: _count(
-                    stats.licensesCount,
-                    (count) => 'activity_licenses_count'.tr(
-                      namedArgs: {'count': count},
-                    ),
-                  ),
-                  icon: Icons.badge_rounded,
-                  iconForeground: context.colors.infoForeground,
-                  iconBackground: context.colors.infoBackground,
+                  title: 'activity_total_donated'.tr(),
+                  countLabel: _amount(stats.totalDonated),
+                  icon: Icons.payments_rounded,
+                  iconForeground: context.colors.success,
+                  iconBackground: context.colors.successSurface,
                 ),
               ),
             ],
@@ -221,6 +217,14 @@ class ProfileContent extends StatelessWidget {
     if (value == null) return null;
 
     return translate('$value');
+  }
+
+  /// بترجّع `null` لو المبلغ ما وصل، فالبطاقة بتعرض «—». نفس تنسيق
+  /// المبالغ بشريط تبرعات المشاريع (`AmountFormatter` + `currency_syp`).
+  static String? _amount(num? value) {
+    if (value == null) return null;
+
+    return '${AmountFormatter.format(value)} ${'currency_syp'.tr()}';
   }
 }
 

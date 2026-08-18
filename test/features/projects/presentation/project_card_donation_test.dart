@@ -108,5 +108,35 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.byType(AppProgressBar), findsNothing);
+
+    // ── ٤. requiresVolunteers/requiresDonations الافتراضيان false
+    // (فشل جلب GET /api/project/{id} مثلاً) → القسم كامل بيختفي ──
+    await tester.pumpWidget(
+      wrap(const MunicipalProject(id: 4, title: 'مشروع بلا تفاصيل بعد')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('تطوّع'), findsNothing);
+    expect(find.text('تبرّع'), findsNothing);
+
+    // ── ٥. requiresVolunteers/requiresDonations true (من التفاصيل
+    // المدموجة) → الزرّان ظاهرين ──
+    await tester.pumpWidget(
+      wrap(
+        const MunicipalProject(
+          id: 5,
+          title: 'مشروع بتفاصيل كاملة',
+          requiresVolunteers: true,
+          volunteersNeeded: 7,
+          requiresDonations: true,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('تطوّع'), findsOneWidget);
+    expect(find.text('تبرّع'), findsOneWidget);
   });
 }

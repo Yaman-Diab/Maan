@@ -15,40 +15,71 @@ class ProjectsRepositoryImpl implements ProjectsRepository {
 
   const ProjectsRepositoryImpl(this._remoteDataSource);
 
-  /// المشاريع + إحصائيات تبرعاتها، مدموجة بطبقة data — نفس نمط
-  /// `SkillsRepositoryImpl.getSkills()` (مهارات + شهادات من مسارين
-  /// بالتوازي).
+  /// المشاريع + تفاصيلها الكاملة + إحصائيات تبرعاتها، مدموجة بطبقة
+  /// data — نفس نمط `SkillsRepositoryImpl.getSkills()` (مهارات +
+  /// شهادات من مسارين بالتوازي).
   ///
-  /// ⚠️ **طلب لكل مشروع** — الإحصائيات endpoint منفصل لكل `id`، فما في
-  /// طريقة نجيبها بطلب واحد. التخفيف: بتنجلب **بس** للمشاريع اللي
-  /// `requiresDonations` (الباقي ما بيعرض شريط تبرعات أصلاً)،
-  /// وبالتوازي لا بالتتابع. لو الباك اند ضمّن الإحصائيات بـ
-  /// `GET /api/project/votable` لاحقاً، هالدمج بينشال كامل ويتقرأ
-  /// الحقل مباشرة بـ`MunicipalProjectModel`.
-  ///
-  /// ⚠️ **فشل الإحصائيات ما بيكسر القائمة** — كل طلب بيمسك خطأه
-  /// وبيرجّع `null`، فالمشروع بيوصل بلا شريط تقدّم بدل ما تفشل الشاشة
-  /// كلها. نفس فلسفة استقلال الأقسام بالرئيسية.
+  /// ⚠️ **طلبان إضافيان لكل مشروع بلا استثناء** — `GET /api/project/votable`
+  /// **ما بيرجّع** `image`/`location`/`is_voluntary`/`is_donation`/
+  /// `type`/`status`/`is_votable`/`budget`/`requirements` إطلاقاً (غياب
+  /// قاطع، مؤكّد من كود الباك اند: `listVotable()` بيبني مصفوفة استجابة
+  /// يدوية بـ13 مفتاح بالضبط)، وإحصائيات التبرعات endpoint منفصل
+  /// أساساً — فما في طريقة نجيب أي منهم بطلب القائمة الواحد.
+  /// `_detailOrNull`/`_donationStatsOrNull` بيتنفّذوا بالتوازي لكل
+  /// مشروع (كل طلب بيمسك خطأه لحاله، بلا ما يكسر البقية أو يوقّف
+  /// القائمة).
   @override
   Future<Result<List<MunicipalProject>>> getProjects() async {
     try {
       final projects = await _remoteDataSource.getProjects();
+      final merged = await Future.wait(projects.map(_withDetailAndStats));
 
-      final withStats = await Future.wait(
-        projects.map((project) async {
-          if (!project.requiresDonations) return project;
-
-          final stats = await _donationStatsOrNull(project.id);
-
-          return stats == null
-              ? project
-              : project.copyWith(donationStats: stats);
-        }),
-      );
-
-      return Ok(withStats);
+      return Ok(merged);
     } catch (error) {
       return Err(FailureMapper.fromError(error));
+    }
+  }
+
+  Future<MunicipalProject> _withDetailAndStats(MunicipalProject project) async {
+    // كلا الطلبين بيبلّشوا فوراً (مهام غير منتظَرة بعد)، فبيمشوا
+    // بالتوازي رغم إن الانتظار تسلسلي بالكود.
+    final detailFuture = _detailOrNull(project.id);
+    final statsFuture = _donationStatsOrNull(project.id);
+
+    final detail = await detailFuture;
+    final stats = await statsFuture;
+
+    var merged = project;
+
+    if (detail != null) {
+      merged = merged.copyWith(
+        imageUrl: detail.imageUrl,
+        latitude: detail.latitude,
+        longitude: detail.longitude,
+        type: detail.type,
+        status: detail.status,
+        isVotable: detail.isVotable,
+        budget: detail.budget,
+        requirements: detail.requirements,
+        requiresVolunteers: detail.requiresVolunteers,
+        volunteersNeeded: detail.volunteersNeeded,
+        volunteersApproved: detail.volunteersApproved,
+        requiresDonations: detail.requiresDonations,
+      );
+    }
+
+    if (stats != null) {
+      merged = merged.copyWith(donationStats: stats);
+    }
+
+    return merged;
+  }
+
+  Future<MunicipalProject?> _detailOrNull(int projectId) async {
+    try {
+      return await _remoteDataSource.getProjectDetail(projectId);
+    } catch (_) {
+      return null;
     }
   }
 

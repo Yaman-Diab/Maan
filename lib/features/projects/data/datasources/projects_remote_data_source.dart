@@ -24,4 +24,9 @@ abstract class ProjectsRemoteDataSource {
 
   /// ✅ `GET /api/project/{id}/donations/stats` — حقيقي.
   Future<ProjectDonationStats> getDonationStats(int projectId);
+
+  /// ✅ `GET /api/project/{id}` — حقيقي، citizen-accessible. مصدر
+  /// `imageUrl`/`location`/`requiresVolunteers`/`requiresDonations`
+  /// يلي `getProjects()` ما بيرجّعهم.
+  Future<MunicipalProject> getProjectDetail(int projectId);
 }

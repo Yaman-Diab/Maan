@@ -1,8 +1,18 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:maan/core/config/app_config.dart';
 import 'package:maan/features/complaints/data/models/complaint_model.dart';
 import 'package:maan/features/complaints/domain/entities/complaint_category.dart';
 import 'package:maan/features/complaints/domain/entities/complaint_status.dart';
 import 'package:maan/features/complaints/domain/entities/complaint_type.dart';
+
+/// ⚠️ بلا تثبيت لقيمة `AppConfig.baseUrl` كنص حرفي — القيمة الافتراضية
+/// معدّة عمداً لتتبدّل محلياً (`--dart-define` أو تعديل مباشر للاختبار
+/// على باك اند بديل). راجع نفس التعليق بـ`api_media_test.dart`.
+String _storageUrl(String path) {
+  final base = AppConfig.baseUrl.replaceAll(RegExp(r'/+$'), '');
+
+  return '$base/storage/$path';
+}
 
 void main() {
   group('fromMap — الحقول المؤكّدة من عقد الإرسال', () {
@@ -173,8 +183,9 @@ void main() {
 
       expect(model.entity.hasMedia, isTrue);
       expect(model.entity.mediaUrls, [
-        'http://10.0.2.2:8000/storage/complains/images/'
-            '1787000938_53c27c04-1f34-41e8-a94d-3099db7db282.png',
+        _storageUrl(
+          'complains/images/1787000938_53c27c04-1f34-41e8-a94d-3099db7db282.png',
+        ),
       ]);
     });
   });

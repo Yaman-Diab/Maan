@@ -48,14 +48,13 @@ class CitizenProfileModel {
   // Stats
   // -------------------------
 
-  /// ✅ `citizenship_score`/`credibility_score` **مؤكّدان** بمثال
-  /// استجابة حقيقي لـ`GET /api/profile` — `credibility_score` بيرجع
-  /// كنص عشري (`"50.00"`) لا رقم، فـ`read` بتجرّب `double.tryParse`
-  /// بعد فشل `int.tryParse` بدل ما تفوّت القيمة.
-  ///
-  /// ⚠️ العدّادات التلاتة الباقية لسه **تخمين موثّق**، مش عقد — ما في
-  /// endpoint بـ`collection.md` بيرجّعهم. يوم يثبّت الباك اند أسماءهم،
-  /// التعديل هون فقط.
+  /// ✅ **الكل مؤكّد** بمثال استجابة حقيقي لـ`GET /api/profile` —
+  /// `citizenship_score`/`credibility_score` (الثاني بيرجع كنص عشري
+  /// `"50.00"` لا رقم، فـ`read` بتجرّب `double.tryParse` بعد فشل
+  /// `int.tryParse`)، و`volunteering_count`/`donation_count` (عدّادات
+  /// صحيحة)، و`total_donated` (مبلغ فبيقرأه `readAmount` بلا تقريب —
+  /// نفس نمط `ProjectDonationStatsModel._asNum`). حقل «التراخيص»
+  /// السابق (`licenses_count`) انحذف — بلا عقد ولا طلب عرض.
   static ProfileStats _statsFrom(
     Map<String, dynamic> container,
     Map<String, dynamic> userMap,
@@ -79,12 +78,21 @@ class CitizenProfileModel {
       return value.clamp(0, 100);
     }
 
+    num? readAmount(String key) {
+      final value = container[key] ?? userMap[key];
+
+      if (value is num) return value;
+      if (value is String) return num.tryParse(value);
+
+      return null;
+    }
+
     return ProfileStats(
       citizenshipIndex: readPercentage(_Keys.citizenshipIndex),
       credibilityIndex: readPercentage(_Keys.credibilityIndex),
       volunteeringCount: read(_Keys.volunteeringCount),
-      contributionsCount: read(_Keys.contributionsCount),
-      licensesCount: read(_Keys.licensesCount),
+      donationCount: read(_Keys.donationCount),
+      totalDonated: readAmount(_Keys.totalDonated),
     );
   }
 
@@ -108,6 +116,6 @@ abstract final class _Keys {
   static const String citizenshipIndex = 'citizenship_score';
   static const String credibilityIndex = 'credibility_score';
   static const String volunteeringCount = 'volunteering_count';
-  static const String contributionsCount = 'contributions_count';
-  static const String licensesCount = 'licenses_count';
+  static const String donationCount = 'donation_count';
+  static const String totalDonated = 'total_donated';
 }

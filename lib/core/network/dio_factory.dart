@@ -56,6 +56,13 @@ class DioFactory {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        // ngrok المجاني بيعرض صفحة تحذير HTML وسيطة قبل أي طلب —
+        // بديل الـ`ngrok-skip-browser-warning` بيتخطّاها فيوصل الطلب
+        // لـLaravel مباشرة بدل ما يوصله HTML بمكان الـJSON المتوقّع.
+        // بلا أثر عند استخدام باك اند حقيقي (sslip.io أو الإنتاج) —
+        // مجرّد هيدر إضافي بيتجاهله أي سيرفر غير ngrok، فبقي دائماً
+        // بدل ما ينشرط بمتغيّر بيئة.
+        'ngrok-skip-browser-warning': 'true',
       },
     );
   }

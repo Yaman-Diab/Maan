@@ -14,6 +14,7 @@ import '../../../../../core/format/amount_formatter.dart';
 import '../../../domain/entities/municipal_project.dart';
 import '../../../domain/entities/project_donation_stats.dart';
 import '../../../domain/entities/project_reaction.dart';
+import '../../../domain/entities/project_requirement.dart';
 import 'donate_dialog.dart';
 import 'volunteer_dialog.dart';
 
@@ -67,19 +68,7 @@ class ProjectCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 44.w,
-                height: 44.w,
-                decoration: BoxDecoration(
-                  color: colors.brandSurface,
-                  borderRadius: BorderRadius.circular(AppRadius.pill.r),
-                ),
-                child: Icon(
-                  Icons.apartment_rounded,
-                  size: 23.sp,
-                  color: scheme.primary,
-                ),
-              ),
+              _ProjectThumbnail(url: project.imageUrl),
               SizedBox(width: 12.w),
               Expanded(
                 child: Column(
@@ -95,7 +84,7 @@ class ProjectCard extends StatelessWidget {
                       ),
                     ),
                     if (project.description != null) ...[
-                      SizedBox(height: 2.h),
+                      SizedBox(height: 4.h),
                       Text(
                         project.description!,
                         maxLines: 2,
@@ -128,6 +117,38 @@ class ProjectCard extends StatelessWidget {
                         ],
                       ),
                     ],
+                    if (project.votingEndsAt != null) ...[
+                      SizedBox(height: 5.h),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.schedule_rounded,
+                            size: 13.sp,
+                            color: colors.textHint,
+                          ),
+                          SizedBox(width: 4.w),
+                          Expanded(
+                            child: Text(
+                              'project_voting_ends'.tr(
+                                namedArgs: {
+                                  'date': project.votingEndsAt!
+                                      .toLocal()
+                                      .toString()
+                                      .split(' ')
+                                      .first,
+                                },
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11.sp,
+                                color: colors.textHint,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -138,6 +159,25 @@ class ProjectCard extends StatelessWidget {
             SizedBox(height: 11.h),
             Container(height: 1, color: colors.divider),
             SizedBox(height: 11.h),
+            // ⚠️ بس لو في صوت واحد ع الأقل — نسبة "0%" لمشروع بلا
+            // أصوات بتوحي «مرفوض» بدل «لسه ما حدا صوّت».
+            if (project.totalVotes > 0 &&
+                project.approvalPercentage != null) ...[
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  'project_approval_label'.tr(
+                    namedArgs: {'percent': '${project.approvalPercentage}'},
+                  ),
+                  style: TextStyle(
+                    fontSize: 11.5.sp,
+                    fontWeight: FontWeight.w600,
+                    color: colors.textSecondary,
+                  ),
+                ),
+              ),
+              SizedBox(height: 8.h),
+            ],
             Row(
               children: [
                 _ReactionButton(
@@ -173,7 +213,13 @@ class ProjectCard extends StatelessWidget {
             ),
           ],
 
-          if (project.hasActions) ...[
+          // ✅ **الإشارة صارت موثوقة** — `requiresVolunteers`/
+          // `requiresDonations` بتوصل من `GET /api/project/{id}`
+          // (مؤكّد citizen-accessible، راجع `ProjectsRepositoryImpl`)
+          // لا `votable` (يلي مؤكّد إنه ما بيرجّعهم إطلاقاً). لو فشل
+          // جلب التفاصيل لمشروع معيّن، بيضلّوا `false` افتراضياً —
+          // القسم كامل بيختفي بهدوء بدل ما يبيّن زرّين مش موثوق فيهم.
+          if (project.requiresVolunteers || project.requiresDonations) ...[
             SizedBox(height: 12.h),
             // شريط التبرعات فوق الأزرار: بيعطي السياق («وين وصلنا»)
             // قبل الإجراء نفسه، لا بعده.
@@ -182,16 +228,7 @@ class ProjectCard extends StatelessWidget {
               SizedBox(height: 12.h),
             ],
             if (project.requiresVolunteers) ...[
-              Text(
-                'project_volunteers_needed'.tr(
-                  namedArgs: {'count': '${project.volunteersNeeded}'},
-                ),
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w500,
-                  color: colors.textPrimary,
-                ),
-              ),
+              _VolunteerNeedSummary(project: project),
               SizedBox(height: 8.h),
             ],
             Row(
@@ -230,6 +267,45 @@ class ProjectCard extends StatelessWidget {
             ],
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// صورة المشروع نفسه (من `media[]`) — أيقونة عامة بديلة لو ما في صورة
+/// أو فشل تحميلها. نفس فلسفة `_MediaFallback` بتفاصيل الشكوى: صورة
+/// **موجودة** فشل تحميلها بترجع نفس الأيقونة، لا خطأ ظاهر.
+///
+/// ⚠️ **كانت تعرض صورة صاحب/ناشر المشروع لا صورة المشروع** — باگ
+/// عرض حقيقي (`project.imageUrl` كان مقروءاً أصلاً بالموديل بس ما كان
+/// معروضاً بأي مكان). صار الاسم/المصدر يعكسان الغرض الفعلي.
+class _ProjectThumbnail extends StatelessWidget {
+  const _ProjectThumbnail({required this.url});
+
+  final String? url;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final scheme = context.scheme;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppRadius.pill.r),
+      child: Container(
+        width: 44.w,
+        height: 44.w,
+        color: colors.brandSurface,
+        child: url == null
+            ? Icon(Icons.apartment_rounded, size: 23.sp, color: scheme.primary)
+            : Image.network(
+                url!,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stack) => Icon(
+                  Icons.apartment_rounded,
+                  size: 23.sp,
+                  color: scheme.primary,
+                ),
+              ),
       ),
     );
   }
@@ -442,6 +518,74 @@ class _ReactionButton extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// شو بالضبط لسه ناقص للتطوّع — تفصيل كل مهارة لو الباك اند رجّعها
+/// (`project.requirements`)، وإلا الرقم الإجمالي القديم (`volunteersNeeded`)
+/// كخط دفاع لمشروع بلا تفصيل بعد.
+class _VolunteerNeedSummary extends StatelessWidget {
+  const _VolunteerNeedSummary({required this.project});
+
+  final MunicipalProject project;
+
+  @override
+  Widget build(BuildContext context) {
+    final openRequirements = project.requirements
+        .where((requirement) => requirement.remainingCount > 0)
+        .toList();
+
+    if (openRequirements.isEmpty) {
+      return Text(
+        'project_volunteers_needed'.tr(
+          namedArgs: {'count': '${project.volunteersNeeded}'},
+        ),
+        style: TextStyle(
+          fontSize: 12.sp,
+          fontWeight: FontWeight.w500,
+          color: context.colors.textPrimary,
+        ),
+      );
+    }
+
+    return Wrap(
+      spacing: 6.w,
+      runSpacing: 6.h,
+      children: [
+        for (final requirement in openRequirements)
+          _RequirementChip(requirement: requirement),
+      ],
+    );
+  }
+}
+
+class _RequirementChip extends StatelessWidget {
+  const _RequirementChip({required this.requirement});
+
+  final ProjectRequirement requirement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: context.colors.brandSurface,
+        borderRadius: BorderRadius.circular(AppRadius.pill.r),
+      ),
+      child: Text(
+        'project_requirement_chip'.tr(
+          namedArgs: {
+            'skill': requirement.skillName,
+            'count': '${requirement.remainingCount}',
+          },
+        ),
+        style: TextStyle(
+          fontSize: 11.sp,
+          fontWeight: FontWeight.w600,
+          color: context.scheme.primary,
         ),
       ),
     );

@@ -3,6 +3,7 @@
 // -------------------------
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'app_palette.dart';
 import 'app_semantic_colors.dart';
@@ -136,6 +137,38 @@ class AppTheme {
         focusedBorder: _fieldBorder(scheme.primary),
         errorBorder: _fieldBorder(scheme.error),
         focusedErrorBorder: _fieldBorder(scheme.error),
+      ),
+
+      // ⚠️ **باگ حقيقي انصلح: تسميات شريط الملاحة كانت تلف لسطرين وتكسر
+      // محاذاة الأيقونات**. `NavigationBar` بيستخدم `textTheme.labelMedium`
+      // افتراضياً (14sp بتصميم التطبيق) — كبير جداً لخمسة تبويبات. قِسنا
+      // فعلياً (`tester.getSize` بعروض هاتف من 320 لـ428) إن المشكلة
+      // أوسع مما بلّغ عنه المستخدم: مش بس «Complaints» الإنجليزية، كمان
+      // «Projects»/«Profile» الإنجليزية **و«الرئيسية» العربية** كلها
+      // كانت تلف بنفس الحجم الافتراضي — المستخدم لاحظ Complaints بس
+      // لأنها الأوضح بصرياً (فرق سطرين "Complain"/"ts" لافت أكتر من
+      // "Project"/"s").
+      //
+      // الإصلاح المتفَق عليه بعد ما عرضنا القياسات: تقصير `nav_complaints`
+      // الإنجليزية لـ«Issues» (كانت أطول تسمية بفارق كبير) + حجم خط
+      // أصغر مخصّص لشريط الملاحة (9sp بدل 14sp). 8.5sp أول قيمة جربناها
+      // بانت صغيرة بصرياً بعد المراجعة، فرفعناها لـ9sp — أعلى قيمة
+      // بحثنا عنها (بحث ثنائي 8.5→11 بخطوات 0.5) بتضلّ بلا أي لفّ؛
+      // 9.5sp أول قيمة بترجع تكسر «Projects»/«المشاريع»/«الرئيسية».
+      // تأكّدنا بقياس فعلي إن التسميات العشر (خمسة عربي + خمسة إنجليزي،
+      // بعد تقصير Complaints) بتضلّ بسطر واحد بـ9sp من عرض 320 (أضيق
+      // جهاز واقعي) لـ428.
+      navigationBarTheme: NavigationBarThemeData(
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+
+          return TextStyle(
+            fontSize: 9.sp,
+            fontFamily: 'Poppins',
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+            color: selected ? scheme.onSurface : scheme.onSurfaceVariant,
+          );
+        }),
       ),
     );
   }

@@ -59,6 +59,16 @@ class ProjectsRemoteDataSourceImpl implements ProjectsRemoteDataSource {
     return ProjectDonationStatsModel.fromResponse(response).entity;
   }
 
+  @override
+  Future<MunicipalProject> getProjectDetail(int projectId) async {
+    final response = await _apiClient.request(
+      endpoint: ApiEndpoints.projectDetail(projectId),
+      method: ApiMethod.get,
+    );
+
+    return MunicipalProjectModel.detailFromResponse(response).entity;
+  }
+
   /// ✅ `POST /api/project/volunteer/{id}` — حقيقي.
   ///
   /// ⚠️ اسم الحقل `whatsapp_number` لا `phone` — الرقم بينضاف لمجموعة

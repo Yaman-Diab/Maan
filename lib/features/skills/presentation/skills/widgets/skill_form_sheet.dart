@@ -201,6 +201,7 @@ class _SkillFormSheetState extends State<_SkillFormSheet> {
                               ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Icon(
                                     style.icon,
@@ -210,32 +211,25 @@ class _SkillFormSheetState extends State<_SkillFormSheet> {
                                         : colors.textSecondary,
                                   ),
                                   SizedBox(height: 6.h),
-                                  // `FittedBox` بدل `Text` مباشرة — تسمية
-                                  // طويلة أو مقياس خط نظام أكبر بيصغّر
-                                  // بدل ما يكسر ارتفاع الخلية الثابت
-                                  // (`childAspectRatio`) — نفس إصلاح
-                                  // `_CategoryTile` بميزة الشكاوى.
-                                  Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 4.w,
-                                      ),
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Text(
-                                          style.label,
-                                          textAlign: TextAlign.center,
-                                          maxLines: 2,
-                                          style: TextStyle(
-                                            fontSize: 11.sp,
-                                            fontWeight: selected
-                                                ? FontWeight.w600
-                                                : FontWeight.w500,
-                                            color: selected
-                                                ? style.foreground
-                                                : colors.textSecondary,
-                                            height: 1.25,
-                                          ),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 4.w,
+                                    ),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        style.label,
+                                        textAlign: TextAlign.center,
+                                        maxLines: 2,
+                                        style: TextStyle(
+                                          fontSize: 11.sp,
+                                          fontWeight: selected
+                                              ? FontWeight.w600
+                                              : FontWeight.w500,
+                                          color: selected
+                                              ? style.foreground
+                                              : colors.textSecondary,
+                                          height: 1.25,
                                         ),
                                       ),
                                     ),

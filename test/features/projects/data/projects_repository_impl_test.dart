@@ -34,10 +34,15 @@ void main() {
     repository = ProjectsRepositoryImpl(remote);
 
     when(() => remote.getDonationStats(any())).thenAnswer((_) async => _stats);
+    // افتراضي: التفاصيل مش متوفّرة إلا لو اختبار معيّن عدّل عليه صراحة —
+    // نفس واقع فشل شبكة عابر، وبيتأكّد إنه ما بيكسر بقية الدمج.
+    when(
+      () => remote.getProjectDetail(any()),
+    ).thenThrow(Exception('no detail stubbed'));
   });
 
   group('getProjects — دمج إحصائيات التبرعات', () {
-    test('بتنجلب للمشاريع اللي بتقبل تبرعات وبتنضم للكيان', () async {
+    test('بتنجلب وبتنضم للكيان', () async {
       when(() => remote.getProjects()).thenAnswer((_) async => [_donating]);
 
       final result = await repository.getProjects();
@@ -48,7 +53,8 @@ void main() {
     });
 
     test(
-      '⚠️ ما بتنطلب أصلاً للمشاريع اللي ما بتقبل تبرعات — توفير طلبات',
+      '⚠️ بتنطلب لكل مشروع بلا استثناء — GET /api/project/votable ما '
+      'بيرجّع requires_donations إطلاقاً فما في إشارة نصفّي عليها مسبقاً',
       () async {
         when(
           () => remote.getProjects(),
@@ -58,9 +64,9 @@ void main() {
 
         expect(
           (result as Ok<List<MunicipalProject>>).value.single.donationStats,
-          isNull,
+          _stats,
         );
-        verifyNever(() => remote.getDonationStats(any()));
+        verify(() => remote.getDonationStats(2)).called(1);
       },
     );
 
@@ -109,6 +115,63 @@ void main() {
 
       expect(result, isA<Err>());
     });
+  });
+
+  group('getProjects — دمج تفاصيل المشروع (GET /api/project/{id})', () {
+    test('✅ imageUrl/location/requiresVolunteers/requiresDonations بتنضم '
+        'من التفاصيل — votable ما بيرجّعهم أصلاً', () async {
+      const bare = MunicipalProject(id: 5, title: 'مشروع بلا تفاصيل بعد');
+      const detail = MunicipalProject(
+        id: 5,
+        title: 'مشروع بلا تفاصيل بعد',
+        imageUrl: 'http://x/a.jpg',
+        latitude: 33.5,
+        longitude: 36.3,
+        requiresVolunteers: true,
+        volunteersNeeded: 7,
+        volunteersApproved: 2,
+        requiresDonations: true,
+      );
+
+      when(() => remote.getProjects()).thenAnswer((_) async => [bare]);
+      when(() => remote.getProjectDetail(5)).thenAnswer((_) async => detail);
+
+      final result = await repository.getProjects();
+      final project = (result as Ok<List<MunicipalProject>>).value.single;
+
+      expect(project.imageUrl, 'http://x/a.jpg');
+      expect(project.latitude, 33.5);
+      expect(project.requiresVolunteers, isTrue);
+      expect(project.volunteersNeeded, 7);
+      expect(project.volunteersApproved, 2);
+      expect(project.requiresDonations, isTrue);
+    });
+
+    test(
+      '⚠️ فشل جلب التفاصيل ما بيكسر القائمة ولا بيغيّر حقول التصويت',
+      () async {
+        const withVotes = MunicipalProject(
+          id: 6,
+          title: 'مشروع',
+          totalVotes: 4,
+          weightedYesVotes: 10,
+        );
+
+        when(() => remote.getProjects()).thenAnswer((_) async => [withVotes]);
+        when(
+          () => remote.getProjectDetail(6),
+        ).thenThrow(Exception('detail endpoint down'));
+
+        final result = await repository.getProjects();
+        final project = (result as Ok<List<MunicipalProject>>).value.single;
+
+        expect(project.requiresVolunteers, isFalse);
+        expect(project.imageUrl, isNull);
+        // حقول التصويت من votable ما تأثّرت بفشل التفاصيل.
+        expect(project.totalVotes, 4);
+        expect(project.weightedYesVotes, 10);
+      },
+    );
   });
 
   group('التصويت', () {

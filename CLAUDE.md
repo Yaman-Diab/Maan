@@ -75,6 +75,23 @@ core/design_system/
 | **`AppTheme` جوّا `ScreenUtilInit`** | بتستخدم `.sp`؛ بناؤها برّا بيحسب القياسات على مقاس غلط. |
 | **توكن جديد؟** | ضيفه لـ`AppSemanticColors` بنسختَي light و dark + `copyWith` + `lerp`. |
 
+✅ **باگ حقيقي انصلح: تسميات شريط الملاحة السفلي (`AppShellPage`) كانت
+تلف لسطرين وتكسر محاذاة الأيقونات** — `NavigationBar` بيستخدم
+`textTheme.labelMedium` افتراضياً (14sp بتصميم التطبيق) لو ما فيه
+`navigationBarTheme.labelTextStyle` مخصّص، وهالحجم كبير جداً لخمسة
+تبويبات. المستخدم بلّغ بس عن «Complaints» الإنجليزية (أوضح حالة
+بصرياً)، بس قياس فعلي (`tester.getSize` بعروض هاتف من 320 لـ428) كشف
+إن «Projects»/«Profile» الإنجليزية **و«الرئيسية» العربية** كانت تلف
+كمان بنفس الحجم الافتراضي — مشكلة أوسع من البلاغ الأصلي. الإصلاح:
+تقصير `nav_complaints` الإنجليزية لـ`"Issues"` (كانت أطول تسمية بفارق
+كبير) + `navigationBarTheme.labelTextStyle` مخصّص بـ`AppTheme._build`
+(9sp بدل 14sp، بلا لون/وزن يدوي — بيستخدم `scheme.onSurface`/
+`onSurfaceVariant` نفس منطق Material 3 الافتراضي). القيمة 9sp أعلى
+نقطة من بحث ثنائي (8.5→11 بخطوات 0.5): 9.5sp أول قيمة ترجع تكسر
+«Projects»/«المشاريع»/«الرئيسية». مؤكّد بقياس فعلي إن الخمس تسميات
+(عربي + إنجليزي) بتضلّ بسطر واحد من عرض 320 (أضيق جهاز واقعي) لـ428،
+مثبَّت بـ`test/core/design_system/app_theme_navigation_bar_test.dart`.
+
 **تفضيلات العرض**: `SettingsCubit` (singleton) بيحمل `themeMode` و`textScale`،
 وبيتخزّنوا بـ`SharedPreferences` عبر `SettingsStorageService` — منفصلين عن
 `SecureStorageService` لأنهم غير حساسين.
@@ -255,7 +272,7 @@ colors.fieldDisabledBackground, highlightColor: colors.fieldBackground)`
 ## الاختبار
 
 ```
-flutter test        # 547 اختبار
+flutter test        # 567 اختبار
 flutter analyze     # صفر ملاحظات
 ```
 
@@ -494,8 +511,18 @@ endpoint الدخول، مش شي `FailureMapper` المشترك يقدر يعر
   `"50.00"` لا رقم). الاسم القديم `authenticationIndex` كان تخميناً
   غلط بالمفهوم — القصة الحقيقية بـClickUp سمّتها «مؤشرات المواطنة
   والمصداقية» لا «التوثيق»، فانسمّى الحقل والترجمة `credibility_index`.
-  عدّادات التطوع/المساهمات/التراخيص التلاتة **لسه بلا عقد** — أسماء
-  المفاتيح مكتوبة بـ`CitizenProfileModel._Keys` كتخمين موثّق.
+- ✅ **`volunteering_count`/`total_donated`/`donation_count` مؤكّدون
+  أخيراً** بمثال استجابة حقيقي لـ`GET /api/profile` منقول من صاحب
+  المشروع مباشرة. `total_donated` مبلغ (`num` لا `int` — بيقرأه
+  `CitizenProfileModel._statsFrom.readAmount` بلا تقريب، نفس نمط
+  `ProjectDonationStatsModel._asNum`) وبيتعرض عبر `AmountFormatter` +
+  `currency_syp` نفس شريط تبرعات المشاريع. **حقل «التراخيص»
+  (`licensesCount`/`licenses_count`) انحذف كلياً** من `ProfileStats`
+  و`CitizenProfileModel` وبطاقته من `profile_content.dart` — طلب صريح
+  من صاحب المشروع، ما إله عقد باك اند أصلاً (كان تخميناً موثّقاً بس).
+  البطاقة الثالثة بصف «نشاطك» صارت «مجموع التبرعات» (`total_donated`)
+  بدل التراخيص، والثانية («المساهمات») صارت تقرأ `donation_count`
+  المؤكّد بدل التخمين القديم `contributions_count`.
 - ✅ **اسم حقل الصورة بالقراءة مؤكّد `image` أخيراً**، بس ⚠️ **بمستوى
   مختلف عمّا كان مفترَضاً**: المثال الحقيقي بيرجّعه بجانب `user` (`data.image`)
   لا جواه (`data.user.image`). كان هاد باگ حقيقي: `CitizenProfileModel`
@@ -948,15 +975,22 @@ scrollDirection: horizontal, child: Row(...))` بدل `SizedBox+ListView`
 
 | الإجراء | المسار |
 |---|---|
-| الأخبار المعتمدة | `GET /api/news?type=news&page&page_size` |
+| الأخبار المعتمدة | `GET /api/news?page&page_size` |
 | خبر واحد | `GET /api/news/{id}` (`404` لو مش `approved`) |
 
 **الباك اند بيفلتر `status = approved` لحاله** — بلا فلترة بالتطبيق.
 
 ⚠️ **بلا شارة «خبر» مقابل «إعلان»** — قرار صريح من صاحب المشروع:
 «نفس الشي». حقل `type` بيوصل بالاستجابة بس `NewsItem` ما فيها الحقل
-أصلاً حتى ما يغري حدا يعرضه، و`type=news` مُمرَّر بالاستعلام لأن العقد
-بيسرده لا لأن الواجهة بتفرّق.
+أصلاً حتى ما يغري حدا يعرضه.
+
+✅ **باگ حقيقي انصلح: كنا نرسل `type=news` كفلتر، بيناقض قرارنا
+بعدم التفريق** — مثال Bilal الأولي للـendpoint تضمّن `type=news`
+فانبعت حرفياً، بس مثال استجابة حقيقي وصل لاحقاً فيه `type: "news"`
+و`type: "announcement"` **مع بعض بنفس الاستجابة** — يعني لو الباك اند
+فعلاً بيفلتر حسب القيمة يلي أرسلناها، كل الإعلانات كانت رح تختفي
+بصمت من المستخدم (ما في خطأ ظاهر، بس نص القائمة مفقود). الإصلاح:
+حذف `type` من الاستعلام كلياً — `NewsRemoteDataSourceImpl.getNews`.
 
 ⚠️ **`GET /api/news/{id}` غير مستهلَك** — القائمة بترجّع العنصر كامل،
 وما في شاشة تفاصيل خبر بالتصميم. المسار معرَّف بـ`ApiEndpoints` جاهزاً
@@ -997,12 +1031,59 @@ scrollDirection: horizontal, child: Row(...))` بدل `SizedBox+ListView`
 | سحب التصويت | `DELETE /api/project/vote/{id}` |
 | إحصائيات التبرعات | `GET /api/project/{id}/donations/stats` |
 
-⚠️ **غير مؤكّد إذا `GET /api/project/votable` بترجع تفاصيل المشروع
-الكاملة** (وصف/صورة/احتياج تطوّع أو تبرّع) **أو بيانات التصويت بس** —
-المثال يلي وصل غطّى إحصائيات التصويت حصراً. `MunicipalProjectModel`
-بيقرأ الحقلين النوعين دفاعياً؛ لو الشكل الحقيقي أضيق، الوصف والصورة
-بيختفوا من الواجهة بهدوء بلا كراش. نقطة التصحيح لما يوصل مثال كامل:
-`MunicipalProjectModel` + `ApiEndpoints.projectVotable`.
+✅ **شكل `GET /api/project/votable` مؤكّد بالكامل أخيراً** بمثال حقيقي
+(تلات مشاريع، حالات مختلفة). النتيجة القاطعة: بيرجّع `id`/`name`/
+`description`/`user` (كامل، متضمّن `profile.image`)/`voting_status`/
+`voting_ends_at` + كل حقول التصويت — **وبيّن غياب `image`/`location`/
+`requires_volunteers`/`requires_donations` بشكل قاطع، مش تخمين ناقص**.
+يعني بطاقات التطوّع/التبرّع والصورة والموقع **ما بتظهر أبداً** ببيانات
+حقيقية من هالمسار — إما الباك اند لازم يضيفهم، أو نجيب تفاصيل كل
+مشروع من مسار منفصل. `donationStats` (يلي بينجلب من endpoint منفصل
+لكل مشروع بشرط `requiresDonations`) **عملياً ما بينفعّل أبداً** بسبب
+هالفجوة، رغم إن `GET /api/project/{id}/donations/stats` نفسه شغّال
+ومؤكّد.
+
+**حقول جديدة انضافت للـentity** بعد التأكيد: `votingStatus` (قيمة
+وحيدة مؤكّدة `"active"` لحد الآن، مخزَّنة خام بلا منطق عرض/إخفاء
+عليها)، `votingEndsAt`، `approvalPercentage` (كان موثّق «غير
+مستهلَك»، صار مستهلَك).
+
+❌ **`ownerName`/`ownerAvatarUrl` انحذفوا كلياً من `MunicipalProject`
+لاحقاً** — طلب صريح من صاحب المشروع: بطاقة المشروع بتعرض معلومات
+المشروع نفسه بس، لا مين نشره. الدائرة يلي كانت تعرض صورة الناشر
+بأعلى البطاقة (`_OwnerAvatar`، صارت `_ProjectThumbnail`) بدّلت مصدرها
+لـ`project.imageUrl` (صورة المشروع من `media[]`) — كانت مقروءة أصلاً
+بالموديل بس **غير معروضة بأي مكان** قبل هالتبديل (باگ عرض حقيقي
+مكتشَف بالمناسبة).
+
+✅ **حقول إضافية مؤكّدة بمثال استجابة حقيقي لـ`GET /api/project/{id}`**
+انضافت بنفس التعديل: `type` (قيمة وحيدة مؤكّدة `"municipal"`)، `status`
+(حالة دورة حياة المشروع — `"submitted"` بالمثال الوحيد، **مختلفة عن**
+`votingStatus`)، و`isVotable` (`is_votable`) — الثلاثة مخزَّنة خام
+بلا منطق عرض عليها بعد، نفس معاملة `votingStatus` بالأعلى (قيمة وحيدة
+مؤكّدة لكل واحد، ما بنبني شارات/فروع عرض على تخمين). ⚠️ **`rejection_reason`
+عمداً ما انقرأ** — طلب صريح من صاحب المشروع إنه مالوش شغل بواجهة
+المواطن. ⚠️ **`budget` مخزَّن بس مش معروض لحاله** — نفس القيمة تماماً
+بتوصل كـ`ProjectDonationStats.donationTarget` من endpoint إحصائيات
+التبرعات المنفصل (الهدف = `budget` تبع المشروع، مؤكّد من الباك اند)،
+فعرضه هون كمان تكرار بلا فايدة.
+
+✅ **`requirements[]` مؤكّد بمثال حقيقي** — كيان جديد `ProjectRequirement`
+(`id`/`skillName`/`skillType`/`requiredCount`/`isNeedCertificate`/
+`approvedCount`/`remainingCount`) بديل أدقّ من الرقم الإجمالي
+`volunteersNeeded`. البطاقة صارت تعرض شرائح صغيرة (`_RequirementChip`)
+لكل مهارة لسه ناقصة (`remainingCount > 0`) بدل سطر «يحتاج X متطوعين»
+المجمّع — وبترجع لنفس السطر القديم كخط دفاع لو `requirements` وصلت
+فاضية (مشروع بلا تفصيل بعد). راجع `MunicipalProjectModel._requirementsFrom`.
+
+✅ **باگ حقيقي انصلح: `my_vote` كائن لا `bool`** — الشكل الحقيقي
+`"my_vote": {"value":true,"vote_weight":"11.0000",...}` أو `null`، لا
+`true`/`false` مباشرة كما افترضنا وقت البناء الأولي بلا مثال حقيقي.
+القراءة القديمة كانت تمرّر الكائن كامل لدالة بتتوقّع `bool`، وبما
+إنه مش `bool`/`num`/`String` كانت `_asBool` ترجع `false` افتراضياً —
+يعني أي مستخدم صوّت فعلياً "أحبذ" (`value:true`) كان رح يبيّن له
+الزر المعاكس "لا أحبذ" مفعّل. الإصلاح: `MunicipalProjectModel.fromMap`
+بتقرأ `my_vote['value']` تحديداً.
 
 ⚠️ **بطاقة التطوع بتعرض العدد المطلوب بس** — لا «X من Y» ولا نسبة ولا
 مؤشر اكتمال. السبب مش تصميمي: أي مواطن موثّق بيقدر يقدّم طلب، والموافقة
@@ -1010,6 +1091,44 @@ scrollDirection: horizontal, child: Row(...))` بدل `SizedBox+ListView`
 بثقة. `MunicipalProjectModel` بيتجاهل `volunteers_needed` لو
 `requires_volunteers` مطفي (قيمة قديمة محفوظة كانت رح تبيّن البطاقة
 كأنها بتطلب متطوعين).
+
+✅ **الحقول الناقصة (`is_voluntary`/`is_donation`/صورة/موقع) مصدرها
+`GET /api/project/{id}` — مؤكّد من سورس الباك اند مباشرة، citizen-accessible**.
+كنا لحظة معيّنة عرضنا زرّي «تطوّع»/«تبرّع» دائماً (بلا شرط) كتنازل
+مؤقّت لعدم توفّر أي إشارة — بس بعد قراءة `ProjectService.php`/
+`ProjectVoteService.php` مباشرة (المستخدم زوّدنا مسار المشروع محلياً)
+تأكّدنا إن:
+- `ProjectVoteService::listVotable()` (مصدر `votable`) بيبني مصفوفة
+  استجابة **يدوية بـ13 مفتاح بالضبط** (`id`/`name`/`description`/`user`/
+  `voting_status`/`voting_ends_at`/حقول التصويت) — غياب `is_voluntary`/
+  `is_donation`/`media`/`latitude`/`longitude` **قاطع بالتصميم**، مش
+  نسيان.
+- `ProjectService::show()` (`GET /api/project/{id}`) بيرجّع
+  `formatProject($project)` — **كل** حقول الـEloquent model
+  (`is_voluntary`, `is_donation`, `budget`, `latitude`, `longitude`)
+  + `media` (بنفس شكل `ApiMedia` الموحّد) + `total_required_volunteers`/
+  `total_approved_volunteers` (محسوبين من علاقة `requirements`، راجع
+  تحت). و`project.show` **ضمن صلاحيات دور المواطن** (`UserSeeder.php`
+  › تعليق «Projects - citizen actions»).
+
+فالحل الصحيح مش «اعرض الزرّين دائماً» — رجعنا للعرض الشرطي، بس
+مغذّى من `GET /api/project/{id}` لا `votable`. `ProjectsRepositoryImpl.getProjects`
+بيجلب التفاصيل لكل مشروع بالتوازي (نفس نمط إحصائيات التبرعات) وبيدمج
+`imageUrl`/`latitude`/`longitude`/`requiresVolunteers`/`requiresDonations`/
+`volunteersNeeded` فيه؛ فشل الجلب لمشروع بيرجّعه بقيم افتراضية آمنة
+(`false`/`null`) بدل ما يبيّن زرّين مش موثوق فيهم.
+
+⚠️ **`total_approved_volunteers` موجود فعلياً بالباك اند** — بيبطّل
+جزئياً التبرير الأصلي لقرار «بلا X من Y» (كان مبني على افتراض عدم وجود
+رقم موثوق للمقبولين). القيمة بتتقرأ وبتتخزّن (`volunteersApproved`)
+بس **غير مستهلَكة بالواجهة عمداً** — قرار عرض مستقل، مش فجوة بيانات.
+لو تغيّر قرار العرض مستقبلاً، الرقم جاهز.
+
+⚠️ **إحصائيات التبرعات لسه بتنجلب لكل مشروع بلا استثناء** (مش بشرط
+`requiresDonations`) — لأنها بتنجلب **بالتوازي** مع تفاصيل المشروع،
+مش بعده، فما فينا نستخدم `requiresDonations` (يلي بيوصل بنفس اللحظة
+تقريباً) كشرط مسبق بلا تعقيد تسلسل إضافي. الشريط نفسه بيضل يظهر بس
+لو `donationStats` وصلت فعلياً.
 
 ⚠️ **التبرع بلا أي مبلغ وبلا دفع داخل التطبيق** — زر «تبرّع» بيفتح
 حوار **معلوماتي بحت** بيوجّه المواطن يزور البلدية شخصياً مع بطاقة
@@ -1157,3 +1276,12 @@ vote(const VoteProjectParams(...)))` بصمت («No matching calls»)، لأن
 
 `https://187-127-71-164.sslip.io` (staging) — قابل للتجاوز:
 `flutter run --dart-define=BASE_URL=...`
+
+⚠️ **هيدر `ngrok-skip-browser-warning` ثابت بكل طلب** (`DioFactory._baseOptions`)
+— لما مطوّر الباك اند بيشغّل نسخة محلية عبر نفق ngrok مجاني (بديل
+مؤقّت شائع لمشاركة سيرفر محلي بلا نشر)، ngrok بيعرض صفحة تحذير HTML
+وسيطة قبل أي طلب أول ما يوصل المتصفح/التطبيق — فبيرجع HTML بمكان
+الـJSON المتوقّع ويفشل كل استدعاء API بصمت (خطأ تحليل JSON غامض
+المصدر). الهيدر بيتخطّى هالصفحة. **بلا أثر مع باك اند حقيقي** (سيرفر
+غير ngrok بيتجاهله)، فبقي ثابت دائماً بدل ما ينشرط بمتغيّر بيئة —
+أرخص من نسيان تفعيله كل مرة حدا يشارك نفق ngrok للاختبار.

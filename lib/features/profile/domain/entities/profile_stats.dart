@@ -9,15 +9,12 @@ enum StatLevel { beginner, intermediate, advanced }
 
 /// مؤشرات المواطن وعدّادات نشاطه.
 ///
-/// ✅ **`citizenshipIndex`/`credibilityIndex` مؤكّدان أخيراً** بمثال
-/// استجابة حقيقي لـ`GET /api/profile` (`citizenship_score` و
-/// `credibility_score`) — راجع `CitizenProfileModel`. `credibilityIndex`
-/// هو «مؤشر المصداقية» لا «مؤشر التوثيق»: الاسم القديم
-/// `authenticationIndex` كان تخميناً غلط قبل وصول المثال الحقيقي.
-///
-/// ⚠️ العدّادات التلاتة (تطوّع/مساهمات/تراخيص) لسه بلا عقد — `null`
-/// قابلة للقراءة لو أضافهم `/api/profile` لاحقاً، والواجهة بتعرض «—»
-/// بدل رقم مخترع لحد ما توصل.
+/// ✅ **الكل مؤكّد أخيراً** بمثال استجابة حقيقي لـ`GET /api/profile`:
+/// `citizenship_score`/`credibility_score` (راجع `CitizenProfileModel`؛
+/// `credibilityIndex` هو «مؤشر المصداقية» لا «مؤشر التوثيق» — الاسم
+/// القديم `authenticationIndex` كان تخميناً غلط)، و`volunteering_count`/
+/// `total_donated`/`donation_count`. حقل «التراخيص» (`licensesCount`)
+/// انحذف كلياً — ما إله عقد باك اند ولا طلب عرض من صاحب المشروع.
 final class ProfileStats extends Equatable {
   /// نسبة من 0 لـ100 — `citizenship_score`.
   final int? citizenshipIndex;
@@ -25,16 +22,21 @@ final class ProfileStats extends Equatable {
   /// نسبة من 0 لـ100 — `credibility_score` («مؤشر المصداقية»).
   final int? credibilityIndex;
 
+  /// `volunteering_count`.
   final int? volunteeringCount;
-  final int? contributionsCount;
-  final int? licensesCount;
+
+  /// `donation_count`.
+  final int? donationCount;
+
+  /// `total_donated` — مبلغ، فبيضل `num` لا `int` حتى لا يخسر كسوراً.
+  final num? totalDonated;
 
   const ProfileStats({
     this.citizenshipIndex,
     this.credibilityIndex,
     this.volunteeringCount,
-    this.contributionsCount,
-    this.licensesCount,
+    this.donationCount,
+    this.totalDonated,
   });
 
   /// اللي بترجّعه الواجهة لحد ما يجهّز الباك اند الحقول.
@@ -55,7 +57,7 @@ final class ProfileStats extends Equatable {
     citizenshipIndex,
     credibilityIndex,
     volunteeringCount,
-    contributionsCount,
-    licensesCount,
+    donationCount,
+    totalDonated,
   ];
 }

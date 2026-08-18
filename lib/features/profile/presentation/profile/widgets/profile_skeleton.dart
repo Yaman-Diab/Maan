@@ -48,8 +48,8 @@ class ProfileSkeleton extends StatelessWidget {
       citizenshipIndex: 60,
       credibilityIndex: 80,
       volunteeringCount: 3,
-      contributionsCount: 5,
-      licensesCount: 2,
+      donationCount: 5,
+      totalDonated: 150000,
     ),
   );
 

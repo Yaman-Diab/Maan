@@ -59,8 +59,8 @@ void main() {
       expect(model.stats.citizenshipIndex, isNull);
       expect(model.stats.credibilityIndex, isNull);
       expect(model.stats.volunteeringCount, isNull);
-      expect(model.stats.contributionsCount, isNull);
-      expect(model.stats.licensesCount, isNull);
+      expect(model.stats.donationCount, isNull);
+      expect(model.stats.totalDonated, isNull);
       expect(model.stats.isEmpty, isTrue);
     });
 
@@ -78,23 +78,29 @@ void main() {
       expect(model.stats.credibilityIndex, 50);
     });
 
-    test(
-      'العدّادات التلاتة الباقية — تخمين موثّق، بتنقرأ لو وصلت جنب المستخدم',
-      () {
-        final model = CitizenProfileModel.fromMap({
-          'data': {
-            'user': _userFields(),
-            'volunteering_count': 15,
-            'contributions_count': 7,
-            'licenses_count': 5,
-          },
-        });
+    test('volunteering_count/donation_count/total_donated — مؤكّدة، بتنقرأ '
+        'لو وصلت جنب المستخدم', () {
+      final model = CitizenProfileModel.fromMap({
+        'data': {
+          'user': _userFields(),
+          'volunteering_count': 15,
+          'total_donated': 1500.0,
+          'donation_count': 2,
+        },
+      });
 
-        expect(model.stats.volunteeringCount, 15);
-        expect(model.stats.contributionsCount, 7);
-        expect(model.stats.licensesCount, 5);
-      },
-    );
+      expect(model.stats.volunteeringCount, 15);
+      expect(model.stats.totalDonated, 1500.0);
+      expect(model.stats.donationCount, 2);
+    });
+
+    test('total_donated كنص عشري (Laravel أحياناً) بينقرأ كمان', () {
+      final model = CitizenProfileModel.fromMap({
+        'data': {'user': _userFields(), 'total_donated': '1500.00'},
+      });
+
+      expect(model.stats.totalDonated, 1500.0);
+    });
 
     test('بتنقرأ لو وصلت جوّا المستخدم', () {
       final model = CitizenProfileModel.fromMap(
@@ -169,11 +175,11 @@ void main() {
 
   test('toEntity بتنقل الهوية والمؤشرات سوا', () {
     final entity = CitizenProfileModel.fromMap({
-      'data': {'user': _userFields(), 'licenses_count': 5},
+      'data': {'user': _userFields(), 'donation_count': 5},
     }).toEntity();
 
     expect(entity.user.nationalId, '123456789012');
     expect(entity.user.birthDate, DateTime.parse('1998-10-12'));
-    expect(entity.stats.licensesCount, 5);
+    expect(entity.stats.donationCount, 5);
   });
 }
